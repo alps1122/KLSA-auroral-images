@@ -1,4 +1,5 @@
 import datetime
+import matplotlib.pyplot as plt
 
 def parseNL(path):
     f = open(path, 'r')
@@ -69,3 +70,17 @@ def compareLabeledFile(file_std, file_compare):
             flag = False
             break
     return  flag
+
+def showGrid(im, gridList):
+    fig, ax = plt.subplots(figsize=(12,12))
+    ax.imshow(im, aspect='equal', cmap='gray')
+    for grid in gridList:
+        ax.add_patch(
+            plt.Rectangle((grid[0], grid[1]),
+                          grid[2],grid[3],
+                          fill = False, edgecolor='red',
+                          linewidth=0.35)
+        )
+    plt.axis('off')
+    plt.tight_layout()
+    plt.draw()
