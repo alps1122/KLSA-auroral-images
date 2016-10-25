@@ -50,14 +50,14 @@ def sampleImages(names, mode='Uniform', timediff = 60, sampleNum = 500):
 def arrangeToClasses(names, labels, classNum):
     arrangeImgs = {}
     for i in range(classNum):
-        arrangeImgs[i+1] = []
+        arrangeImgs[str(i+1)] = []
     for i in range(len(names)):
-        arrangeImgs[int(labels[i])].append(names[i])
+        arrangeImgs[labels[i]].append(names[i])
     return arrangeImgs
 
 def balanceSample(arrangedImgs, sampleNum):
     for i in range(len(arrangedImgs)):
-        arrangedImgs[i+1] = sampleImages(arrangedImgs[i+1], mode='random', sampleNum=sampleNum)
+        arrangedImgs[str(i+1)] = sampleImages(arrangedImgs[str(i+1)], mode='random', sampleNum=sampleNum)
     return arrangedImgs
 
 def compareLabeledFile(file_std, file_compare):
@@ -72,13 +72,13 @@ def compareLabeledFile(file_std, file_compare):
     return  flag
 
 def showGrid(im, gridList):
-    fig, ax = plt.subplots(figsize=(12,12))
+    fig, ax = plt.subplots(figsize=(12, 12))
     ax.imshow(im, aspect='equal', cmap='gray')
     for grid in gridList:
         ax.add_patch(
-            plt.Rectangle((grid[0], grid[1]),
-                          grid[2],grid[3],
-                          fill = False, edgecolor='red',
+            plt.Rectangle((grid[1], grid[0]),
+                          grid[3], grid[2],
+                          fill=False, edgecolor='green',
                           linewidth=0.35)
         )
     plt.axis('off')

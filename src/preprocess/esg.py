@@ -32,14 +32,15 @@ def generateGrid(imageSize, gridSize, sizeRange=(10, 30)):
     x_map = np.tile(np.array(range(w_num)), [h_num, 1]) * gridSize[0]
     y_map = np.tile(np.array(range(h_num)).reshape([h_num, 1]), [1, w_num]) * gridSize[1]
     w_map = np.random.randint(sizeRange[0], sizeRange[1] + 1, size=(h_num, w_num))
-    h_map = np.random.randint(sizeRange[0], sizeRange[1] + 1, size=(h_num, w_num))
+    # h_map = np.random.randint(sizeRange[0], sizeRange[1] + 1, size=(h_num, w_num))
+    h_map = w_map
 
     gridList = []
     centers = np.array([(float(imageSize[0]) - 1) / 2, (float(imageSize[1]) - 1) / 2])  # index from 0
     radius = imageSize[0] / 2
     for i in range(h_num):
         for j in range(w_num):
-            grid = (x_map[i, j], y_map[i, j], w_map[i, j], h_map[i, j])
+            grid = (y_map[i, j], x_map[i, j], h_map[i, j], w_map[i, j])
             if isWithinCircle(grid, centers, radius):
                 gridList.append(grid)
     return gridList
@@ -54,9 +55,9 @@ def generateGridPatchData(imgFile, gridSize, sizeRange):
     gridPatchData = []
     for grid in gridList:
         if im.ndim == 2:
-            patch = im[grid[0]:(grid[0]+grid[2]), grid[1]:(grid[1]+grid[3])].copy() # grid format: [x, y, h, w]
+            patch = im[grid[0]:(grid[0]+grid[2]), grid[1]:(grid[1]+grid[3])].copy()     # grid format: [y, x, h, w] (y: row, x: column)
         if im.ndim == 3:
-            patch = im[grid[0]:(grid[0] + grid[2]), grid[1]:(grid[1] + grid[3]), :].copy()  # grid format: [x, y, h, w]
+            patch = im[grid[0]:(grid[0] + grid[2]), grid[1]:(grid[1] + grid[3]), :].copy()  # grid format: [y, x, h, w]
         gridPatchData.append(patch)
     return gridPatchData, gridList, im
 
@@ -79,5 +80,6 @@ if __name__ == '__main__':
     # gridList = generateGrid(imageSize, gridSize, sizeRange)
     gridPatchData, gridList, im = generateGridPatchData(imgFile, gridSize, sizeRange)
 
-    plf.showGrid(im, gridList)
+    print gridList[0:5]
+    plf.showGrid(im, gridList[0:5])
     plt.show()
