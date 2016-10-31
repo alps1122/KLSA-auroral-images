@@ -48,7 +48,8 @@ def generateGrid(imageSize, gridSize, sizeRange=(10, 30)):
 
 def generateGridPatchData(imgFile, gridSize, sizeRange):
     im = Image.open(imgFile)
-    im = np.array(im)
+    im = np.array(im, dtype='f')/255
+
     imageSize = np.array(im.shape)
     gridList = generateGrid(imageSize, gridSize, sizeRange)
 
@@ -81,5 +82,5 @@ if __name__ == '__main__':
     gridPatchData, gridList, im = generateGridPatchData(imgFile, gridSize, sizeRange)
 
     print gridList[0:5]
-    plf.showGrid(im, gridList[0:5])
+    plf.showGrid(im, gridList)
     plt.show()

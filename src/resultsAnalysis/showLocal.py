@@ -103,7 +103,7 @@ if __name__ == '__main__':
     [images, labels] = plf.parseNL(labelFile)
 
     # imgFile = imagesFolder + images[0] + imgType
-    imgName = 'N20031221G030231'
+    imgName = 'N20040118G080852'
     imgFile = imagesFolder + imgName + imgType
     labelVec, posVec = calImgPatchLabel(imgFile, wordsFile, gridSize, sizeRange)
 

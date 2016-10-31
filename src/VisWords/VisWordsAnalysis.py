@@ -3,6 +3,8 @@ import h5py
 
 def calEucDistance(wordsFile):
     fw = h5py.File(wordsFile, 'r')
+    classNum = len(fw)
+    # for c in fw:
     w1 = fw.get('/1/words')
     w2 = fw.get('/2/words')
     w1 = np.array(w1)

@@ -47,17 +47,26 @@ def sampleImages(names, mode='Uniform', timediff = 60, sampleNum = 500):
         return names[:sampleNum]
 
 
-def arrangeToClasses(names, labels, classNum):
+def arrangeToClasses(names, labels, classNum=4, classLabel=[['1'], ['2'], ['3'], ['4']]):
     arrangeImgs = {}
+    rawTypes = {}
     for i in range(classNum):
         arrangeImgs[str(i+1)] = []
+        rawTypes[str(i+1)] = []
+
     for i in range(len(names)):
-        arrangeImgs[labels[i]].append(names[i])
-    return arrangeImgs
+        for j in range(classNum):
+            if labels[i] in classLabel[j]:
+                arrangeImgs[str(j+1)].append(names[i])
+                rawTypes[str(j+1)].append(labels[i])
+    if classNum == 4:
+        return arrangeImgs
+    if classNum < 4:
+        return arrangeImgs, rawTypes
 
 def balanceSample(arrangedImgs, sampleNum):
-    for i in range(len(arrangedImgs)):
-        arrangedImgs[str(i+1)] = sampleImages(arrangedImgs[str(i+1)], mode='random', sampleNum=sampleNum)
+    for c in arrangedImgs:
+        arrangedImgs[c] = sampleImages(arrangedImgs[c], mode='random', sampleNum=sampleNum)
     return arrangedImgs
 
 def compareLabeledFile(file_std, file_compare):
@@ -70,6 +79,25 @@ def compareLabeledFile(file_std, file_compare):
             flag = False
             break
     return  flag
+
+def findTypes(sourceFile, names):
+    [sourceNames, sourceTypes] = parseNL(sourceFile)
+    types = []
+    for n in names:
+        idx = sourceNames.index(n)
+        types.append(sourceTypes[idx])
+    return types
+
+def splitToClasses(sourceFile, names):
+    types = findTypes(sourceFile, names)
+    cs = set(types)
+    # typesNum = len(cs)
+    splitImgs = {}
+    for i in cs:
+        splitImgs[i] = []
+    for j in range(len(names)):
+        splitImgs[types[j]].append(names[j])
+    return splitImgs
 
 def showGrid(im, gridList):
     fig, ax = plt.subplots(figsize=(12, 12))
