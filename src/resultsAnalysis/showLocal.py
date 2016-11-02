@@ -7,8 +7,8 @@ import h5py
 from scipy.misc import imread
 import copy
 
-def calImgPatchLabel(imgFile, wordsFile, gridSize, sizeRange):
-    feaVectors, posVectors = extSift.calImgDSift(imgFile, gridSize, sizeRange)
+def calImgPatchLabel(wordsFile, feaVectors):
+
 
     fw = h5py.File(wordsFile, 'r')
     w1 = fw.get('/1/words')
@@ -40,12 +40,30 @@ def calImgPatchLabel(imgFile, wordsFile, gridSize, sizeRange):
             if (w2_common_idx == dis2_min_idx[i]).sum() > 0:
                 labelVoc[i] = 2
 
-    return labelVoc, posVectors
+    return labelVoc
+
+def calPatchLabelHierarchy(wordsFile_h1, wordsFile_h2, feaVectors):
+    labelVectors_h1 = calImgPatchLabel(wordsFile_h1, feaVectors)
+    labelVectors_h2 = calImgPatchLabel(wordsFile_h2, feaVectors)
+
+    fea_c1_idx = np.argwhere(labelVectors_h1 == 0)
+    fea_h2_idx = np.argwhere(labelVectors_h1 > 0)
+    fea_c1_idx = list(fea_c1_idx.reshape(len(fea_c1_idx)))
+    fea_h2_idx = list(fea_h2_idx.reshape(len(fea_h2_idx)))
+
+    labelVectors_h1[fea_h2_idx] = 1
+    labelVectors_h2[fea_c1_idx] = 0
+
+    labelVec = labelVectors_h1 + labelVectors_h2
+    return labelVec
+
+
 
 def showLocalLabel(imgFile, labelVec, posVec):
     im = imread(imgFile)
-    types = [0, 1, 2]
-    colcors = ['red', 'blue', 'green']
+    # types = [0, 1, 2, 3]
+    types = set(labelVec)
+    colcors = ['red', 'blue', 'green', 'yellow']
     for t in types:
         fig, ax = plt.subplots(figsize=(12,12))
         ax.imshow(im, aspect='equal', cmap='gray')
@@ -96,29 +114,31 @@ if __name__ == '__main__':
     labelFile = '../../Data/balanceSampleFrom_one_in_minute.txt'
     imagesFolder = '../../Data/labeled2003_38044/'
     imgType = '.bmp'
-    wordsFile = '../../Data/Features/SIFTWords.hdf5'
+    wordsFile_h1 = '../../Data/Features/SIFTWords_h1.hdf5'
+    wordsFile_h2 = '../../Data/Features/SIFTWords_h2.hdf5'
     gridSize = np.array([10, 10])
-    sizeRange = (10, 30)
+    sizeRange = (20, 20)
 
     [images, labels] = plf.parseNL(labelFile)
 
     # imgFile = imagesFolder + images[0] + imgType
-    imgName = 'N20040118G080852'
+    imgName = 'N20040101G094332'
     imgFile = imagesFolder + imgName + imgType
-    labelVec, posVec = calImgPatchLabel(imgFile, wordsFile, gridSize, sizeRange)
+    feaVectors, posVectors = extSift.calImgDSift(imgFile, gridSize, sizeRange)
 
-    print labelVec.shape, posVec.shape
-    print np.argwhere(labelVec==0).shape
+    # labelVectors_h = calImgPatchLabel(wordsFile_h1, feaVectors)
 
-    showLocalLabel(imgFile, labelVec, posVec)
+    labelVectors_h = calPatchLabelHierarchy(wordsFile_h1, wordsFile_h2, feaVectors)
+    print labelVectors_h.shape, posVectors.shape
+    print np.argwhere(labelVectors_h==0).shape
 
-    filtered_pos, filtered_label = filterPos(posVec, labelVec, 1, 10)
+    showLocalLabel(imgFile, labelVectors_h, posVectors)
+
+    filtered_pos, filtered_label = filterPos(posVectors, labelVectors_h, 1, 10)
     showLocalLabel(imgFile, filtered_label, filtered_pos)
 
     plt.show()
 
     # gridPatchData, gridList, im = esg.generateGridPatchData(imgFile, gridSize, sizeRange)
-
-
     # plf.showGrid(im, gridList)
     # plt.show()

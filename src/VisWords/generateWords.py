@@ -12,19 +12,19 @@ def generateWords(featureH5File, groups, saveFile, wordsNum, feaDim=128):
         if isinstance(c, str):
             feas = None
             feas = feaSet.get(c)
-            feas = np.array(feas)
+            feas = np.array(feas, dtype='float64')
             print 'cluctering class ' + c + ' with shape ' + str(feas.shape)
 
         if isinstance(c, list):
-            feas = np.empty((0, feaDim))
+            feas = np.empty((0, feaDim), dtype='float64')
             for cs in c:
                 feat = feaSet.get(cs)
-                feat = np.array(feat)
+                feat = np.array(feat, dtype='float64')
                 feas = np.append(feas, feat, axis=0)
                 print 'cluctering class ' + cs + ' with shape ' + str(feas.shape)
 
         kmeans = None
-        Kmeans = KMeans(n_clusters=wordsNum, n_jobs=1)
+        Kmeans = KMeans(n_clusters=wordsNum, n_jobs=-1)
         Kmeans.fit(feas)
         cluster_centers = Kmeans.cluster_centers_
         inertia = Kmeans.inertia_
@@ -37,7 +37,8 @@ def generateWords(featureH5File, groups, saveFile, wordsNum, feaDim=128):
 if __name__ == '__main__':
     siftFeaFile = '../../Data/Features/h1_1000_1000SIFT.hdf5'
     wordsNum = 500
-    groups = ['1', ['2', '3']]
+    # groups = ['1', ['2', '3']]
+    groups = ['2', '3']
     f = h5py.File(siftFeaFile, 'r')
     for name in f:
         print name
@@ -46,6 +47,6 @@ if __name__ == '__main__':
         print c + str(feaSet[c].shape)
 
     saveFolder = '../../Data/Features/'
-    saveName_h1 = 'SIFTWords_h1.hdf5'
-
-    generateWords(siftFeaFile, groups, saveFolder+saveName_h1, wordsNum)
+    # saveName_h1 = 'SIFTWords_h1.hdf5'
+    saveName_h2 = 'SIFTWords_h2.hdf5'
+    generateWords(siftFeaFile, groups, saveFolder+saveName_h2, wordsNum)
