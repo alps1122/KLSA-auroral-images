@@ -12,7 +12,7 @@ weight_param = dict(lr_mult=1, decay_mult=1)
 bias_param = dict(lr_mult=2, decay_mult=0)
 learned_param = [weight_param, bias_param]
 frozen_param = [dict(lr_mult=0)] * 2
-layerNeuronNum = [28*28, 2000, 1000, 1000, 128]
+layerNeuronNum = [28*28, 2000, 1000, 500, 128]
 drop_ratio = 0.2
 dataFolder = '../../Data/'
 autoencoderSaveFolder = '../../Data/autoEncoder/'

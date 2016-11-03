@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import src.local_feature.extractDSiftFeatures as extSift
 import src.util.paseLabeledFile as plf
 import h5py
-from scipy.misc import imread
+from scipy.misc import imread, imresize
 import copy
 
 def calImgPatchLabel(wordsFile, feaVectors):
@@ -59,8 +59,10 @@ def calPatchLabelHierarchy(wordsFile_h1, wordsFile_h2, feaVectors):
 
 
 
-def showLocalLabel(imgFile, labelVec, posVec):
+def showLocalLabel(imgFile, labelVec, posVec, imResize=None):
     im = imread(imgFile)
+    if imResize:
+        im = imresize(im, imResize)
     # types = [0, 1, 2, 3]
     types = set(labelVec)
     colcors = ['red', 'blue', 'green', 'yellow']
@@ -114,17 +116,20 @@ if __name__ == '__main__':
     labelFile = '../../Data/balanceSampleFrom_one_in_minute.txt'
     imagesFolder = '../../Data/labeled2003_38044/'
     imgType = '.bmp'
+    # wordsFile_h1 = '../../Data/Features/SIFTWords_h1_256.hdf5'
+    # wordsFile_h2 = '../../Data/Features/SIFTWords_h2_256.hdf5'
     wordsFile_h1 = '../../Data/Features/SIFTWords_h1.hdf5'
     wordsFile_h2 = '../../Data/Features/SIFTWords_h2.hdf5'
     gridSize = np.array([10, 10])
     sizeRange = (20, 20)
+    imResize = (256, 256)
 
     [images, labels] = plf.parseNL(labelFile)
 
     # imgFile = imagesFolder + images[0] + imgType
-    imgName = 'N20040101G094332'
+    imgName = 'N20040101G093612'
     imgFile = imagesFolder + imgName + imgType
-    feaVectors, posVectors = extSift.calImgDSift(imgFile, gridSize, sizeRange)
+    feaVectors, posVectors = extSift.calImgDSift(imgFile, gridSize, sizeRange, imResize=None)
 
     # labelVectors_h = calImgPatchLabel(wordsFile_h1, feaVectors)
 
@@ -132,10 +137,10 @@ if __name__ == '__main__':
     print labelVectors_h.shape, posVectors.shape
     print np.argwhere(labelVectors_h==0).shape
 
-    showLocalLabel(imgFile, labelVectors_h, posVectors)
+    showLocalLabel(imgFile, labelVectors_h, posVectors, imResize=None)
 
     filtered_pos, filtered_label = filterPos(posVectors, labelVectors_h, 1, 10)
-    showLocalLabel(imgFile, filtered_label, filtered_pos)
+    showLocalLabel(imgFile, filtered_label, filtered_pos, imResize=None)
 
     plt.show()
 

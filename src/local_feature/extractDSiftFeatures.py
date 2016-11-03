@@ -10,9 +10,12 @@ posParaNum = 4
 # saveName = 'balance500SIFT.hdf5'
 saveFolder = '/home/ljm/NiuChuang/KLSA-auroral-images/Data/Features/'
 
-def calImgDSift(imgFile, gridSize, sizeRange):
+def calImgDSift(imgFile, gridSize, sizeRange, imResize=None):
     print imgFile
-    patches, positions, im = esg.generateGridPatchData(imgFile, gridSize, sizeRange)
+    if imResize:
+        patches, positions, im = esg.generateGridPatchData(imgFile, gridSize, sizeRange, imResize=imResize)
+    else:
+        patches, positions, im = esg.generateGridPatchData(imgFile, gridSize, sizeRange)
     feaVecs = np.zeros((len(patches), siftFeaDim))
     for i in range(len(patches)):
         patchSize = positions[i][-1]
@@ -21,7 +24,7 @@ def calImgDSift(imgFile, gridSize, sizeRange):
         feaVecs[i, :] = feaVec
     return feaVecs, np.array(positions)
 
-def calSIFTFeaSet(dataFolder, labelFile, classNum, imgType, gridSize, sizeRange, classLabel, saveName):
+def calSIFTFeaSet(dataFolder, labelFile, classNum, imgType, gridSize, sizeRange, classLabel, saveName, imResize=None):
     names, labels = plf.parseNL(labelFile)
     if classNum == 4:
         auroraData = plf.arrangeToClasses(names, labels, classNum, classLabel)
@@ -42,7 +45,10 @@ def calSIFTFeaSet(dataFolder, labelFile, classNum, imgType, gridSize, sizeRange,
         posArr = np.empty((0, posParaNum))
         for name in imgs:
             imgFile = dataFolder+name+imgType
-            feaVec, posVec = calImgDSift(imgFile, gridSize, sizeRange)
+            if imResize:
+                feaVec, posVec = calImgDSift(imgFile, gridSize, sizeRange, imResize=imResize)
+            else:
+                feaVec, posVec = calImgDSift(imgFile, gridSize, sizeRange)
             feaArr = np.append(feaArr, feaVec, axis=0)
             posArr = np.append(posArr, posVec, axis=0)
         feaSet.create_dataset(c, feaArr.shape, 'f', feaArr)
@@ -61,12 +67,13 @@ if __name__ == '__main__':
     classNum1 = 4
     gridSize = [10, 10]
     sizeRange = [10, 30]
+    imResize = (256, 256)
     imgType = '.bmp'
     auroraData1 = plf.arrangeToClasses(names1, labels1, classNum1)
     img = misc.imread(dataFolder + auroraData1['1'][0] + imgType)
     print img.shape
 
-    patches1, positions1, im1 = esg.generateGridPatchData(dataFolder+auroraData1['1'][0]+imgType, gridSize, sizeRange)
+    patches1, positions1, im1 = esg.generateGridPatchData(dataFolder+auroraData1['1'][0]+imgType, gridSize, sizeRange, imResize=imResize)
 
     patchSize1 = positions1[110][-1]
     print patchSize1
@@ -81,11 +88,11 @@ if __name__ == '__main__':
     labelFileType3 = '../../Data/type3_1000_500_500.txt'
 
     classLabel3 = [['1'], ['2'], ['3']]
-    saveName3 = 'h1_1000_1000SIFT.hdf5'
+    saveName3 = 'type3_SIFTFeatures_256.hdf5'
     classNum3 = 3
     # names3, lables3 = plf.parseNL(labelFileType3)
 
-    SIFTFeature3 = calSIFTFeaSet(dataFolder, labelFileType3, classNum3, imgType, gridSize, sizeRange, classLabel3, saveName3)
+    SIFTFeature3 = calSIFTFeaSet(dataFolder, labelFileType3, classNum3, imgType, gridSize, sizeRange, classLabel3, saveName3, imResize=imResize)
 
 
     # print pos[110][-1]
