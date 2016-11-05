@@ -26,19 +26,19 @@ def solver(train_net_path, layer_idx, test_net_path=None, base_lr=0.01,
     s.train_net = train_net_path
     if test_net_path is not None:
         s.test_net.append(test_net_path)
-        s.test_interval = 100
+        s.test_interval = 5000
         s.test_iter.append(128)
 
     s.type = 'SGD'
     s.base_lr = base_lr
     s.lr_policy = 'step'
     s.gamma = 0.1
-    s.stepsize = 5000
+    s.stepsize = 20000
     s.momentum = 0.9
     s.weight_decay = 0.0
-    s.max_iter = 50000
+    s.max_iter = 100000
     s.display = 100
-    s.snapshot = 10000
+    s.snapshot = 50000
     s.snapshot_prefix = 'save_layer' + str(layer_idx)
     s.solver_mode = caffe_pb2.SolverParameter.GPU
 
@@ -117,6 +117,53 @@ def layerwise_train_net(h5, batch_size, layer_idx):
 
     return n.to_proto()
 
+def finetuningNet(h5, batch_size, layerNum):
+    n = caffe.NetSpec()
+
+    n.data, n.label = L.HDF5Data(source=h5, batch_size=batch_size, shuffle=True, ntop=2)
+    flatdata = L.Flatten(n.data)
+    flatdata_name = 'flatdata'
+    n.__setattr__(flatdata_name, flatdata)
+
+    param = learned_param
+    for l in range(layerNum):
+        if l == 0:
+            encoder_name_last = flatdata_name
+        else:
+            encoder_name_last = relu_en_name
+
+        encoder = L.InnerProduct(n[encoder_name_last], num_output=layerNeuronNum[l + 1], param=param,
+                                 weight_filler=dict(type='gaussian', std=0.005),
+                                 bias_filler=dict(type='constant', value=0.1))
+        encoder_name = 'encoder' + str(l + 1)
+        n.__setattr__(encoder_name, encoder)
+
+        relu_en = L.ReLU(n[encoder_name], in_place=True)
+        relu_en_name = 'relu_en' + str(l + 1)
+        n.__setattr__(relu_en_name, relu_en)
+
+    for l in range(layerNum):
+        if l == 0:
+            decoder_name_last = relu_en_name
+        else:
+            decoder_name_last = relu_de_name
+
+        decoder = L.InnerProduct(n[decoder_name_last], num_output=layerNeuronNum[layerNum-l-1], param=param,
+                                 weight_filler=dict(type='gaussian', std=0.005),
+                                 bias_filler=dict(type='constant', value=0.1))
+        decoder_name = 'decoder' + str(layerNum - l)
+        n.__setattr__(decoder_name, decoder)
+
+        if l < (layerNum-1):
+            relu_de = L.ReLU(n[decoder_name], in_place=True)
+            relu_de_name = 'relu_de' + str(layerNum-l)
+            n.__setattr__(relu_de_name, relu_de)
+
+        n.loss = L.EuclideanLoss(n[decoder_name], n.flatdata)
+
+    return n.to_proto()
+
+
 def layer_wise_trian():
     layerNum = len(layerNeuronNum) - 1
     for layer_idx in range(layerNum):
@@ -147,8 +194,11 @@ if __name__ == '__main__':
 
     f.close()
 
-    with open('../../Data/autoEncoder/auto_encoder_train.prototxt', 'w') as f1:
-        f1.write(str(layerwise_train_net('/home/ljm/NiuChuang/KLSA-auroral-images/Data/patchDataTrain.txt', 64, 3)))
+    # with open('../../Data/autoEncoder/auto_encoder_train.prototxt', 'w') as f1:
+    #     f1.write(str(layerwise_train_net('/home/ljm/NiuChuang/KLSA-auroral-images/Data/patchDataTrain.txt', 64, 3)))
+
+    with open('../../Data/autoEncoder/finetuning_train.prototxt', 'w') as f1:
+        f1.write(str(finetuningNet('/home/ljm/NiuChuang/KLSA-auroral-images/Data/patchDataTrain.txt', 64, 4)))
 
     # with open('../../Data/autoEncoder/auto_encoder_test.prototxt', 'w') as f1:
     #     f1.write(str(layerwise_train_net('/home/ljm/NiuChuang/KLSA-auroral-images/Data/patchDataTest.txt', 100, 0)))
