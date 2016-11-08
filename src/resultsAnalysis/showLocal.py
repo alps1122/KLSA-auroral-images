@@ -9,7 +9,6 @@ import copy
 
 def calImgPatchLabel(wordsFile, feaVectors):
 
-
     fw = h5py.File(wordsFile, 'r')
     w1 = fw.get('/1/words')
     w2 = fw.get('/2/words')

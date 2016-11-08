@@ -1,4 +1,9 @@
+'''
+Chuang Niu, niuchuang@stu.xidian.edu.cn
+'''
+
 import numpy as np
+import matplotlib.pyplot as plt
 import sys
 sys.path.insert(0, '../../caffe/python')
 import caffe
@@ -8,39 +13,30 @@ import h5py
 from caffe.proto import caffe_pb2
 import src.preprocess.esg as esg
 import src.util.paseLabeledFile as plf
-weight_param = dict(lr_mult=1, decay_mult=1)
-bias_param = dict(lr_mult=2, decay_mult=0)
-learned_param = [weight_param, bias_param]
-frozen_param = [dict(lr_mult=0)] * 2
-layerNeuronNum = [28*28, 2000, 1000, 500, 128]
-drop_ratio = 0.2
-dataFolder = '../../Data/'
-autoencoderSaveFolder = '../../Data/autoEncoder/'
-trainData = 'patchDataTrain.txt'
-testData = 'PatchDataTest.txt'
 
-def solver(train_net_path, layer_idx, test_net_path=None, base_lr=0.01,
+
+def solver(train_net_path, test_net_path, paraConfig,
            save_path='../../Data/autoEncoder/auto_encoder_solver.prototxt'):
     s = caffe_pb2.SolverParameter()
 
     s.train_net = train_net_path
     if test_net_path is not None:
         s.test_net.append(test_net_path)
-        s.test_interval = 5000
-        s.test_iter.append(128)
+        s.test_interval = paraConfig['test_interval']
+        s.test_iter.append(paraConfig['test_iter'])
 
-    s.type = 'SGD'
-    s.base_lr = base_lr
-    s.lr_policy = 'step'
-    s.gamma = 0.1
-    s.stepsize = 20000
-    s.momentum = 0.9
-    s.weight_decay = 0.0
-    s.max_iter = 100000
-    s.display = 100
-    s.snapshot = 50000
-    s.snapshot_prefix = 'save_layer' + str(layer_idx)
-    s.solver_mode = caffe_pb2.SolverParameter.GPU
+    s.type = paraConfig['type']
+    s.base_lr = paraConfig['base_lr']
+    s.lr_policy = paraConfig['lr_policy']
+    s.gamma = paraConfig['gamma']
+    s.stepsize = paraConfig['stepsize']
+    s.momentum = paraConfig['momentum']
+    s.weight_decay = paraConfig['weight_decay']
+    s.max_iter = paraConfig['max_iter']
+    s.display = paraConfig['display']
+    s.snapshot = paraConfig['snapshot']
+    s.snapshot_prefix = paraConfig['snapshot_prefix']+paraConfig['layer_idx']
+    s.solver_mode = paraConfig['solver_mode']
 
     with open(save_path, 'w') as f:
         f.write(str(s))
@@ -49,22 +45,30 @@ def solver(train_net_path, layer_idx, test_net_path=None, base_lr=0.01,
 
 
 
-def layerwise_train_net(h5, batch_size, layer_idx):
+def layerwise_train_net(layer_idx, paraConfig, isTrain):
     """define layer-wise training net, return the resulting protocol buffer file,
     use str function can turn this result to text file.
     """
     n = caffe.NetSpec()
 
+    if isTrain:
+        batch_size = paraConfig['train_batchSize']
+        h5 = paraConfig['train_data']
+    else:
+        batch_size = paraConfig['test_batchSize']
+        h5 = paraConfig['test_data']
+
     n.data, n.label = L.HDF5Data(source=h5, batch_size=batch_size, shuffle=True, ntop=2)
     flatdata = L.Flatten(n.data)
     flatdata_name = 'flatdata'
     n.__setattr__(flatdata_name, flatdata)
+    drop_ratio = paraConfig['drop_ratio']
 
     for l in range(layer_idx + 1):
         if l == layer_idx:
-            param = learned_param
+            param = paraConfig['learned_param']
         else:
-            param = frozen_param
+            param = paraConfig['frozen_param']
 
         if l == 0:
             if layer_idx == 0:
@@ -164,49 +168,141 @@ def finetuningNet(h5, batch_size, layerNum):
     return n.to_proto()
 
 
-def layer_wise_trian():
+def layerwise_train(paraConfig):
+    layerNeuronNum = paraConfig['layerNeuronNum']
     layerNum = len(layerNeuronNum) - 1
     for layer_idx in range(layerNum):
-        train_net_name = 'autoencoder_train' + str(layer_idx) + '.prototxt'
-        test_net_name = 'autoencoder_test' + str(layer_idx) + '.prototxt'
-        with open(autoencoderSaveFolder+train_net_name, 'w') as f_tr:
-            f_tr.write(str(layerwise_train_net(dataFolder+trainData, 64, layer_idx)))
+        print 'layerwise_train: ' + str(layer_idx+1)
+        train_proto = 'autoencoder_train' + str(layer_idx+1) + '.prototxt'
+        test_proto = 'autoencoder_test' + str(layer_idx+1) + '.prototxt'
+        solver_proto = 'auto_encoder_solver' + str(layer_idx+1) + '.prototxt'
+        autoSaveFolder = paraConfig['autoSaveFolder']
 
-        with open(autoencoderSaveFolder+test_net_name, 'w') as f_te:
-            f_te.write(str(layerwise_train_net(dataFolder+testData, 100, layer_idx)))
+        with open(autoSaveFolder+train_proto, 'w') as f_tr:
+            f_tr.write(str(layerwise_train_net(layer_idx, paraConfig, True)))
 
+        with open(autoSaveFolder+test_proto, 'w') as f_te:
+            f_te.write(str(layerwise_train_net(layer_idx, paraConfig, False)))
+
+        snapshot_prefix = paraConfig['snapshot_prefix'] + str(layer_idx+1)
+        paraConfig['layer_idx'] = str(layer_idx+1)
+        solver_proto = solver(autoSaveFolder+train_proto, autoSaveFolder+test_proto, paraConfig, save_path=autoSaveFolder+solver_proto)
+
+        caffe.set_device(0)
+        caffe.set_mode_gpu
+
+        caffe_solver = None
+        caffe_solver = caffe.SGDSolver(solver_proto)
+
+        if layer_idx != 0:
+            caffe_solver.net.copy_from(autoSaveFolder+paraConfig['snapshot_prefix']+str(layer_idx)+'.caffemodle')
+
+        niter = paraConfig['max_iter']
+        test_interval = paraConfig['test_interval']
+        # losses will also be stored in the log
+        train_loss = np.zeros((niter,))
+        test_loss = np.zeros((niter // test_interval,))
+
+        # the main solver loop
+        for it in range(niter):
+            caffe_solver.step(1)  # SGD by Caffe
+
+            # store the train loss
+            train_loss[it] = caffe_solver.net.blobs['loss'].data
+
+            # run a full test every so often
+            # (Caffe can also do this for us and write to a log, but we show here
+            #  how to do it directly in Python, where more complicated things are easier.)
+            if it % test_interval == 0:
+                print 'Iteration', it, 'testing...'
+                loss_test = 0
+                for test_it in range(paraConfig['test_iter']):
+                    caffe_solver.test_nets[0].forward()
+                    loss_test += np.sum(caffe_solver.test_nets[0].blobs['loss'].data)
+
+                test_loss[it // test_interval] = loss_test / (paraConfig['test_iter']*paraConfig['test_batchSize'])
+
+        caffe_solver.net.save(autoSaveFolder+snapshot_prefix+'.caffemodle')
+        print autoSaveFolder+snapshot_prefix+'.caffemodle'+' saved'
+        _, ax1 = plt.subplots()
+        ax2 = ax1.twinx()
+        ax1.plot(np.arange(niter), train_loss / paraConfig['train_batchSize'])
+        ax2.plot(test_interval * np.arange(int(np.ceil(niter / test_interval))),
+                 test_loss[0:int(np.ceil(niter / test_interval))], 'r')
+
+        plt.title('layer'+str(layer_idx+1))
+        plt.draw()
+
+        print test_loss[0], test_loss[int(np.ceil(niter / test_interval)) - 1]
+        print train_loss[0] / 256, train_loss[-1] / 256
+    plt.show()
     return 0
 
 
 
 if __name__ == '__main__':
-    patchDataPath = '../../Data/balance500Patch.hdf5'
+    patchDataPath = '../../Data/balance500Patch_test.hdf5'
     # patchData_mean = '../../Data/patchData_mean.txt'
     # fm = open(patchData_mean, 'r')
     # mean_value = float(fm.readline().split(' ')[1])
     f = h5py.File(patchDataPath, 'r')
     data = f.get('data')
-    d = np.array(data[0:10, :, :, :])
+    test_num = data.shape[0]
+    # d = np.array(data[0:10, :, :, :])
     # data = f['data']
-    print data.shape, d.shape
+    # print data.shape, d.shape
     for n in f:
         print n
 
     f.close()
 
-    # with open('../../Data/autoEncoder/auto_encoder_train.prototxt', 'w') as f1:
-    #     f1.write(str(layerwise_train_net('/home/ljm/NiuChuang/KLSA-auroral-images/Data/patchDataTrain.txt', 64, 3)))
+    paraConfig = {}
+    paraConfig['train_batchSize'] = 256
+    paraConfig['test_batchSize'] = 128
+    paraConfig['test_interval'] = 200
+    # paraConfig['test_iter'] = test_num / paraConfig['test_batchSize']
+    paraConfig['test_iter'] = 100
+    paraConfig['type'] = 'SGD'
+    paraConfig['base_lr'] = 0.01
+    paraConfig['lr_policy'] = 'step'
+    paraConfig['gamma'] = 0.1
+    paraConfig['stepsize'] = 200
+    paraConfig['momentum'] = 0.9
+    paraConfig['weight_decay'] = 0.0
+    paraConfig['max_iter'] = 1000
+    paraConfig['display'] = 10
+    paraConfig['snapshot'] = 500
+    paraConfig['snapshot_prefix'] = 'layer'
+    paraConfig['solver_mode'] = caffe_pb2.SolverParameter.GPU
+    paraConfig['train_data'] = '/home/ljm/NiuChuang/KLSA-auroral-images/Data/patchDataTrain.txt'
+    paraConfig['test_data'] = '/home/ljm/NiuChuang/KLSA-auroral-images/Data/patchDataTest.txt'
 
-    with open('../../Data/autoEncoder/finetuning_train.prototxt', 'w') as f1:
-        f1.write(str(finetuningNet('/home/ljm/NiuChuang/KLSA-auroral-images/Data/patchDataTrain.txt', 64, 4)))
+    weight_param = dict(lr_mult=1, decay_mult=1)
+    bias_param = dict(lr_mult=2, decay_mult=0)
+    learned_param = [weight_param, bias_param]
+    frozen_param = [dict(lr_mult=0)] * 2
+    layerNeuronNum = [28 * 28, 2000, 1000, 500, 128]
+    drop_ratio = 0.2
+
+    paraConfig['learned_param'] = learned_param
+    paraConfig['frozen_param'] = frozen_param
+    paraConfig['layerNeuronNum'] = layerNeuronNum
+    paraConfig['drop_ratio'] = drop_ratio
+    paraConfig['autoSaveFolder'] = '../../Data/autoEncoder/'
+    paraConfig['layer_idx'] = ''
+
+    with open('../../Data/autoEncoder/train_test.prototxt', 'w') as f1:
+        f1.write(str(layerwise_train_net(3, paraConfig, True)))
+
+    # with open('../../Data/autoEncoder/finetuning_train.prototxt', 'w') as f1:
+    #     f1.write(str(finetuningNet('/home/ljm/NiuChuang/KLSA-auroral-images/Data/patchDataTrain.txt', 64, 4)))
 
     # with open('../../Data/autoEncoder/auto_encoder_test.prototxt', 'w') as f1:
     #     f1.write(str(layerwise_train_net('/home/ljm/NiuChuang/KLSA-auroral-images/Data/patchDataTest.txt', 100, 0)))
     #
-    # aoto_encoder_solver = solver('../../Data/autoEncoder/auto_encoder_train.prototxt',
-    #                              test_net_path='../../DataEncoder/auto_encoder_test.prototxt')
-
-
-
+    auto_encoder_solver = solver('../../Data/autoEncoder/auto_encoder_train.prototxt',
+                                 '../../DataEncoder/auto_encoder_test.prototxt', paraConfig,
+                                 save_path='../../Data/autoEncoder/solver_test.prototxt')
+    layerwise_train(paraConfig)
 
 
