@@ -46,12 +46,16 @@ def generateGrid(imageSize, gridSize, sizeRange=(10, 30)):
     return gridList
 
 
-def generateGridPatchData(imgFile, gridSize, sizeRange, imResize=None):
-    im = Image.open(imgFile)
-    if imResize:
-        im = im.resize(imResize)
+def generateGridPatchData(im, gridSize, sizeRange, imResize=None, imNorm=True):
+    if isinstance(im, str):
+        im = Image.open(im)
+        if imResize:
+            im = im.resize(imResize)
 
-    im = np.array(im, dtype='f')/255
+        im = np.array(im)
+
+        if imNorm:
+            im = np.array(im, dtype='f')/255
 
     imageSize = np.array(im.shape)
     gridList = generateGrid(imageSize, gridSize, sizeRange)

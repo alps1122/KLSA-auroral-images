@@ -167,6 +167,49 @@ def finetuningNet(h5, batch_size, layerNum):
 
     return n.to_proto()
 
+def defineTestNet(inputShape, layerNeuronNum):
+    layerNum = len(layerNeuronNum) - 1
+    n = caffe.NetSpec()
+
+    # n.data = L.Input(input_param=dict(shape=inputShape))
+    n.data, n.label = L.MemoryData(memory_data_param=dict(batch_size=inputShape[0], channels=inputShape[1],
+                                                 height=inputShape[2], width=inputShape[3]), ntop=2)
+    flatdata = L.Flatten(n.data)
+    flatdata_name = 'flatdata'
+    n.__setattr__(flatdata_name, flatdata)
+
+    for l in range(layerNum):
+        if l == 0:
+            encoder_name_last = flatdata_name
+        else:
+            encoder_name_last = relu_en_name
+
+        encoder = L.InnerProduct(n[encoder_name_last], num_output=layerNeuronNum[l + 1])
+        encoder_name = 'encoder' + str(l + 1)
+        n.__setattr__(encoder_name, encoder)
+
+        relu_en = L.ReLU(n[encoder_name], in_place=True)
+        relu_en_name = 'relu_en' + str(l + 1)
+        n.__setattr__(relu_en_name, relu_en)
+
+    # for l in range(layerNum):
+    #     if l == 0:
+    #         decoder_name_last = relu_en_name
+    #     else:
+    #         decoder_name_last = relu_de_name
+    #
+    #     decoder = L.InnerProduct(n[decoder_name_last], num_output=layerNeuronNum[layerNum-l-1], param=param)
+    #     decoder_name = 'decoder' + str(layerNum - l)
+    #     n.__setattr__(decoder_name, decoder)
+    #
+    #     if l < (layerNum-1):
+    #         relu_de = L.ReLU(n[decoder_name], in_place=True)
+    #         relu_de_name = 'relu_de' + str(layerNum-l)
+    #         n.__setattr__(relu_de_name, relu_de)
+    #
+    #     n.loss = L.EuclideanLoss(n[decoder_name], n.flatdata)
+
+    return n.to_proto()
 
 def layerwise_train(paraConfig):
     layerNeuronNum = paraConfig['layerNeuronNum']
@@ -303,6 +346,8 @@ if __name__ == '__main__':
     auto_encoder_solver = solver('../../Data/autoEncoder/auto_encoder_train.prototxt',
                                  '../../DataEncoder/auto_encoder_test.prototxt', paraConfig,
                                  save_path='../../Data/autoEncoder/solver_test.prototxt')
-    layerwise_train(paraConfig)
-
+    # layerwise_train(paraConfig)
+    with open('../../Data/autoEncoder/train_test.prototxt', 'w') as f1:
+        f1.write(str(defineTestNet((10000,1,28,28), 4)))
+    f1.close()
 

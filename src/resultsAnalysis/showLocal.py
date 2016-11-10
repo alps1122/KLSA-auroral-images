@@ -6,6 +6,12 @@ import src.util.paseLabeledFile as plf
 import h5py
 from scipy.misc import imread, imresize
 import copy
+import sys
+sys.path.insert(0, '../../caffe/python')
+import caffe
+import src.local_feature.autoencoder as AE
+import src.preprocess.esg as esg
+import src.local_feature.extractSDAEFeatures as extSDAE
 
 def calImgPatchLabel(wordsFile, feaVectors):
 
@@ -58,13 +64,14 @@ def calPatchLabelHierarchy(wordsFile_h1, wordsFile_h2, feaVectors):
 
 
 
-def showLocalLabel(imgFile, labelVec, posVec, imResize=None):
+def showLocalLabel(imgFile, labelVec, posVec, imResize=None, feaType='unknown'):
     im = imread(imgFile)
     if imResize:
         im = imresize(im, imResize)
     # types = [0, 1, 2, 3]
     types = set(labelVec)
     colcors = ['red', 'blue', 'green', 'yellow']
+    titles = ['arc', 'drapery', 'radial', 'common']
     for t in types:
         fig, ax = plt.subplots(figsize=(12,12))
         ax.imshow(im, aspect='equal', cmap='gray')
@@ -78,6 +85,7 @@ def showLocalLabel(imgFile, labelVec, posVec, imResize=None):
                               alpha=0.5)
             )
         plt.axis('off')
+        plt.title(feaType + titles[t])
         plt.tight_layout()
         plt.draw()
 
@@ -115,18 +123,18 @@ if __name__ == '__main__':
     labelFile = '../../Data/balanceSampleFrom_one_in_minute.txt'
     imagesFolder = '../../Data/labeled2003_38044/'
     imgType = '.bmp'
-    # wordsFile_h1 = '../../Data/Features/SIFTWords_h1_256.hdf5'
-    # wordsFile_h2 = '../../Data/Features/SIFTWords_h2_256.hdf5'
+    wordsFile_h1_s = '../../Data/Features/SDAEWords_h1.hdf5'
+    wordsFile_h2_s = '../../Data/Features/SDAEWords_h2.hdf5'
     wordsFile_h1 = '../../Data/Features/SIFTWords_h1.hdf5'
     wordsFile_h2 = '../../Data/Features/SIFTWords_h2.hdf5'
     gridSize = np.array([10, 10])
-    sizeRange = (20, 20)
+    sizeRange = (28, 28)
     imResize = (256, 256)
 
     [images, labels] = plf.parseNL(labelFile)
 
     # imgFile = imagesFolder + images[0] + imgType
-    imgName = 'N20040101G093612'
+    imgName = 'N20031223G125731'
     imgFile = imagesFolder + imgName + imgType
     feaVectors, posVectors = extSift.calImgDSift(imgFile, gridSize, sizeRange, imResize=None)
 
@@ -136,10 +144,37 @@ if __name__ == '__main__':
     print labelVectors_h.shape, posVectors.shape
     print np.argwhere(labelVectors_h==0).shape
 
-    showLocalLabel(imgFile, labelVectors_h, posVectors, imResize=None)
+    showLocalLabel(imgFile, labelVectors_h, posVectors, imResize=None, feaType='SIFT_')
 
     filtered_pos, filtered_label = filterPos(posVectors, labelVectors_h, 1, 10)
-    showLocalLabel(imgFile, filtered_label, filtered_pos, imResize=None)
+    showLocalLabel(imgFile, filtered_label, filtered_pos, imResize=None, feaType='SIFT_filtered_')
+
+    # show SDEA local results
+    weight = '../../Data/autoEncoder/final_0.01.caffemodel'
+    net = '../../Data/autoEncoder/test_net.prototxt'
+    meanFile = '../../Data/patchData_mean.txt'
+    f_mean = open(meanFile, 'r')
+    patch_mean = float(f_mean.readline().split(' ')[1])
+    f_mean.close()
+    channels = 1
+    layerNeuronNum = [28 * 28, 2000, 1000, 500, 128]
+
+    _, gl, _ = esg.generateGridPatchData(imgFile, gridSize, sizeRange)
+    batchSize = len(gl)
+
+    inputShape = (batchSize, channels, 28, 28)
+    with open(net, 'w') as f1:
+        f1.write(str(AE.defineTestNet(inputShape, layerNeuronNum)))
+
+    caffe.set_mode_gpu()
+    model = caffe.Net(net, weight, caffe.TEST)
+
+    feaVec, posVec = extSDAE.calImgSDAEFea(imgFile, model, gridSize, sizeRange, channels, patch_mean)
+    labelVectors_h = calPatchLabelHierarchy(wordsFile_h1_s, wordsFile_h2_s, feaVec)
+    showLocalLabel(imgFile, labelVectors_h, posVec, imResize=None, feaType='SDAE_')
+
+    filtered_pos, filtered_label = filterPos(posVec, labelVectors_h, 1, 10)
+    showLocalLabel(imgFile, filtered_label, filtered_pos, imResize=None, feaType='SDAE_filtered_')
 
     plt.show()
 
