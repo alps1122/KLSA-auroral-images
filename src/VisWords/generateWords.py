@@ -36,11 +36,12 @@ def generateWords(featureH5File, groups, saveFile, wordsNum, feaDim=128):
 
 if __name__ == '__main__':
     # siftFeaFile = '../../Data/Features/type3_SIFTFeatures_256.hdf5'
-    SDAEFeaFile = '../../Data/Features/type3_SDAEFeas.hdf5'
+    # SDAEFeaFile = '../../Data/Features/type3_SDAEFeas.hdf5'
+    LBPFeaFile = '../../Data/Features/type3_LBPFeatures.hdf5'
     wordsNum = 500
     groups_h1 = ['1', ['2', '3']]
     groups_h2 = ['2', '3']
-    f = h5py.File(SDAEFeaFile, 'r')
+    f = h5py.File(LBPFeaFile, 'r')
     for name in f:
         print name
     feaSet = f.get('feaSet')
@@ -50,7 +51,9 @@ if __name__ == '__main__':
     saveFolder = '../../Data/Features/'
     # saveName_h1 = 'SIFTWords_h1_256.hdf5'
     # saveName_h2 = 'SIFTWords_h2_256.hdf5'
-    saveName_h1 = 'SDAEWords_h1.hdf5'
-    saveName_h2 = 'SDAEWords_h2.hdf5'
-    generateWords(SDAEFeaFile, groups_h1, saveFolder+saveName_h1, wordsNum)
-    generateWords(SDAEFeaFile, groups_h2, saveFolder+saveName_h2, wordsNum)
+    # saveName_h1 = 'SDAEWords_h1.hdf5'
+    # saveName_h2 = 'SDAEWords_h2.hdf5'
+    saveName_h1 = 'LBPWords_h1.hdf5'
+    saveName_h2 = 'LBPWords_h2.hdf5'
+    generateWords(LBPFeaFile, groups_h1, saveFolder+saveName_h1, wordsNum, feaDim=54)
+    generateWords(LBPFeaFile, groups_h2, saveFolder+saveName_h2, wordsNum, feaDim=54)

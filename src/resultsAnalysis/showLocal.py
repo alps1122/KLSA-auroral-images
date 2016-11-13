@@ -12,6 +12,7 @@ import caffe
 import src.local_feature.autoencoder as AE
 import src.preprocess.esg as esg
 import src.local_feature.extractSDAEFeatures as extSDAE
+import src.local_feature.extractLBPFeatures as extlbp
 
 def calImgPatchLabel(wordsFile, feaVectors):
 
@@ -61,8 +62,6 @@ def calPatchLabelHierarchy(wordsFile_h1, wordsFile_h2, feaVectors):
 
     labelVec = labelVectors_h1 + labelVectors_h2
     return labelVec
-
-
 
 def showLocalLabel(imgFile, labelVec, posVec, imResize=None, feaType='unknown'):
     im = imread(imgFile)
@@ -123,33 +122,34 @@ if __name__ == '__main__':
     labelFile = '../../Data/balanceSampleFrom_one_in_minute.txt'
     imagesFolder = '../../Data/labeled2003_38044/'
     imgType = '.bmp'
-    wordsFile_h1_s = '../../Data/Features/SDAEWords_h1.hdf5'
-    wordsFile_h2_s = '../../Data/Features/SDAEWords_h2.hdf5'
-    wordsFile_h1 = '../../Data/Features/SIFTWords_h1.hdf5'
-    wordsFile_h2 = '../../Data/Features/SIFTWords_h2.hdf5'
     gridSize = np.array([10, 10])
     sizeRange = (28, 28)
     imResize = (256, 256)
 
-    [images, labels] = plf.parseNL(labelFile)
-
-    # imgFile = imagesFolder + images[0] + imgType
     imgName = 'N20031223G125731'
     imgFile = imagesFolder + imgName + imgType
+
+    # ------------show SIFT---------------
+    sift_wordsFile_h1 = '../../Data/Features/SIFTWords_h1.hdf5'
+    sift_wordsFile_h2 = '../../Data/Features/SIFTWords_h2.hdf5'
     feaVectors, posVectors = extSift.calImgDSift(imgFile, gridSize, sizeRange, imResize=None)
 
+    # calculate single hierarchy
     # labelVectors_h = calImgPatchLabel(wordsFile_h1, feaVectors)
 
-    labelVectors_h = calPatchLabelHierarchy(wordsFile_h1, wordsFile_h2, feaVectors)
-    print labelVectors_h.shape, posVectors.shape
-    print np.argwhere(labelVectors_h==0).shape
-
+    # show unfiltered
+    labelVectors_h = calPatchLabelHierarchy(sift_wordsFile_h1, sift_wordsFile_h2, feaVectors)
     showLocalLabel(imgFile, labelVectors_h, posVectors, imResize=None, feaType='SIFT_')
 
+    # show filtered
     filtered_pos, filtered_label = filterPos(posVectors, labelVectors_h, 1, 10)
     showLocalLabel(imgFile, filtered_label, filtered_pos, imResize=None, feaType='SIFT_filtered_')
 
-    # show SDEA local results
+    # ---------------show SDEA local results--------------
+    sdae_wordsFile_h1 = '../../Data/Features/SDAEWords_h1.hdf5'
+    sdae_wordsFile_h2 = '../../Data/Features/SDAEWords_h2.hdf5'
+
+    # define sdae model
     weight = '../../Data/autoEncoder/final_0.01.caffemodel'
     net = '../../Data/autoEncoder/test_net.prototxt'
     meanFile = '../../Data/patchData_mean.txt'
@@ -170,14 +170,23 @@ if __name__ == '__main__':
     model = caffe.Net(net, weight, caffe.TEST)
 
     feaVec, posVec = extSDAE.calImgSDAEFea(imgFile, model, gridSize, sizeRange, channels, patch_mean)
-    labelVectors_h = calPatchLabelHierarchy(wordsFile_h1_s, wordsFile_h2_s, feaVec)
+    labelVectors_h = calPatchLabelHierarchy(sdae_wordsFile_h1, sdae_wordsFile_h2, feaVec)
     showLocalLabel(imgFile, labelVectors_h, posVec, imResize=None, feaType='SDAE_')
 
     filtered_pos, filtered_label = filterPos(posVec, labelVectors_h, 1, 10)
     showLocalLabel(imgFile, filtered_label, filtered_pos, imResize=None, feaType='SDAE_filtered_')
 
-    plt.show()
+    # ----------------show LBP------------------
+    lbp_wordsFile_h1 = '../../Data/Features/LBPWords_h1.hdf5'
+    lbp_wordsFile_h2 = '../../Data/Features/LBPWords_h2.hdf5'
+    feaVectors, posVectors = extlbp.calImgLBPFeatures(imgFile, gridSize, sizeRange, imResize=None)
 
-    # gridPatchData, gridList, im = esg.generateGridPatchData(imgFile, gridSize, sizeRange)
-    # plf.showGrid(im, gridList)
-    # plt.show()
+    # show unfiltered
+    labelVectors_h = calPatchLabelHierarchy(lbp_wordsFile_h1, lbp_wordsFile_h2, feaVectors)
+    showLocalLabel(imgFile, labelVectors_h, posVectors, imResize=None, feaType='LBP_')
+
+    # show filtered
+    filtered_pos, filtered_label = filterPos(posVectors, labelVectors_h, 1, 10)
+    showLocalLabel(imgFile, filtered_label, filtered_pos, imResize=None, feaType='LBP_filtered_')
+
+    plt.show()
