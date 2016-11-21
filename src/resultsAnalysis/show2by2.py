@@ -133,32 +133,3 @@ if __name__ == '__main__':
 
     show2by2(imgFile, pos_filtered, ld_filtered)
     plt.show()
-
-    # w1 = fw.get('/1/words')
-    # w2 = fw.get('/2/words')
-    # w1 = np.array(w1)
-    # w2 = np.array(w2)
-    # num_words = w1.shape[0]
-    # patch_num = feaVectors.shape[0]
-    # dis1 = np.zeros((patch_num, num_words))
-    # dis2 = np.zeros((patch_num, num_words))
-    #
-    # for v in range(patch_num):
-    #     dis1[v, :] = np.linalg.norm(w1 - feaVectors[v], axis=1)
-    #     dis2[v, :] = np.linalg.norm(w2 - feaVectors[v], axis=1)
-    #
-    # dis1_min = dis1.min(axis=1)
-    # dis1_min_idx = dis1.argmin(axis=1)
-    # dis2_min = dis2.min(axis=1)
-    # dis2_min_idx = dis2.argmin(axis=1)
-    #
-    # w1_common_idx, w2_common_idx = vwa.calCommonVector(wordsFile)
-    #
-    # labelVoc = np.array(((dis1_min-dis2_min) > 0), dtype='i') # class1: 0, class2: 1, common: 2
-    # for i in range(patch_num):
-    #     if labelVoc[i] == 0:
-    #         if (w1_common_idx == dis1_min_idx[i]).sum() > 0:
-    #             labelVoc[i] = 2
-    #     if labelVoc[i] == 1:
-    #         if (w2_common_idx == dis2_min_idx[i]).sum() > 0:
-    #             labelVoc[i] = 2
