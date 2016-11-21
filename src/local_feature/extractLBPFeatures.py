@@ -78,13 +78,21 @@ if __name__ == '__main__':
     imgType = '.bmp'
     gridSize = np.array([10, 10])
     sizeRange = (28, 28)
-    classLabel3 = [['1'], ['2'], ['3']]
-    saveName3 = 'type3_LBPFeatures.hdf5'
-    classNum3 = 3
-    labelFileType3 = '../../Data/type3_1000_500_500.txt'
+    # classLabel3 = [['1'], ['2'], ['3']]
+    # saveName3 = 'type3_LBPFeatures.hdf5'
+    # classNum3 = 3
+    # labelFileType3 = '../../Data/type3_1000_500_500.txt'
+    # saveFolder = '../../Data/Features/'
+    # calLBPFeaSet(dataFolder, labelFileType3, classNum3, imgType, gridSize, sizeRange, classLabel3,
+    #              saveFolder + saveName3)
+
+    classLabel4 = [['1'], ['2'], ['3'], ['4']]
+    saveName4 = 'type4_LBPFeatures.hdf5'
+    classNum4 = 4
+    labelFileType4 = '../../Data/type4_1500_500_500_500.txt'
     saveFolder = '../../Data/Features/'
-    calLBPFeaSet(dataFolder, labelFileType3, classNum3, imgType, gridSize, sizeRange, classLabel3,
-                 saveFolder + saveName3)
+    calLBPFeaSet(dataFolder, labelFileType4, classNum4, imgType, gridSize, sizeRange, classLabel4,
+                 saveFolder + saveName4)
 
     # posParaNum = 4
     # P1 = 8

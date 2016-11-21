@@ -5,10 +5,12 @@ import dsift
 from scipy import misc
 import matplotlib.pyplot as plt
 import h5py
+
 siftFeaDim = 128
 posParaNum = 4
 # saveName = 'balance500SIFT.hdf5'
 saveFolder = '/home/ljm/NiuChuang/KLSA-auroral-images/Data/Features/'
+
 
 def calImgDSift(imgFile, gridSize, sizeRange, imResize=None):
     print imgFile
@@ -23,6 +25,7 @@ def calImgDSift(imgFile, gridSize, sizeRange, imResize=None):
         feaVec = extractor.process_image(patches[i])
         feaVecs[i, :] = feaVec
     return feaVecs, np.array(positions)
+
 
 def calSIFTFeaSet(dataFolder, labelFile, classNum, imgType, gridSize, sizeRange, classLabel, saveName, imResize=None):
     names, labels = plf.parseNL(labelFile)
@@ -44,7 +47,7 @@ def calSIFTFeaSet(dataFolder, labelFile, classNum, imgType, gridSize, sizeRange,
         feaArr = np.empty((0, siftFeaDim))
         posArr = np.empty((0, posParaNum))
         for name in imgs:
-            imgFile = dataFolder+name+imgType
+            imgFile = dataFolder + name + imgType
             if imResize:
                 feaVec, posVec = calImgDSift(imgFile, gridSize, sizeRange, imResize=imResize)
             else:
@@ -54,7 +57,7 @@ def calSIFTFeaSet(dataFolder, labelFile, classNum, imgType, gridSize, sizeRange,
         feaSet.create_dataset(c, feaArr.shape, 'f', feaArr)
         posSet.create_dataset(c, posArr.shape, 'i', posArr)
     f.close()
-    print saveFolder+saveName+' saved'
+    print saveFolder + saveName + ' saved'
     return 0
 
 
@@ -73,7 +76,8 @@ if __name__ == '__main__':
     img = misc.imread(dataFolder + auroraData1['1'][0] + imgType)
     print img.shape
 
-    patches1, positions1, im1 = esg.generateGridPatchData(dataFolder+auroraData1['1'][0]+imgType, gridSize, sizeRange, imResize=imResize)
+    patches1, positions1, im1 = esg.generateGridPatchData(dataFolder + auroraData1['1'][0] + imgType, gridSize,
+                                                          sizeRange, imResize=imResize)
 
     patchSize1 = positions1[110][-1]
     print patchSize1
@@ -81,19 +85,29 @@ if __name__ == '__main__':
     extractor = dsift.SingleSiftExtractor(patchSize1)
     feaVec = extractor.process_image(patches1[110])
 
-    feaVecs1, pos1 = calImgDSift(dataFolder+auroraData1['2'][400]+imgType, gridSize, sizeRange)
+    feaVecs1, pos1 = calImgDSift(dataFolder + auroraData1['2'][400] + imgType, gridSize, sizeRange)
 
     # dataSIFTFeature1 = calSIFTFeaSet(dataFolder, labelFile1, classNum1, imgType, gridSize, sizeRange, classLabel1, saveName1)
 
-    labelFileType3 = '../../Data/type3_1000_500_500.txt'
+    # labelFileType3 = '../../Data/type3_1000_500_500.txt'
+    #
+    # classLabel3 = [['1'], ['2'], ['3']]
+    # saveName3 = 'type3_SIFTFeatures_256.hdf5'
+    # classNum3 = 3
+    # # names3, lables3 = plf.parseNL(labelFileType3)
+    #
+    # SIFTFeature3 = calSIFTFeaSet(dataFolder, labelFileType3, classNum3, imgType, gridSize, sizeRange, classLabel3,
+    #                              saveName3, imResize=imResize)
 
-    classLabel3 = [['1'], ['2'], ['3']]
-    saveName3 = 'type3_SIFTFeatures_256.hdf5'
-    classNum3 = 3
+    labelFileType4 = '../../Data/type4_1500_500_500_500.txt'
+
+    classLabel4 = [['1'], ['2'], ['3'], ['4']]
+    saveName4 = 'type4_SIFTFeatures.hdf5'
+    classNum4 = 4
     # names3, lables3 = plf.parseNL(labelFileType3)
 
-    SIFTFeature3 = calSIFTFeaSet(dataFolder, labelFileType3, classNum3, imgType, gridSize, sizeRange, classLabel3, saveName3, imResize=imResize)
-
+    SIFTFeature3 = calSIFTFeaSet(dataFolder, labelFileType4, classNum4, imgType, gridSize, sizeRange, classLabel4,
+                                 saveName4, imResize=None)
 
     # print pos[110][-1]
     # plt.figure()

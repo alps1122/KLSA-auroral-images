@@ -111,7 +111,11 @@ def show2by2(imgFile, pos_vectors, label_vectors):
 if __name__ == '__main__':
     gridSize = np.array([10, 10])
     sizeRange = (28, 28)
-    imgFile = '/home/niuchuang/PycharmProjects/KLSA-auroral-images/Data/N20040101G140132.jpg'
+    imgType = '.bmp'
+    dataFolder = '../../Data/labeled2003_38044/'
+    imgName = 'N20031221G052431'
+    imgFile = dataFolder + imgName + imgType
+    # imgFile = '/home/niuchuang/PycharmProjects/KLSA-auroral-images/Data/N20040101G140132.jpg'
     sift_wordsFile_h1 = '../../Data/Features/type4_SIFTWords_h1.hdf5'
     sift_wordsFile_h2 = '../../Data/Features/type4_SIFTWords_h2.hdf5'
     feaVectors, posVectors = extSift.calImgDSift(imgFile, gridSize, sizeRange, imResize=None)

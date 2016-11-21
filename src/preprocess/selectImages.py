@@ -77,3 +77,40 @@ for c in imgs_s123:
         f2.write(file + ' ' + str(c) + '\n')
 f2.close()
 print plf.compareLabeledFile(filePath, type3_file)
+
+type4_file = '../../Data/type4_1500_500_500_500.txt'
+f4 = open(type4_file, 'w')
+
+arrangedImgs_s4 = plf.arrangeToClasses(names_s, labels_s, 4, [['1'], ['2'], ['3'], ['4']])
+print 'class1: ' + str(len(arrangedImgs_s4['1']))
+print 'class2: ' + str(len(arrangedImgs_s4['2']))
+print 'class3: ' + str(len(arrangedImgs_s4['3']))
+print 'class4: ' + str(len(arrangedImgs_s4['4']))
+
+# balance4Imgs = plf.balanceSample(arrangedImgs_s4, 1000)
+# for c in balance3Imgs:
+#     print 'NO. class ' + c, len(balance3Imgs[c])
+#
+imgs_s1 = arrangedImgs_s4.copy()
+imgs_s1.pop('2')
+imgs_s1.pop('3')
+imgs_s1.pop('4')
+imgs_s1 = plf.balanceSample(imgs_s1, 1500)
+
+imgs_s234 = arrangedImgs_s4.copy()
+imgs_s234.pop('1')
+imgs_s234 = plf.balanceSample(imgs_s234, 500)
+
+imgs_s1234 = {}
+imgs_s1234['1'] = imgs_s1['1']
+imgs_s1234['2'] = imgs_s234['2']
+imgs_s1234['3'] = imgs_s234['3']
+imgs_s1234['4'] = imgs_s234['4']
+
+for c in imgs_s1234:
+    print 'NO. class ' + c, len(imgs_s1234[c])
+    imgs_s1234[c].sort()
+    for file in imgs_s1234[c]:
+        f4.write(file + ' ' + str(c) + '\n')
+f4.close()
+print plf.compareLabeledFile(filePath, type4_file)

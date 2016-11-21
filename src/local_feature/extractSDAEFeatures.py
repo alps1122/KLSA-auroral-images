@@ -55,11 +55,13 @@ if __name__ == '__main__':
     model = caffe.Net(net, weight, caffe.TEST)
 
     labelTruth = '../../Data/Alllabel2003_38044.txt'
-    labelFile = '../../Data/type3_1000_500_500.txt'
+    # labelFile = '../../Data/type3_1000_500_500.txt'
+    labelFile = '../../Data/type4_1500_500_500_500.txt'
     print plf.compareLabeledFile(labelTruth, labelFile)
     meanFile = '../../Data/patchData_mean.txt'
-    classNum = 3
-    classes = [['1'], ['2'], ['3']]
+    classNum = 4
+    # classes = [['1'], ['2'], ['3']]
+    classes = [['1'], ['2'], ['3'], ['4']]
     f_mean = open(meanFile, 'r')
 
     patch_mean = float(f_mean.readline().split(' ')[1])
@@ -67,11 +69,12 @@ if __name__ == '__main__':
 
     print 'patch_mean: ' + str(patch_mean)
 
-    saveSDAEFeas = '../../Data/Features/type3_SDAEFeas.hdf5'
-
+    # saveSDAEFeas = '../../Data/Features/type3_SDAEFeas.hdf5'
+    saveSDAEFeas = '../../Data/Features/type4_SDAEFeas.hdf5'
 
     [images, labels] = plf.parseNL(labelFile)
-    arrImgs, _ = plf.arrangeToClasses(images, labels, classNum, classes)
+    # arrImgs, _ = plf.arrangeToClasses(images, labels, classNum, classes)
+    arrImgs = plf.arrangeToClasses(images, labels, classNum, classes)
 
     for i in arrImgs:
         print i, len(arrImgs[i])

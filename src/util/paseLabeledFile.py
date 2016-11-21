@@ -7,10 +7,17 @@ def parseNL(path):
     labels = []
     lines = f.readlines()
     for line in lines:
-        [name, label] = line.split()
-        names.append(name)
-        labels.append(label)
-    return names, labels
+        if len(line.split()) == 1:
+            name = line.split()
+            names.append(name[0])
+        if len(line.split()) == 2:
+            [name, label] = line.split()
+            names.append(name)
+            labels.append(label)
+    if len(labels) == 0:
+        return names
+    else:
+        return names, labels
 
 def timeDiff(name1, name2):
     # formate: N20031221G030001
