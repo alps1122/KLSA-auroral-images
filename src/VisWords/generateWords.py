@@ -35,9 +35,9 @@ def generateWords(featureH5File, groups, saveFile, wordsNum, feaDim=128):
     return 0
 
 if __name__ == '__main__':
-    siftFeaFile = '../../Data/Features/type4_SIFTFeatures.hdf5'
+    # siftFeaFile = '../../Data/Features/type4_SIFTFeatures.hdf5'
     SDAEFeaFile = '../../Data/Features/type3_SDAEFeas.hdf5'
-    LBPFeaFile = '../../Data/Features/type4_LBPFeatures.hdf5'
+    # LBPFeaFile = '../../Data/Features/type4_LBPFeatures.hdf5'
     wordsNum = 500
     groups_h1 = ['1', ['2', '3', '4']]
     groups_h2 = ['2', '3', '4']
@@ -49,12 +49,12 @@ if __name__ == '__main__':
         print c + str(feaSet[c].shape)
 
     saveFolder = '../../Data/Features/'
-    sift_saveName_h1 = 'type4_SIFTWords_h1.hdf5'
-    sift_saveName_h2 = 'type4_SIFTWords_h2.hdf5'
+    # sift_saveName_h1 = 'type4_SIFTWords_h1.hdf5'
+    # sift_saveName_h2 = 'type4_SIFTWords_h2.hdf5'
     sdae_saveName_h1 = 'type4_SDAEWords_h1.hdf5'
     sdae_saveName_h2 = 'type4_SDAEWords_h2.hdf5'
-    lbp_saveName_h1 = 'type4_LBPWords_h1.hdf5'
-    lbp_saveName_h2 = 'type4_LBPWords_h2.hdf5'
+    # lbp_saveName_h1 = 'type4_LBPWords_h1.hdf5'
+    # lbp_saveName_h2 = 'type4_LBPWords_h2.hdf5'
     # generateWords(siftFeaFile, groups_h1, saveFolder + sift_saveName_h1, wordsNum, feaDim=128)
     # generateWords(siftFeaFile, groups_h2, saveFolder + sift_saveName_h2, wordsNum, feaDim=128)
     # generateWords(LBPFeaFile, groups_h1, saveFolder + lbp_saveName_h1, wordsNum, feaDim=54)
