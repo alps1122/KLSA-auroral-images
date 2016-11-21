@@ -101,11 +101,11 @@ def show2(imgFile, labelVec, posVec, title, imResize=None, feaType='unknown'):
     plt.title(feaType + title)
     plt.tight_layout()
     plt.draw()
+    return 0
 
 def show2by2(imgFile, pos_vectors, label_vectors):
     for k, v in label_vectors.iteritems():
         show2(imgFile, v, pos_vectors[k], k, feaType='SIFT')
-
     return 0
 
 if __name__ == '__main__':
