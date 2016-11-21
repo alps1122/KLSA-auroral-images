@@ -1,12 +1,12 @@
 import numpy as np
 import h5py
 
-def calEucDistance(wordsFile):
+def calEucDistance(wordsFile, classes):
     fw = h5py.File(wordsFile, 'r')
     # classNum = len(fw)
     # for c in fw:
-    w1 = fw.get('/1/words')
-    w2 = fw.get('/2/words')
+    w1 = fw.get('/' + classes[0] + '/words')
+    w2 = fw.get('/' + classes[1] + '/words')
     w1 = np.array(w1)
     w2 = np.array(w2)
     num_words = w1.shape[0]
@@ -24,11 +24,11 @@ def calEucDistance(wordsFile):
             distance12[i, j] = np.linalg.norm(w1i - w2j)
             distance11[i, j] = np.linalg.norm(w1i - w1j)
             distance22[i, j] = np.linalg.norm(w2i - w2j)
-    savePath = '../../Data/Features/SIFT_Distance.hdf5'
-    fd = h5py.File(savePath, 'w')
-    fd.create_dataset('distance12', distance12.shape, 'f', distance12)
-    fd.create_dataset('distance11', distance11.shape, 'f', distance11)
-    fd.create_dataset('distance22', distance22.shape, 'f', distance22)
+    # savePath = '../../Data/Features/SIFT_Distance.hdf5'
+    # fd = h5py.File(savePath, 'w')
+    # fd.create_dataset('distance12', distance12.shape, 'f', distance12)
+    # fd.create_dataset('distance11', distance11.shape, 'f', distance11)
+    # fd.create_dataset('distance22', distance22.shape, 'f', distance22)
     print 'distance11:'
     print 'max: ' + str(distance11.max())
     print 'min: ' + str(distance11.min())
@@ -38,12 +38,12 @@ def calEucDistance(wordsFile):
     print 'distance22:'
     print 'max: ' + str(distance22.max())
     print 'min: ' + str(distance22.min())
-    fd.close()
+    # fd.close()
     fw.close()
     return distance11, distance12, distance22
 
-def calCommonVector(wordsFile):
-    distance11, distance12, distance22 = calEucDistance(wordsFile)
+def calCommonVector(wordsFile, classes):
+    distance11, distance12, distance22 = calEucDistance(wordsFile, classes)
     # dis11_min = distance11.min()
     dis11_max = distance11.max()
     dis22_max = distance22.max()
@@ -81,14 +81,46 @@ def calCommonVector(wordsFile):
     print 'c2_common_num: ' + str(c2_common_num)
     return c1_common_v, c2_common_v
 
+def calMultiCommonVectors(wordsFile_h1, wordsFile_h2):
+    c1_h1, c2_h1 = calCommonVector(wordsFile_h1, ['1', '2'])
+    fh1 = h5py.File(wordsFile_h1, 'a')
+    if 'common_vectors' not in fh1:
+        dc1 = fh1.create_group('common_vectors')
+        dc1.create_dataset('common_vec_1', shape=c1_h1.shape, data=c1_h1)
+        dc1.create_dataset('common_vec_2', shape=c2_h1.shape, data=c2_h1)
+
+    words1_h1 = fh1.get('/1/words')
+
+    fh2 = h5py.File(wordsFile_h2, 'a')
+    if '0' not in fh2:
+        dh1 = fh2.create_group('0')
+        dh1.create_dataset('words', shape=words1_h1.shape, data=words1_h1)
+
+    if 'common_vectors' not in fh2:
+        dc2 = fh2.create_group('common_vectors')
+        for i in range(4):
+            for j in range(i+1, 4):
+                c1, c2 = calCommonVector(wordsFile_h2, [str(i), str(j)])
+                c1_name = 'common_vec_' + str(i) + str(j) + '_' + str(i)
+                c2_name = 'common_vec_' + str(i) + str(j) + '_' + str(j)
+                dc2.create_dataset(c1_name, shape=c1.shape, data=c1)
+                dc2.create_dataset(c2_name, shape=c2.shape, data=c2)
+    fh1.close()
+    fh2.close()
+    return 0
+
+
 if __name__ == '__main__':
     # wordsFile = '../../Data/Features/SIFTWords_12.hdf5'
-    wordsFile = '../../Data/Features/SIFTWords_h1.hdf5'
-    distance11, distance12, distance22 = calEucDistance(wordsFile)
+    wordsFile_h1 = '../../Data/Features/type4_SIFTWords_h1.hdf5'
+    wordsFile_h2 = '../../Data/Features/type4_SIFTWords_h2.hdf5'
+    distance11, distance12, distance22 = calEucDistance(wordsFile_h1, ['1', '2'])
 
-    c1_common_v, c2_common_v = calCommonVector(wordsFile)
+    c1_common_v, c2_common_v = calCommonVector(wordsFile_h1, ['1', '2'])
 
     print 'c1_common_v: '
     print c1_common_v
     print 'c2_common_v: '
     print c2_common_v
+
+    calMultiCommonVectors(wordsFile_h1, wordsFile_h2)
