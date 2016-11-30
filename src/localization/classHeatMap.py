@@ -17,11 +17,10 @@ import src.local_feature.extractSDAEFeatures as extSDAE
 import src.local_feature.extractLBPFeatures as extlbp
 import src.local_feature.generateLocalFeatures as glf
 
-
-def calPatchLabels2(wordsFile, feaVectors, k=11):
+def calPatchLabels2(wordsFile, feaVectors, k=11, two_classes=['1', '2'], isH1=False):
     fw = h5py.File(wordsFile, 'r')
-    w1 = fw.get('/1/words')
-    w2 = fw.get('/2/words')
+    w1 = fw.get(two_classes[0] + '/words')
+    w2 = fw.get(two_classes[1] + '/words')
     w1 = np.array(w1)
     w2 = np.array(w2)
     num_words = w1.shape[0]
@@ -35,7 +34,15 @@ def calPatchLabels2(wordsFile, feaVectors, k=11):
         dis1[v, :] = np.linalg.norm(w1 - feaVectors[v], axis=1)
         dis2[v, :] = np.linalg.norm(w2 - feaVectors[v], axis=1)
     dis = np.append(dis1, dis2, axis=1)
-    w1_common_idx, w2_common_idx = vwa.calCommonVector(wordsFile)
+
+    # w1_common_idx, w2_common_idx = vwa.calCommonVector(wordsFile)
+    if isH1:
+        w1_common_idx = np.array(fw.get('common_vectors/common_vec_' + two_classes[0]))
+        w2_common_idx = np.array(fw.get('common_vectors/common_vec_' + two_classes[1]))
+    else:
+        w1_common_idx = np.array(fw.get('common_vectors/common_vec_' + two_classes[0] + two_classes[1] + '_' + two_classes[0]))
+        w2_common_idx = np.array(fw.get('common_vectors/common_vec_' + two_classes[0] + two_classes[1] + '_' + two_classes[1]))
+
     w1_common_list = list(w1_common_idx.reshape(len(w1_common_idx)))
     w2_common_list = list(w2_common_idx.reshape(len(w2_common_idx)))
     label1[w1_common_list] = 2
@@ -61,7 +68,7 @@ def calPatchLabelHierarchy2(wordsFile_h1, wordsFile_h2, feaVectors, k=11):
 
 
 def generateClassHeatMap(patchLabels, posVectors, classNum, patchSize, imgSize=(440, 440),
-                         isHierarchy=True, threshold_h1=0.3, threshold_h2=0.3):
+                         isHierarchy=True, threshold_h1=0.5, threshold_h2=0.5):
     heatMap = np.zeros((classNum, imgSize[0], imgSize[1]))
     k = patchLabels.shape[-1]
     patchNum = patchLabels.shape[0]
@@ -84,9 +91,10 @@ def generateClassHeatMap(patchLabels, posVectors, classNum, patchSize, imgSize=(
             # patchScores_h1[i][np.argwhere(patchScores_h1[i]<threshold_h1])] = 0
 
             patchScores[i, 0] = (patchScores_h1[i, 0] > threshold_h1) * patchScores_h1[i, 0]
-            patchScores[i, 1:] = (patchScores_h2[i, :] > threshold_h1) * patchScores_h2[i, :]
+            patchScores[i, 1:] = (patchScores_h2[i, :] > threshold_h2) * patchScores_h2[i, :]
         else:
             patchScores[i, :] = np.array(np.histogram(patchLabels[i, :], bins=range(classNum + 1))[0], dtype='f') / k
+            patchScores[i, :] = (patchScores[i, :] > threshold_h1) * patchScores[i, :]
 
         # resize patches
         resize_posVectors[i, 0] = posVectors[i, 0] + int((raw_size_h - patchSize[0]) / 2)
@@ -174,81 +182,236 @@ def showHeatMaps(imgFile, heat_maps, feaType, k, stepsize, t1, t2,
                 t2) + imType)
     return 0
 
+def calPatchLabels2by2(wordsFile_h1, wordsFile_h2, feaVectors, k):
+    labels = {}
+    labelVec_h1 = calPatchLabels2(wordsFile_h1, feaVectors, k=k, two_classes=['1', '2'], isH1=True)
+    labels['arc_corona'] = labelVec_h1
 
-if __name__ == '__main__':
-    labelFile = '../../Data/Alllabel2003_38044.txt'
-    testImgs = '../../Data/testImages.txt'
-    imagesFolder = '../../Data/labeled2003_38044/'
-    imgType = '.bmp'
-    sdae_wordsFile_h1 = '../../Data/Features/SDAEWords_h1.hdf5'
-    sdae_wordsFile_h2 = '../../Data/Features/SDAEWords_h2.hdf5'
-    sift_wordsFile_h1 = '../../Data/Features/SIFTWords_h1.hdf5'
-    sift_wordsFile_h2 = '../../Data/Features/SIFTWords_h2.hdf5'
-    lbp_wordsFile_h1 = '../../Data/Features/LBPWords_h1.hdf5'
-    lbp_wordsFile_h2 = '../../Data/Features/LBPWords_h2.hdf5'
+    fh2 = h5py.File(wordsFile_h2, 'r')
+
+    classes = []
+    for i in fh2:
+        classes.append(str(i))
+
+    classes.pop(-1)
+    class_num = len(classes)
+
+    types = ['arc', 'drapery', 'radial', 'hot-spot']
+    for i in range(class_num):
+        for j in range(i+1, class_num):
+            labelVec_h2 = calPatchLabels2(wordsFile_h2, feaVectors, k=k, two_classes=[str(i), str(j)], isH1=False)
+            label_name = types[i] + '_' + types[j]
+            labels[label_name] = labelVec_h2
+
+    return labels
+
+def generateHeatMaps2by2(wordsFile_h1, wordsFile_h2, feaVectors, posVectors, patchSize, k, th1, th2):
+    labels = calPatchLabels2by2(wordsFile_h1, wordsFile_h2, feaVectors, k)
+
+    heat_maps = {}
+    for c, l in labels.iteritems():
+        map_c = generateClassHeatMap(l, posVectors, 3, patchSize, isHierarchy=False, threshold_h1=th1, threshold_h2=th2)
+        heat_maps[c] = map_c
+    return heat_maps
+
+def saveImgHeatMaps(imgFile):
+    sdae_wordsFile_h1 = '../../Data/Features/type4_SDAEWords_h1.hdf5'
+    sdae_wordsFile_h2 = '../../Data/Features/type4_SDAEWords_h2.hdf5'
+    sift_wordsFile_h1 = '../../Data/Features/type4_SIFTWords_h1.hdf5'
+    sift_wordsFile_h2 = '../../Data/Features/type4_SIFTWords_h2.hdf5'
+    lbp_wordsFile_h1 = '../../Data/Features/type4_LBPWords_h1.hdf5'
+    lbp_wordsFile_h2 = '../../Data/Features/type4_LBPWords_h2.hdf5'
 
     sizeRange = (28, 28)
     imResize = (256, 256)
     imgSize = (440, 440)
+    nk = 19
+    resolution = 1
+    gridSize = np.array([resolution, resolution])
+    im = np.array(imread(imgFile), dtype='f') / 255
+    th1 = 0.5
+    th2 = 0.5
+    im_name = imgFile[-20:-4]
 
-    [images, labels] = plf.parseNL(labelFile)
+    # ----------------save sift------------------
+    feaVectors, posVectors = glf.genImgLocalFeas(imgFile, 'SIFT', gridSize, sizeRange, imResize=None)
+    heats = generateHeatMaps2by2(sift_wordsFile_h1, sift_wordsFile_h2, feaVectors, posVectors, gridSize, nk, th1, th2)
 
-    testNames = plf.parseNL(testImgs)
+    for c, m in heats.iteritems():
+        map3 = np.transpose(m, (1, 0, 2)).reshape(440, 440 * 3)
+        map3 = np.append(map3, im, axis=1)
+        imsave(im_name + '_SIFT_' + c + '_th' + str(th1) + '.jpg', map3)
 
-    for imgName in testNames:
-        ll = labels[images.index(imgName)]
-        for nk in range(1, 21, 2):
-            for resolution in range(1, 6):
-                # imgFile = imagesFolder + images[0] + imgType
-                # imgName = 'N20031226G033831'
-                imgFile = imagesFolder + imgName + imgType
-                # nk = 1
-                th1 = 0.3
-                th2 = 0.3
-                # resolution = 1
-                gridSize = np.array([resolution, resolution])
+    # ----------------save lbp------------------
+    feaVectors, posVectors = glf.genImgLocalFeas(imgFile, 'LBP', gridSize, sizeRange, imResize=None)
+    heats = generateHeatMaps2by2(lbp_wordsFile_h1, lbp_wordsFile_h2, feaVectors, posVectors, gridSize, nk, th1, th2)
 
-                # ----------------show sift------------------
-                feaVectors, posVectors = glf.genImgLocalFeas(imgFile, 'SIFT', gridSize, sizeRange, imResize=None)
+    for c, m in heats.iteritems():
+        map3 = np.transpose(m, (1, 0, 2)).reshape(440, 440 * 3)
+        map3 = np.append(map3, im, axis=1)
+        imsave(im_name + '_LBP_' + c + '_th' + str(th1) + '.jpg', map3)
 
-                # show single hierarchy
-                # patchLabels = calPatchLabels2(sift_wordsFile_h1, feaVectors, k=11)
-                # heat_maps = generateClassHeatMap(patchLabels, posVectors, 3, gridSize, isHierarchy=False)
-                # showHeatMaps(imgFile, heat_maps)
+    # ---------------show SDEA local results--------------
+    # define SDAE parameters
+    sdaePara = {}
+    sdaePara['weight'] = '../../Data/autoEncoder/final_0.01.caffemodel'
+    sdaePara['net'] = '../../Data/autoEncoder/test_net.prototxt'
+    sdaePara['meanFile'] = '../../Data/patchData_mean.txt'
+    channels = 1
+    layerNeuronNum = [28 * 28, 2000, 1000, 500, 128]
+    sdaePara['layerNeuronNum'] = layerNeuronNum
+    _, gl, _ = esg.generateGridPatchData(imgFile, gridSize, sizeRange)
+    batchSize = len(gl)
+    inputShape = (batchSize, channels, 28, 28)
+    sdaePara['inputShape'] = inputShape
 
-                patchLabels = calPatchLabelHierarchy2(sift_wordsFile_h1, sift_wordsFile_h2, feaVectors, k=nk)
-                heat_maps_sift = generateClassHeatMap(patchLabels, posVectors, 4, gridSize, isHierarchy=True,
-                                                      threshold_h1=th1, threshold_h2=th2)
-                # heat_maps_sift = np.random.random((4,440,400))
-                showHeatMaps(imgFile, heat_maps_sift, 'SIFT', nk, resolution, th1, th2, label=ll)
+    feaVectors, posVectors = glf.genImgLocalFeas(imgFile, 'SDAE', gridSize, sizeRange, sdaePara=sdaePara)
 
-                # ----------------show lbp------------------
-                feaVectors, posVectors = glf.genImgLocalFeas(imgFile, 'LBP', gridSize, sizeRange, imResize=None)
+    heats = generateHeatMaps2by2(sdae_wordsFile_h1, sdae_wordsFile_h2, feaVectors, posVectors, gridSize, nk, th1, th2)
+    for c, m in heats.iteritems():
+        map3 = np.transpose(m, (1, 0, 2)).reshape(440, 440 * 3)
+        map3 = np.append(map3, im, axis=1)
+        imsave(im_name + '_SDAE_' + c + '_th' + str(th1) + '.jpg', map3)
+    return 0
 
-                patchLabels = calPatchLabelHierarchy2(lbp_wordsFile_h1, lbp_wordsFile_h2, feaVectors, k=nk)
-                heat_maps_lbp = generateClassHeatMap(patchLabels, posVectors, 4, gridSize, isHierarchy=True,
-                                                     threshold_h1=th1, threshold_h2=th2)
-                showHeatMaps(imgFile, heat_maps_lbp, 'LBP', nk, resolution, th1, th2, label=ll)
+if __name__ == '__main__':
+    # labelFile = '../../Data/Alllabel2003_38044.txt'
+    # testImgs = '../../Data/testImages.txt'
+    # imagesFolder = '../../Data/labeled2003_38044/'
+    # imgType = '.bmp'
+    # sdae_wordsFile_h1 = '../../Data/Features/type4_SDAEWords_h1.hdf5'
+    # sdae_wordsFile_h2 = '../../Data/Features/type4_SDAEWords_h2.hdf5'
+    # sift_wordsFile_h1 = '../../Data/Features/type4_SIFTWords_h1.hdf5'
+    # sift_wordsFile_h2 = '../../Data/Features/type4_SIFTWords_h2.hdf5'
+    # lbp_wordsFile_h1 = '../../Data/Features/type4_LBPWords_h1.hdf5'
+    # lbp_wordsFile_h2 = '../../Data/Features/type4_LBPWords_h2.hdf5'
+    #
+    # sizeRange = (28, 28)
+    # imResize = (256, 256)
+    # imgSize = (440, 440)
 
-                # ---------------show SDEA local results--------------
-                # define SDAE parameters
-                sdaePara = {}
-                sdaePara['weight'] = '../../Data/autoEncoder/final_0.01.caffemodel'
-                sdaePara['net'] = '../../Data/autoEncoder/test_net.prototxt'
-                sdaePara['meanFile'] = '../../Data/patchData_mean.txt'
-                channels = 1
-                layerNeuronNum = [28 * 28, 2000, 1000, 500, 128]
-                sdaePara['layerNeuronNum'] = layerNeuronNum
-                _, gl, _ = esg.generateGridPatchData(imgFile, gridSize, sizeRange)
-                batchSize = len(gl)
-                inputShape = (batchSize, channels, 28, 28)
-                sdaePara['inputShape'] = inputShape
+    # [images, labels] = plf.parseNL(labelFile)
 
-                feaVectors, posVectors = glf.genImgLocalFeas(imgFile, 'SDAE', gridSize, sizeRange, sdaePara=sdaePara)
+    # testNames = plf.parseNL(testImgs)
 
-                patchLabels = calPatchLabelHierarchy2(sdae_wordsFile_h1, sdae_wordsFile_h2, feaVectors, k=nk)
-                heat_maps_sdae = generateClassHeatMap(patchLabels, posVectors, 4, gridSize, isHierarchy=True,
-                                                      threshold_h1=th1, threshold_h2=th2)
-                showHeatMaps(imgFile, heat_maps_sdae, 'SDAE', nk, resolution, th1, th2, label=ll)
+    # imgFile = imagesFolder + images[0] + imgType
+    # imgName = 'N20031226G033831'
+    # imgFile = imagesFolder + imgName + imgType
+    imgFile = '/home/niuchuang/data/AuroraData/Aurora_img/4/N20031225G112411.jpg'
+    saveImgHeatMaps(imgFile)
+    # nk = 19
+    # th1 = 0.5
+    # th2 = 0.5
+    # resolution = 1
+    # gridSize = np.array([resolution, resolution])
+    #
+    # # ----------------show sift------------------
+    # feaVectors, posVectors = glf.genImgLocalFeas(imgFile, 'SIFT', gridSize, sizeRange, imResize=None)
+    #
+    # # labels = calPatchLabels2by2(sift_wordsFile_h1, sift_wordsFile_h2, feaVectors, nk)
+    # heats = generateHeatMaps2by2(sift_wordsFile_h1, sift_wordsFile_h2, feaVectors, posVectors, gridSize, nk)
+    #
+    # for c, m in heats.iteritems():
+    #     map3 = np.transpose(m, (1, 0, 2)).reshape(440, 440*3)
+    #     imsave(c+'.jpg', map3)
 
-                # plt.show()
+    # show single hierarchy
+    # patchLabels = calPatchLabels2(sift_wordsFile_h1, feaVectors, k=11)
+    # heat_maps = generateClassHeatMap(patchLabels, posVectors, 3, gridSize, isHierarchy=False)
+    # showHeatMaps(imgFile, heat_maps)
+
+    # patchLabels = calPatchLabelHierarchy2(sift_wordsFile_h1, sift_wordsFile_h2, feaVectors, k=nk)
+    # heat_maps_sift = generateClassHeatMap(patchLabels, posVectors, 4, gridSize, isHierarchy=True,
+    #                                       threshold_h1=th1, threshold_h2=th2)
+    # # heat_maps_sift = np.random.random((4,440,400))
+    # showHeatMaps(imgFile, heat_maps_sift, 'SIFT', nk, resolution, th1, th2, label=ll)
+    #
+    # # ----------------show lbp------------------
+    # feaVectors, posVectors = glf.genImgLocalFeas(imgFile, 'LBP', gridSize, sizeRange, imResize=None)
+    #
+    # patchLabels = calPatchLabelHierarchy2(lbp_wordsFile_h1, lbp_wordsFile_h2, feaVectors, k=nk)
+    # heat_maps_lbp = generateClassHeatMap(patchLabels, posVectors, 4, gridSize, isHierarchy=True,
+    #                                      threshold_h1=th1, threshold_h2=th2)
+    # showHeatMaps(imgFile, heat_maps_lbp, 'LBP', nk, resolution, th1, th2, label=ll)
+    #
+    # # ---------------show SDEA local results--------------
+    # # define SDAE parameters
+    # sdaePara = {}
+    # sdaePara['weight'] = '../../Data/autoEncoder/final_0.01.caffemodel'
+    # sdaePara['net'] = '../../Data/autoEncoder/test_net.prototxt'
+    # sdaePara['meanFile'] = '../../Data/patchData_mean.txt'
+    # channels = 1
+    # layerNeuronNum = [28 * 28, 2000, 1000, 500, 128]
+    # sdaePara['layerNeuronNum'] = layerNeuronNum
+    # _, gl, _ = esg.generateGridPatchData(imgFile, gridSize, sizeRange)
+    # batchSize = len(gl)
+    # inputShape = (batchSize, channels, 28, 28)
+    # sdaePara['inputShape'] = inputShape
+    #
+    # feaVectors, posVectors = glf.genImgLocalFeas(imgFile, 'SDAE', gridSize, sizeRange, sdaePara=sdaePara)
+    #
+    # patchLabels = calPatchLabelHierarchy2(sdae_wordsFile_h1, sdae_wordsFile_h2, feaVectors, k=nk)
+    # heat_maps_sdae = generateClassHeatMap(patchLabels, posVectors, 4, gridSize, isHierarchy=True,
+    #                                       threshold_h1=th1, threshold_h2=th2)
+    # showHeatMaps(imgFile, heat_maps_sdae, 'SDAE', nk, resolution, th1, th2, label=ll)
+
+    # plt.show()
+
+
+    # for imgName in testNames:
+    #     ll = labels[images.index(imgName)]
+    #     for nk in range(1, 21, 2):
+    #         for resolution in range(1, 6):
+    #             # imgFile = imagesFolder + images[0] + imgType
+    #             # imgName = 'N20031226G033831'
+    #             imgFile = imagesFolder + imgName + imgType
+    #             # nk = 1
+    #             th1 = 0.3
+    #             th2 = 0.3
+    #             # resolution = 1
+    #             gridSize = np.array([resolution, resolution])
+    #
+    #             # ----------------show sift------------------
+    #             feaVectors, posVectors = glf.genImgLocalFeas(imgFile, 'SIFT', gridSize, sizeRange, imResize=None)
+    #
+    #             # show single hierarchy
+    #             # patchLabels = calPatchLabels2(sift_wordsFile_h1, feaVectors, k=11)
+    #             # heat_maps = generateClassHeatMap(patchLabels, posVectors, 3, gridSize, isHierarchy=False)
+    #             # showHeatMaps(imgFile, heat_maps)
+    #
+    #             patchLabels = calPatchLabelHierarchy2(sift_wordsFile_h1, sift_wordsFile_h2, feaVectors, k=nk)
+    #             heat_maps_sift = generateClassHeatMap(patchLabels, posVectors, 4, gridSize, isHierarchy=True,
+    #                                                   threshold_h1=th1, threshold_h2=th2)
+    #             # heat_maps_sift = np.random.random((4,440,400))
+    #             showHeatMaps(imgFile, heat_maps_sift, 'SIFT', nk, resolution, th1, th2, label=ll)
+    #
+    #             # ----------------show lbp------------------
+    #             feaVectors, posVectors = glf.genImgLocalFeas(imgFile, 'LBP', gridSize, sizeRange, imResize=None)
+    #
+    #             patchLabels = calPatchLabelHierarchy2(lbp_wordsFile_h1, lbp_wordsFile_h2, feaVectors, k=nk)
+    #             heat_maps_lbp = generateClassHeatMap(patchLabels, posVectors, 4, gridSize, isHierarchy=True,
+    #                                                  threshold_h1=th1, threshold_h2=th2)
+    #             showHeatMaps(imgFile, heat_maps_lbp, 'LBP', nk, resolution, th1, th2, label=ll)
+    #
+    #             # ---------------show SDEA local results--------------
+    #             # define SDAE parameters
+    #             sdaePara = {}
+    #             sdaePara['weight'] = '../../Data/autoEncoder/final_0.01.caffemodel'
+    #             sdaePara['net'] = '../../Data/autoEncoder/test_net.prototxt'
+    #             sdaePara['meanFile'] = '../../Data/patchData_mean.txt'
+    #             channels = 1
+    #             layerNeuronNum = [28 * 28, 2000, 1000, 500, 128]
+    #             sdaePara['layerNeuronNum'] = layerNeuronNum
+    #             _, gl, _ = esg.generateGridPatchData(imgFile, gridSize, sizeRange)
+    #             batchSize = len(gl)
+    #             inputShape = (batchSize, channels, 28, 28)
+    #             sdaePara['inputShape'] = inputShape
+    #
+    #             feaVectors, posVectors = glf.genImgLocalFeas(imgFile, 'SDAE', gridSize, sizeRange, sdaePara=sdaePara)
+    #
+    #             patchLabels = calPatchLabelHierarchy2(sdae_wordsFile_h1, sdae_wordsFile_h2, feaVectors, k=nk)
+    #             heat_maps_sdae = generateClassHeatMap(patchLabels, posVectors, 4, gridSize, isHierarchy=True,
+    #                                                   threshold_h1=th1, threshold_h2=th2)
+    #             showHeatMaps(imgFile, heat_maps_sdae, 'SDAE', nk, resolution, th1, th2, label=ll)
+    #
+    #             # plt.show()

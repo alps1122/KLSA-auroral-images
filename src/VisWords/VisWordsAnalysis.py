@@ -112,15 +112,21 @@ def calMultiCommonVectors(wordsFile_h1, wordsFile_h2):
 
 if __name__ == '__main__':
     # wordsFile = '../../Data/Features/SIFTWords_12.hdf5'
-    wordsFile_h1 = '../../Data/Features/type4_SIFTWords_h1.hdf5'
-    wordsFile_h2 = '../../Data/Features/type4_SIFTWords_h2.hdf5'
-    distance11, distance12, distance22 = calEucDistance(wordsFile_h1, ['1', '2'])
+    siftWordsFile_h1 = '../../Data/Features/type4_SIFTWords_h1.hdf5'
+    siftWordsFile_h2 = '../../Data/Features/type4_SIFTWords_h2.hdf5'
+    sdaeWordsFile_h1 = '../../Data/Features/type4_SDAEWords_h1.hdf5'
+    sdaeWordsFile_h2 = '../../Data/Features/type4_SDAEWords_h2.hdf5'
+    lbpWordsFile_h1 = '../../Data/Features/type4_LBPWords_h1.hdf5'
+    lbpWordsFile_h2 = '../../Data/Features/type4_LBPWords_h2.hdf5'
+    # distance11, distance12, distance22 = calEucDistance(wordsFile_h1, ['1', '2'])
 
-    c1_common_v, c2_common_v = calCommonVector(wordsFile_h1, ['1', '2'])
+    # c1_common_v, c2_common_v = calCommonVector(wordsFile_h1, ['1', '2'])
 
-    print 'c1_common_v: '
-    print c1_common_v
-    print 'c2_common_v: '
-    print c2_common_v
+    # print 'c1_common_v: '
+    # print c1_common_v
+    # print 'c2_common_v: '
+    # print c2_common_v
 
-    calMultiCommonVectors(wordsFile_h1, wordsFile_h2)
+    calMultiCommonVectors(siftWordsFile_h1, siftWordsFile_h2)
+    calMultiCommonVectors(sdaeWordsFile_h1, sdaeWordsFile_h2)
+    calMultiCommonVectors(lbpWordsFile_h1, lbpWordsFile_h2)
