@@ -108,7 +108,10 @@ def splitToClasses(sourceFile, names):
 
 def showGrid(im, gridList):
     fig, ax = plt.subplots(figsize=(12, 12))
-    ax.imshow(im, aspect='equal', cmap='gray')
+    if len(im.shape) == 2:
+        ax.imshow(im, aspect='equal', cmap='gray')
+    else:
+        ax.imshow(im, aspect='equal')
     for grid in gridList:
         ax.add_patch(
             plt.Rectangle((grid[1], grid[0]),

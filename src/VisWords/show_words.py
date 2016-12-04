@@ -38,7 +38,7 @@ if __name__ == '__main__':
     var_ratios = pca1.explained_variance_ratio_
 
     # print var_ratios
-    print var_ratios[0:27].sum()
+    print var_ratios[0:10].sum()
 
     u1 = pca1.components_[0:3, :]
     u2 = pca2.components_[0:3, :]
