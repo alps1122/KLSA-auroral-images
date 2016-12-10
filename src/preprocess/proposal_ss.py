@@ -1,6 +1,7 @@
 import skimage.data
 import selectivesearch
 import matplotlib.pyplot as plt
+import numpy as np
 
 import sys
 import argparse
@@ -33,7 +34,7 @@ if __name__=="__main__":
     # parser.add_argument('-a', '--alpha',    type=float, default=1.0, help='alpha value for compositing result image with input image')
     # args = parser.parse_args()
 
-    imgFile = '/home/niuchuang/data/AuroraData/Aurora_img/4/N20031222G041621.jpg'
+    imgFile = '/home/niuchuang/data/AuroraData/Aurora_img/4/N20031223G120622.jpg'
     k = 100
     feature_masks = [1, 1, 1, 1]  # ['size', 'color', 'texture', 'fill']
     out_prefix = ''
@@ -43,7 +44,31 @@ if __name__=="__main__":
     if len(img.shape) == 2:
         img = skimage.color.gray2rgb(img)
 
-    (R, F, L) = selective_search.hierarchical_segmentation(img, k, feature_masks)
+    (R, F, L) = selective_search.hierarchical_segmentation(img, k, feature_masks, eraseMap=None)
+    print('result filename: %s_[0000-%04d].png' % (out_prefix, len(F) - 1))
+
+    # suppress warning when saving result images
+    warnings.filterwarnings("ignore", category=UserWarning)
+
+    colors = generate_color_table(R)
+    for depth, label in enumerate(F):
+        result = colors[label]
+        result = (result * alpha + img * (1. - alpha)).astype(numpy.uint8)
+        fn = "%s_%04d.png" % (out_prefix, depth)
+        skimage.io.imsave(fn, result)
+        sys.stdout.write('.')
+        sys.stdout.flush()
+
+    print('\n')
+
+    map = np.zeros((440, 440))
+    centers = np.array([219.5, 219.5])
+    for i in range(440):
+        for j in range(440):
+            if np.linalg.norm(np.array([i, j]) - centers) > 220+5:
+                map[i, j] = 1
+    (R, F, L) = selective_search.hierarchical_segmentation(img, k, feature_masks, eraseMap=map)
+    out_prefix = 'erase'
     print('result filename: %s_[0000-%04d].png' % (out_prefix, len(F) - 1))
 
     # suppress warning when saving result images
@@ -66,5 +91,9 @@ if __name__=="__main__":
 
     grids = [x[1] for x in regions]
     plf.showGrid(img, grids)
+
+    # plt.figure(2)
+
+    # plt.imshow(map, cmap='gray')
     plt.show()
     pass

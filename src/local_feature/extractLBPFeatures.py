@@ -5,7 +5,7 @@ import numpy as np
 import h5py
 import matplotlib.pyplot as plt
 
-def calImgLBPFeatures(imgFile, gridSize, sizeRange, imResize=None):
+def calImgLBPFeatures(imgFile, gridSize, sizeRange, imResize=None, gridList=None):
     print imgFile
     P1 = 8
     P2 = 16
@@ -14,9 +14,9 @@ def calImgLBPFeatures(imgFile, gridSize, sizeRange, imResize=None):
     R2 = 2
     R3 = 3
     if imResize:
-        gridPatchData, positions, im = esg.generateGridPatchData(imgFile, gridSize, sizeRange, imResize=imResize)
+        gridPatchData, positions, im = esg.generateGridPatchData(imgFile, gridSize, sizeRange, imResize=imResize, gridList=gridList)
     else:
-        gridPatchData, positions, im = esg.generateGridPatchData(imgFile, gridSize, sizeRange)
+        gridPatchData, positions, im = esg.generateGridPatchData(imgFile, gridSize, sizeRange, gridList=gridList)
     LBPFeaDim = 10+18+26
     feaVecs = np.zeros((len(gridPatchData), LBPFeaDim))
     for i in range(len(gridPatchData)):

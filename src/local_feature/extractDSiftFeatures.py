@@ -12,15 +12,15 @@ posParaNum = 4
 saveFolder = '/home/ljm/NiuChuang/KLSA-auroral-images/Data/Features/'
 
 
-def calImgDSift(imgFile, gridSize, sizeRange, imResize=None):
+def calImgDSift(imgFile, gridSize, sizeRange, gridList=None, imResize=None):
     print imgFile
     if imResize:
-        patches, positions, im = esg.generateGridPatchData(imgFile, gridSize, sizeRange, imResize=imResize)
+        patches, positions, im = esg.generateGridPatchData(imgFile, gridSize, sizeRange, imResize=imResize, gridList=gridList)
     else:
-        patches, positions, im = esg.generateGridPatchData(imgFile, gridSize, sizeRange)
+        patches, positions, im = esg.generateGridPatchData(imgFile, gridSize, sizeRange, gridList=gridList)
     feaVecs = np.zeros((len(patches), siftFeaDim))
     for i in range(len(patches)):
-        patchSize = positions[i][-1]
+        patchSize = int(positions[i][-1])
         extractor = dsift.SingleSiftExtractor(patchSize)
         feaVec = extractor.process_image(patches[i])
         feaVecs[i, :] = feaVec
