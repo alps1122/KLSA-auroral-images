@@ -4,7 +4,11 @@ import random
 import math
 
 if __name__ == '__main__':
-    patchDataPath = '../../Data/balance500Patch.hdf5'
+    patchDataPath = '../../Data/one_in_minute_patch_diff_mean.hdf5'
+    patchTrain = '../../Data/one_in_minute_patch_train_diff_mean.hdf5'
+    patchTest = '../../Data/one_in_minute_patch_test_diff_mean.hdf5'
+    patchTrainList = '../../Data/patchListTrain_diff_mean.txt'
+    patchTestList = '../../Data/patchListTest_diff_mean.txt'
     train_rate = 0.8
     f = h5py.File(patchDataPath, 'r')
 
@@ -25,8 +29,8 @@ if __name__ == '__main__':
     print 'train num: ' + str(train_num)
     print 'test num: ' + str(test_num)
 
-    f_train = h5py.File('../../Data/balance500Patch_train.hdf5', 'w')
-    f_test = h5py.File('../../Data/balance500Patch_test.hdf5', 'w')
+    f_train = h5py.File(patchTrain, 'w')
+    f_test = h5py.File(patchTest, 'w')
 
     batchSize = 512
     d_tr = f_train.create_dataset('data', (0, data.shape[1], data.shape[2], data.shape[3]), dtype='f',
@@ -68,4 +72,11 @@ if __name__ == '__main__':
     f_test.close()
 
     f.close()
+
+    with open(patchTrainList, 'w') as ftr:
+        ftr.write(patchTrain)
+    with open(patchTestList, 'w') as fte:
+        fte.write(patchTest)
+    ftr.close()
+    fte.close()
 

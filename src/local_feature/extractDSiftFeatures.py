@@ -69,7 +69,8 @@ if __name__ == '__main__':
     names1, labels1 = plf.parseNL(labelFile1)
     classNum1 = 4
     gridSize = [10, 10]
-    sizeRange = [10, 30]
+    # sizeRange = [10, 30]
+    sizeRange = [28, 28]
     imResize = (256, 256)
     imgType = '.bmp'
     auroraData1 = plf.arrangeToClasses(names1, labels1, classNum1)
@@ -102,7 +103,8 @@ if __name__ == '__main__':
     labelFileType4 = '../../Data/type4_1500_500_500_500.txt'
 
     classLabel4 = [['1'], ['2'], ['3'], ['4']]
-    saveName4 = 'type4_SIFTFeatures.hdf5'
+    # saveName4 = 'type4_SIFTFeatures.hdf5'
+    saveName4 = 'type4_SIFTFeatures_s28.hdf5'
     classNum4 = 4
     # names3, lables3 = plf.parseNL(labelFileType3)
 

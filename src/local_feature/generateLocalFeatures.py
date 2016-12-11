@@ -27,6 +27,7 @@ def genImgLocalFeas(imgFile, feaType, gridSize, sizeRange, gridList=None, imResi
         net = sdaePara['net']
         meanFile = sdaePara['meanFile']
         inputShape = sdaePara['inputShape']
+        patchMean = sdaePara['patchMean']
         channels = inputShape[1]
 
         f_mean = open(meanFile, 'r')
@@ -40,7 +41,8 @@ def genImgLocalFeas(imgFile, feaType, gridSize, sizeRange, gridList=None, imResi
         caffe.set_mode_gpu()
         model = caffe.Net(net, weight, caffe.TEST)
 
-        feaVectors, posVectors = extSDAE.calImgSDAEFea(imgFile, model, gridSize, sizeRange, channels, patch_mean, gridList=gridList)
+        feaVectors, posVectors = extSDAE.calImgSDAEFea(imgFile, model, gridSize, sizeRange, channels,
+                                                       patch_mean, gridList=gridList, patchMean=patchMean)
 
     return feaVectors, posVectors
 

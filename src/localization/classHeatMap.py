@@ -16,6 +16,7 @@ import src.preprocess.esg as esg
 import src.local_feature.extractSDAEFeatures as extSDAE
 import src.local_feature.extractLBPFeatures as extlbp
 import src.local_feature.generateLocalFeatures as glf
+import src.local_feature.PCA as pca
 
 def calPatchLabels2(wordsFile, feaVectors, k=11, two_classes=['1', '2'], isH1=False):
     fw = h5py.File(wordsFile, 'r')
@@ -214,19 +215,28 @@ def generateHeatMaps2by2(wordsFile_h1, wordsFile_h2, feaVectors, posVectors, pat
         heat_maps[c] = map_c
     return heat_maps
 
-def saveImgHeatMaps(imgFile):
+def saveImgHeatMaps(imgFile, isReduce=False):
     sdae_wordsFile_h1 = '../../Data/Features/type4_SDAEWords_h1.hdf5'
     sdae_wordsFile_h2 = '../../Data/Features/type4_SDAEWords_h2.hdf5'
+    sdae_wordsFile_h1_reduce = '../../Data/Features/type4_SDAEWords_h1_reduce_sameRatio.hdf5'
+    sdae_wordsFile_h2_reduce = '../../Data/Features/type4_SDAEWords_h2_reduce_sameRatio.hdf5'
     sift_wordsFile_h1 = '../../Data/Features/type4_SIFTWords_h1.hdf5'
     sift_wordsFile_h2 = '../../Data/Features/type4_SIFTWords_h2.hdf5'
+    sift_wordsFile_h1_reduce = '../../Data/Features/type4_SIFTWords_h1_reduce.hdf5'
+    sift_wordsFile_h2_reduce = '../../Data/Features/type4_SIFTWords_h2_reduce.hdf5'
+    lbp_wordsFile_h1_reduce = '../../Data/Features/type4_LBPWords_h1_reduce_sameRatio.hdf5'
+    lbp_wordsFile_h2_reduce = '../../Data/Features/type4_LBPWords_h2_reduce_sameRatio.hdf5'
     lbp_wordsFile_h1 = '../../Data/Features/type4_LBPWords_h1.hdf5'
     lbp_wordsFile_h2 = '../../Data/Features/type4_LBPWords_h2.hdf5'
+    SIFTFeaFile = '../../Data/Features/type4_SIFTFeatures.hdf5'
+    SDAEFeaFile = '../../Data/Features/type4_SDAEFeas.hdf5'
+    LBPFeaFile = '../../Data/Features/type4_LBPFeatures.hdf5'
 
     sizeRange = (28, 28)
     imResize = (256, 256)
     imgSize = (440, 440)
     nk = 19
-    resolution = 1
+    resolution = 5
     gridSize = np.array([resolution, resolution])
     im = np.array(imread(imgFile), dtype='f') / 255
     th1 = 0.5
@@ -235,21 +245,37 @@ def saveImgHeatMaps(imgFile):
 
     # ----------------save sift------------------
     feaVectors, posVectors = glf.genImgLocalFeas(imgFile, 'SIFT', gridSize, sizeRange, imResize=None)
-    heats = generateHeatMaps2by2(sift_wordsFile_h1, sift_wordsFile_h2, feaVectors, posVectors, gridSize, nk, th1, th2)
+    if isReduce:
+        feaVectors = pca.reduceVecFeasDim(SIFTFeaFile, feaVectors, 64)
+        heats = generateHeatMaps2by2(sift_wordsFile_h1_reduce, sift_wordsFile_h2_reduce, feaVectors,
+                                     posVectors, gridSize, nk, th1, th2)
+    else:
+        heats = generateHeatMaps2by2(sift_wordsFile_h1, sift_wordsFile_h2, feaVectors, posVectors, gridSize, nk, th1, th2)
 
     for c, m in heats.iteritems():
         map3 = np.transpose(m, (1, 0, 2)).reshape(440, 440 * 3)
         map3 = np.append(map3, im, axis=1)
-        imsave(im_name + '_SIFT_' + c + '_th' + str(th1) + '.jpg', map3)
+        if isReduce:
+            imsave(im_name + '_SIFT_reduce_' + c + '_th' + str(th1) + '.jpg', map3)
+        else:
+            imsave(im_name + '_SIFT_' + c + '_th' + str(th1) + '.jpg', map3)
 
     # ----------------save lbp------------------
     feaVectors, posVectors = glf.genImgLocalFeas(imgFile, 'LBP', gridSize, sizeRange, imResize=None)
-    heats = generateHeatMaps2by2(lbp_wordsFile_h1, lbp_wordsFile_h2, feaVectors, posVectors, gridSize, nk, th1, th2)
+    if isReduce:
+        feaVectors = pca.reduceVecFeasDim(LBPFeaFile, feaVectors, 8)
+        heats = generateHeatMaps2by2(lbp_wordsFile_h1_reduce, lbp_wordsFile_h2_reduce, feaVectors,
+                                     posVectors, gridSize, nk, th1, th2)
+    else:
+        heats = generateHeatMaps2by2(lbp_wordsFile_h1, lbp_wordsFile_h2, feaVectors, posVectors, gridSize, nk, th1, th2)
 
     for c, m in heats.iteritems():
         map3 = np.transpose(m, (1, 0, 2)).reshape(440, 440 * 3)
         map3 = np.append(map3, im, axis=1)
-        imsave(im_name + '_LBP_' + c + '_th' + str(th1) + '.jpg', map3)
+        if isReduce:
+            imsave(im_name + '_LBP_reduce_' + c + '_th' + str(th1) + '.jpg', map3)
+        else:
+            imsave(im_name + '_LBP_' + c + '_th' + str(th1) + '.jpg', map3)
 
     # ---------------show SDEA local results--------------
     # define SDAE parameters
@@ -257,6 +283,7 @@ def saveImgHeatMaps(imgFile):
     sdaePara['weight'] = '../../Data/autoEncoder/final_0.01.caffemodel'
     sdaePara['net'] = '../../Data/autoEncoder/test_net.prototxt'
     sdaePara['meanFile'] = '../../Data/patchData_mean.txt'
+    sdaePara['patchMean'] = False
     channels = 1
     layerNeuronNum = [28 * 28, 2000, 1000, 500, 128]
     sdaePara['layerNeuronNum'] = layerNeuronNum
@@ -266,12 +293,19 @@ def saveImgHeatMaps(imgFile):
     sdaePara['inputShape'] = inputShape
 
     feaVectors, posVectors = glf.genImgLocalFeas(imgFile, 'SDAE', gridSize, sizeRange, sdaePara=sdaePara)
-
-    heats = generateHeatMaps2by2(sdae_wordsFile_h1, sdae_wordsFile_h2, feaVectors, posVectors, gridSize, nk, th1, th2)
+    if isReduce:
+        feaVectors = pca.reduceVecFeasDim(SDAEFeaFile, feaVectors, 9)
+        heats = generateHeatMaps2by2(sdae_wordsFile_h1_reduce, sdae_wordsFile_h2_reduce, feaVectors,
+                                     posVectors, gridSize, nk, th1, th2)
+    else:
+        heats = generateHeatMaps2by2(sdae_wordsFile_h1, sdae_wordsFile_h2, feaVectors, posVectors, gridSize, nk, th1, th2)
     for c, m in heats.iteritems():
         map3 = np.transpose(m, (1, 0, 2)).reshape(440, 440 * 3)
         map3 = np.append(map3, im, axis=1)
-        imsave(im_name + '_SDAE_' + c + '_th' + str(th1) + '.jpg', map3)
+        if isReduce:
+            imsave(im_name + '_SDAE_reduce_' + c + '_th' + str(th1) + '.jpg', map3)
+        else:
+            imsave(im_name + '_SDAE_' + c + '_th' + str(th1) + '.jpg', map3)
     return 0
 
 if __name__ == '__main__':
@@ -297,8 +331,9 @@ if __name__ == '__main__':
     # imgFile = imagesFolder + images[0] + imgType
     # imgName = 'N20031226G033831'
     # imgFile = imagesFolder + imgName + imgType
-    imgFile = '/home/niuchuang/data/AuroraData/Aurora_img/4/N20031225G112411.jpg'
-    saveImgHeatMaps(imgFile)
+    imgFile = '../../Data/labeled2003_38044/N20031225G112411.bmp'
+    saveImgHeatMaps(imgFile, isReduce=False)
+    saveImgHeatMaps(imgFile, isReduce=True)
     # nk = 19
     # th1 = 0.5
     # th2 = 0.5

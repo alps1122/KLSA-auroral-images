@@ -1,9 +1,9 @@
 import skimage.data
-import selectivesearch
 import matplotlib.pyplot as plt
 import numpy as np
 
 import sys
+sys.path.insert(0, '../../selective_search_py')
 import argparse
 import warnings
 import numpy
@@ -34,7 +34,7 @@ if __name__=="__main__":
     # parser.add_argument('-a', '--alpha',    type=float, default=1.0, help='alpha value for compositing result image with input image')
     # args = parser.parse_args()
 
-    imgFile = '/home/niuchuang/data/AuroraData/Aurora_img/4/N20031223G120622.jpg'
+    imgFile = '../../Data/labeled2003_38044/N20031223G120622.bmp'
     k = 100
     feature_masks = [1, 1, 1, 1]  # ['size', 'color', 'texture', 'fill']
     out_prefix = ''

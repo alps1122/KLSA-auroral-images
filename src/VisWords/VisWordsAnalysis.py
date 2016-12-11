@@ -118,6 +118,13 @@ if __name__ == '__main__':
     sdaeWordsFile_h2 = '../../Data/Features/type4_SDAEWords_h2.hdf5'
     lbpWordsFile_h1 = '../../Data/Features/type4_LBPWords_h1.hdf5'
     lbpWordsFile_h2 = '../../Data/Features/type4_LBPWords_h2.hdf5'
+
+    siftWordsFile_h1_reduce = '../../Data/Features/type4_SIFTWords_h1_reduce.hdf5'
+    siftWordsFile_h2_reduce = '../../Data/Features/type4_SIFTWords_h2_reduce.hdf5'
+    sdaeWordsFile_h1_redece = '../../Data/Features/type4_SDAEWords_h1_reduce_sameRatio.hdf5'
+    sdaeWordsFile_h2_reduce = '../../Data/Features/type4_SDAEWords_h2_reduce_sameRatio.hdf5'
+    lbpWordsFile_h1_reduce = '../../Data/Features/type4_LBPWords_h1_reduce_sameRatio.hdf5'
+    lbpWordsFile_h2_reduce = '../../Data/Features/type4_LBPWords_h2_reduce_sameRatio.hdf5'
     # distance11, distance12, distance22 = calEucDistance(wordsFile_h1, ['1', '2'])
 
     # c1_common_v, c2_common_v = calCommonVector(wordsFile_h1, ['1', '2'])
@@ -127,6 +134,6 @@ if __name__ == '__main__':
     # print 'c2_common_v: '
     # print c2_common_v
 
-    calMultiCommonVectors(siftWordsFile_h1, siftWordsFile_h2)
-    calMultiCommonVectors(sdaeWordsFile_h1, sdaeWordsFile_h2)
-    calMultiCommonVectors(lbpWordsFile_h1, lbpWordsFile_h2)
+    calMultiCommonVectors(siftWordsFile_h1_reduce, siftWordsFile_h2_reduce)
+    calMultiCommonVectors(sdaeWordsFile_h1_redece, sdaeWordsFile_h2_reduce)
+    calMultiCommonVectors(lbpWordsFile_h1_reduce, lbpWordsFile_h2_reduce)

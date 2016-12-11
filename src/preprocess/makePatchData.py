@@ -6,8 +6,9 @@ import src.preprocess.esg as esg
 import src.util.paseLabeledFile as plf
 
 def makePatchData(labelFile, patchSize, gridSize=np.array([10, 10]), imgType='.bmp',
-                  channels=1, savePath='../../Data/balance500Patch.hdf5',
-                  imagesFolder='../../Data/labeled2003_38044/', subtract_mean=True):
+                  channels=1, savePath='../../Data/one_in_minute_patch_diff_mean.hdf5',
+                  imagesFolder='../../Data/labeled2003_38044/', patchMean=True,
+                  saveList='../../Data/patchList_diff_mean.txt', subtract_same_mean=False):
     sizeRange = (patchSize, patchSize)
     [images, labels] = plf.parseNL(labelFile)
     # arragedImages = plf.arrangeToClasses(images, labels, classNum)
@@ -16,7 +17,7 @@ def makePatchData(labelFile, patchSize, gridSize=np.array([10, 10]), imgType='.b
     data = f.create_dataset('data', (0, channels, patchSize, patchSize), dtype='f', maxshape=(None, channels, patchSize, patchSize))
     label = f.create_dataset('label', (0, ), dtype='i', maxshape=(None, ))
 
-    if subtract_mean:
+    if subtract_same_mean:
         patches_mean = 0
         for i in range(len(images)):
             imf = imagesFolder + images[i] + imgType
@@ -34,13 +35,20 @@ def makePatchData(labelFile, patchSize, gridSize=np.array([10, 10]), imgType='.b
     else:
         patch_mean = 0
 
+    print 'patch_mean: ', patch_mean
     for i in range(len(images)):
         imf = imagesFolder + images[i] + imgType
+        print imf
 
         gridPatchData, gridList, _ = esg.generateGridPatchData(imf, gridSize, sizeRange)
 
         patchData = [p.reshape(channels, patchSize, patchSize) for p in gridPatchData]
         patchData = np.array(patchData) - patch_mean
+        if patchMean:
+            means = np.mean(np.mean(patchData, axis=-1), axis=-1)
+            means = means.reshape(means.shape[0], means.shape[1], 1, 1)
+            means = np.tile(means, (1, 1, patchSize, patchSize))
+            patchData -= means
         labelData = np.full((len(gridList), ), int(labels[i]), dtype='i')
 
         oldNum = data.shape[0]
@@ -51,13 +59,14 @@ def makePatchData(labelFile, patchSize, gridSize=np.array([10, 10]), imgType='.b
         label[oldNum:newNum, ] = labelData
 
     f.close()
+    print 'make patch data done!'
 
-    with open('../../Data/patchDataList.txt', 'w') as f1:
-        f1.write('/home/ljm/NiuChuang/KLSA-auroral-images/Data/balance500Patch.hdf5')
+    with open(saveList, 'w') as f1:
+        f1.write(savePath)
     f1.close()
+    print saveList + ' saved!'
 
     return 0
-
 
 if __name__ == '__main__':
 
