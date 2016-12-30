@@ -14,7 +14,7 @@ import src.preprocess.esg as esg
 import src.local_feature.extractSDAEFeatures as extSDAE
 import src.local_feature.extractLBPFeatures as extlbp
 
-def genImgLocalFeas(imgFile, feaType, gridSize, sizeRange, gridList=None, imResize=None, sdaePara=None):
+def genImgLocalFeas(imgFile, feaType, gridSize, sizeRange, gridList=None, imResize=None, sdaePara=None, u_reduce=None):
 
     if feaType == 'SIFT':
         feaVectors, posVectors = extSift.calImgDSift(imgFile, gridSize, sizeRange, imResize=imResize, gridList=gridList)
@@ -30,9 +30,12 @@ def genImgLocalFeas(imgFile, feaType, gridSize, sizeRange, gridList=None, imResi
         patchMean = sdaePara['patchMean']
         channels = inputShape[1]
 
-        f_mean = open(meanFile, 'r')
-        patch_mean = float(f_mean.readline().split(' ')[1])
-        f_mean.close()
+        if ~patchMean:
+            f_mean = open(meanFile, 'r')
+            patch_mean = float(f_mean.readline().split(' ')[1])
+            f_mean.close()
+        else:
+            patch_mean = 0
 
         with open(net, 'w') as f1:
             layerNeuronNum = sdaePara['layerNeuronNum']
@@ -44,7 +47,11 @@ def genImgLocalFeas(imgFile, feaType, gridSize, sizeRange, gridList=None, imResi
         feaVectors, posVectors = extSDAE.calImgSDAEFea(imgFile, model, gridSize, sizeRange, channels,
                                                        patch_mean, gridList=gridList, patchMean=patchMean)
 
-    return feaVectors, posVectors
+    if u_reduce is not None:
+        feas_reduce = feaVectors.dot(u_reduce.T)
+        return feas_reduce, posVectors
+    else:
+        return feaVectors, posVectors
 
 if __name__ == '__main__':
     labelFile = '../../Data/balanceSampleFrom_one_in_minute.txt'

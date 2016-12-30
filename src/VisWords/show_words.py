@@ -9,7 +9,7 @@ if __name__ == '__main__':
     sdaeFeas = '../../Data/Features/type4_SDAEWords_h1.hdf5'
     siftFeas = '../../Data/Features/type4_SIFTWords_h1.hdf5'
 
-    f = h5py.File(lbpFeas, 'r')
+    f = h5py.File(sdaeFeas, 'r')
     for i in f:
         print i
     common1 = np.array(f.get('common_vectors/common_vec_1'))

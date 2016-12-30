@@ -263,7 +263,6 @@ def layerwise_train(paraConfig):
 
         print test_loss[0], test_loss[int(np.ceil(niter / test_interval)) - 1]
         print train_loss[0] / 256, train_loss[-1] / 256
-    plt.show()
     return 0
 
 def finetue_train(paraConfig, finetune_train_proto= '../../Data/autoEncoder/finetune_train.prototxt',
@@ -335,11 +334,11 @@ def finetue_train(paraConfig, finetune_train_proto= '../../Data/autoEncoder/fine
     print test_loss[0], test_loss[int(np.ceil(niter / test_interval)) - 1]
     print train_loss[0] / 256, train_loss[-1] / 256
 
-    plt.show()
     return 0
 
 if __name__ == '__main__':
-    patchDataPath = '../../Data/one_in_minute_patch_test_diff_mean.hdf5'
+    # patchDataPath = '../../Data/one_in_minute_patch_test_diff_mean.hdf5'
+    patchDataPath = '../../Data/type4_test_same_mean_s16.hdf5'
     # patchData_mean = '../../Data/patchData_mean.txt'
     # fm = open(patchData_mean, 'r')
     # mean_value = float(fm.readline().split(' ')[1])
@@ -356,7 +355,7 @@ if __name__ == '__main__':
 
     paraConfig = {}
     paraConfig['train_batchSize'] = 256
-    paraConfig['test_batchSize'] = 128
+    paraConfig['test_batchSize'] = 278
     paraConfig['test_interval'] = 10000
     paraConfig['test_iter'] = test_num / paraConfig['test_batchSize']
     # paraConfig['test_iter'] = 100
@@ -367,19 +366,19 @@ if __name__ == '__main__':
     paraConfig['stepsize'] = 2000
     paraConfig['momentum'] = 0.9
     paraConfig['weight_decay'] = 0.0
-    paraConfig['max_iter'] = 50000
+    paraConfig['max_iter'] = 100000
     paraConfig['display'] = 1000
     paraConfig['snapshot'] = 50000
-    paraConfig['snapshot_prefix'] = 'layer_diff_mean'
+    paraConfig['snapshot_prefix'] = 'layer_same_mean_s16'
     paraConfig['solver_mode'] = caffe_pb2.SolverParameter.GPU
-    paraConfig['train_data'] = '../../Data/patchListTrain_diff_mean.txt'
-    paraConfig['test_data'] = '../../Data/patchListTest_diff_mean.txt'
+    paraConfig['train_data'] = '../../Data/type4_train_same_mean_s16.txt'
+    paraConfig['test_data'] = '../../Data/type4_test_same_mean_s16.txt'
 
     weight_param = dict(lr_mult=1, decay_mult=1)
     bias_param = dict(lr_mult=2, decay_mult=0)
     learned_param = [weight_param, bias_param]
     frozen_param = [dict(lr_mult=0)] * 2
-    layerNeuronNum = [28 * 28, 2000, 1000, 500, 128]
+    layerNeuronNum = [16 * 16, 1000, 1000, 500, 64]
     drop_ratio = 0.2
 
     paraConfig['learned_param'] = learned_param
@@ -411,3 +410,5 @@ if __name__ == '__main__':
     layerwise_train(paraConfig)
     # --------------finetune--------------------------------
     finetue_train(paraConfig)
+
+    plt.show()

@@ -1,11 +1,12 @@
 from skimage import feature
 import src.util.paseLabeledFile as plf
+import src.util.normalizeVecs as nv
 import src.preprocess.esg as esg
 import numpy as np
 import h5py
 import matplotlib.pyplot as plt
 
-def calImgLBPFeatures(imgFile, gridSize, sizeRange, imResize=None, gridList=None):
+def calImgLBPFeatures(imgFile, gridSize, sizeRange, imResize=None, gridList=None, norm=True):
     print imgFile
     P1 = 8
     P2 = 16
@@ -36,6 +37,8 @@ def calImgLBPFeatures(imgFile, gridSize, sizeRange, imResize=None, gridList=None
         feaVec = np.array(list(lbp_hist_R1P8) + list(lbp_hist_R2P16) + list(lbp_hist_R3P24))
 
         feaVecs[i, :] = feaVec
+    if norm:
+        feaVecs = nv.normalizeVecs(feaVecs)
     return feaVecs, np.array(positions)
 
 def calLBPFeaSet(dataFolder, labelFile, classNum, imgType, gridSize, sizeRange, classLabel, saveName, imResize=None):
@@ -77,7 +80,7 @@ if __name__ == '__main__':
     dataFolder = '../../Data/labeled2003_38044/'
     imgType = '.bmp'
     gridSize = np.array([10, 10])
-    sizeRange = (28, 28)
+    sizeRange = (16, 16)
     # classLabel3 = [['1'], ['2'], ['3']]
     # saveName3 = 'type3_LBPFeatures.hdf5'
     # classNum3 = 3
@@ -87,9 +90,13 @@ if __name__ == '__main__':
     #              saveFolder + saveName3)
 
     classLabel4 = [['1'], ['2'], ['3'], ['4']]
-    saveName4 = 'type4_LBPFeatures.hdf5'
+    # saveName4 = 'type4_LBPFeatures.hdf5'
+    # saveName4 = 'type4_LBPFeatures_s16_600_300_300_300.hdf5'
+    saveName4 = 'type4_LBPFeatures_s16_300_300_300_300.hdf5'
     classNum4 = 4
-    labelFileType4 = '../../Data/type4_1500_500_500_500.txt'
+    # labelFileType4 = '../../Data/type4_1500_500_500_500.txt'
+    # labelFileType4 = '../../Data/type4_600_300_300_300.txt'
+    labelFileType4 = '../../Data/type4_300_300_300_300.txt'
     saveFolder = '../../Data/Features/'
     calLBPFeaSet(dataFolder, labelFileType4, classNum4, imgType, gridSize, sizeRange, classLabel4,
                  saveFolder + saveName4)

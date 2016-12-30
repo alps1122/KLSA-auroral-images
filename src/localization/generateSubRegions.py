@@ -1,9 +1,9 @@
 import skimage.data
-import selectivesearch
 import matplotlib.pyplot as plt
 import numpy as np
 
 import sys
+sys.path.insert(0, '../../selective_search_py')
 import argparse
 import warnings
 import numpy
@@ -61,7 +61,7 @@ def show_region_patch_grid(imgFile, F0, region_patch_list, alpha):
     plt.show()
 
 if __name__ == "__main__":
-    imgFile = '/home/niuchuang/data/AuroraData/Aurora_img/4/N20031223G120622.jpg'
+    imgFile = '/home/ljm/NiuChuang/KLSA-auroral-images/Data/labeled2003_38044/N20040117G091433.bmp'
     k = 100
     minSize = 500
     patchSize = np.array([28, 28])
@@ -78,6 +78,6 @@ if __name__ == "__main__":
             if np.linalg.norm(np.array([i, j]) - centers) > radius + 5:
                 eraseMap[i, j] = 1
 
-    F0, region_patch_list = generate_subRegions(imgFile, gridSize, region_patch_ratio, eraseMap, k, minSize, sigma)
+    F0, region_patch_list = generate_subRegions(imgFile, patchSize, region_patch_ratio, eraseMap, k, minSize, sigma)
 
     show_region_patch_grid(imgFile, F0, region_patch_list, alpha)

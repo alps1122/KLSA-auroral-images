@@ -13,12 +13,15 @@ import h5py
 from caffe.proto import caffe_pb2
 import src.preprocess.esg as esg
 import src.util.paseLabeledFile as plf
+import src.util.normalizeVecs as nv
 import src.local_feature.autoencoder as AE
 
-def calImgSDAEFea(imgFile, model, gridSize, sizeRange, channels, patch_mean, gridList=None, imResize=None, patchMean=True):
+def calImgSDAEFea(imgFile, model, gridSize, sizeRange, channels, patch_mean,
+                  gridList=None, imResize=None, patchMean=True, norm=True):
     patchSize = sizeRange[0]
     if imResize:
-        gridPatchData, gridList, im = esg.generateGridPatchData(imgFile, gridSize, sizeRange, imResize=imResize, gridList=gridList)
+        gridPatchData, gridList, im = esg.generateGridPatchData(imgFile, gridSize, sizeRange, imResize=imResize,
+                                                                gridList=gridList)
     else:
         gridPatchData, gridList, im = esg.generateGridPatchData(imgFile, gridSize, sizeRange, gridList=gridList)
     # gridPatchData, gridList, im = esg.generateGridPatchData(imgFile, gridSize, sizeRange, gridList=gridList)
@@ -36,28 +39,30 @@ def calImgSDAEFea(imgFile, model, gridSize, sizeRange, channels, patch_mean, gri
     out_name = model.blobs.items()[-1][0]
     feaVec = out[out_name]
     posVec = np.array(gridList)
-
+    if norm:
+        feaVec = nv.normalizeVecs(feaVec)
     return feaVec, posVec
 
 if __name__ == '__main__':
     dataFolder = '../../Data/labeled2003_38044/'
     imgType = '.bmp'
     gridSize = np.array([10, 10])
-    sizeRange = (28, 28)
+    sizeRange = (16, 16)
     patchSize = sizeRange[0]
     channels = 1
     posParaNum = 4
-    layerNeuronNum = [28 * 28, 2000, 1000, 500, 128]
+    layerNeuronNum = [16 * 16, 1000, 1000, 500, 64]
     SDAEFeaDim = layerNeuronNum[-1]
 
     # weight = '../../Data/autoEncoder/final_0.01.caffemodel'
-    weight = '../../Data/autoEncoder/layer_diff_mean_final.caffemodel'
+    # weight = '../../Data/autoEncoder/layer_diff_mean_final.caffemodel'
+    weight = '../../Data/autoEncoder/layer_same_mean_s16_final.caffemodel'
     net = '../../Data/autoEncoder/test_net.prototxt'
     img_test = dataFolder + 'N20031221G030001.bmp'
     gridPatchData, gridList, im = esg.generateGridPatchData(img_test, gridSize, sizeRange)
     batchSize = len(gridList)
 
-    inputShape = (batchSize, 1, 28, 28)
+    inputShape = (batchSize, 1, 16, 16)
     with open(net, 'w') as f1:
         f1.write(str(AE.defineTestNet(inputShape, layerNeuronNum)))
 
@@ -66,9 +71,11 @@ if __name__ == '__main__':
 
     labelTruth = '../../Data/Alllabel2003_38044.txt'
     # labelFile = '../../Data/type3_1000_500_500.txt'
-    labelFile = '../../Data/type4_1500_500_500_500.txt'
+    # labelFile = '../../Data/type4_1500_500_500_500.txt'
+    labelFile = '../../Data/type4_600_300_300_300.txt'
     print plf.compareLabeledFile(labelTruth, labelFile)
-    meanFile = '../../Data/patchData_mean.txt'
+    # meanFile = '../../Data/patchData_mean.txt'
+    meanFile = '../../Data/patchData_mean_s16.txt'
     classNum = 4
     # classes = [['1'], ['2'], ['3']]
     classes = [['1'], ['2'], ['3'], ['4']]
@@ -77,13 +84,14 @@ if __name__ == '__main__':
     patch_mean = float(f_mean.readline().split(' ')[1])
     f_mean.close()
     # diff mean
-    patch_mean = 0
+    # patch_mean = 0
 
     print 'patch_mean: ' + str(patch_mean)
 
     # saveSDAEFeas = '../../Data/Features/type3_SDAEFeas.hdf5'
     # saveSDAEFeas = '../../Data/Features/type4_SDAEFeas.hdf5'
-    saveSDAEFeas = '../../Data/Features/type4_SDAEFeas_diff_mean.hdf5'
+    # saveSDAEFeas = '../../Data/Features/type4_SDAEFeas_diff_mean.hdf5'
+    saveSDAEFeas = '../../Data/Features/type4_SDAEFeas_same_mean_s16_600_300_300_300.hdf5'
 
     [images, labels] = plf.parseNL(labelFile)
     # arrImgs, _ = plf.arrangeToClasses(images, labels, classNum, classes)
@@ -110,7 +118,7 @@ if __name__ == '__main__':
             #     feaVec, posVec = calImgDSift(imgFile, gridSize, sizeRange, imResize=imResize)
             # else:
             #     feaVec, posVec = calImgDSift(imgFile, gridSize, sizeRange)
-            feaVec, posVec = calImgSDAEFea(imgFile, model, gridSize, sizeRange, channels, patch_mean)
+            feaVec, posVec = calImgSDAEFea(imgFile, model, gridSize, sizeRange, channels, patch_mean, patchMean=False)
             # gridPatchData, gridList, im = esg.generateGridPatchData(imgFile, gridSize, sizeRange)
             # patchData = [p.reshape(channels, patchSize, patchSize) for p in gridPatchData]
             # patchData = np.array(patchData) - patch_mean

@@ -7,6 +7,7 @@ import src.util.paseLabeledFile as plf
 
 def makePatchData(labelFile, patchSize, gridSize=np.array([10, 10]), imgType='.bmp',
                   channels=1, savePath='../../Data/one_in_minute_patch_diff_mean.hdf5',
+                  same_mean_file = '../.../Data/patchData_mean_s16.txt',
                   imagesFolder='../../Data/labeled2003_38044/', patchMean=True,
                   saveList='../../Data/patchList_diff_mean.txt', subtract_same_mean=False):
     sizeRange = (patchSize, patchSize)
@@ -29,7 +30,7 @@ def makePatchData(labelFile, patchSize, gridSize=np.array([10, 10]), imgType='.b
         patch_mean = patches_mean / len(images)
         print 'patch number: ' + str(data.shape[0])
         print 'patch mean: ' + str(patch_mean)
-        with open('../../Data/patchData_mean.txt', 'w') as f2:
+        with open(same_mean_file, 'w') as f2:
             f2.write('patch_mean: ' + str(patch_mean))
         f2.close()
     else:
@@ -71,13 +72,21 @@ def makePatchData(labelFile, patchSize, gridSize=np.array([10, 10]), imgType='.b
 if __name__ == '__main__':
 
     labelFile = '../../Data/balanceSampleFrom_one_in_minute.txt'
+    # labelFile = '../../Data/type4_600_300_300_300.txt'
     imagesFolder = '../../Data/labeled2003_38044/'
     imgType = '.bmp'
     gridSize = np.array([10, 10])
     # sizeRange = (30, 30)
-    patchSize = 28
+    patchSize = 16
+    savePatch_same_mean_s16 = '../../Data/type4_same_mean_s16.hdf5'
+    saveList_same_mean_s16 = '../../Data/type4_same_mean_s16.txt'
+    savePatch_diff_mean_s16 = '../../Data/type4_diff_mean_s16.hdf5'
+    saveList_diff_mean_s16 = '../../Data/type4_diff_mean_s16.txt'
 
-    makePatchData(labelFile, patchSize)
+    makePatchData(labelFile, patchSize, patchMean=False, subtract_same_mean=True,
+                  savePath=savePatch_same_mean_s16, saveList=saveList_same_mean_s16)
+    makePatchData(labelFile, patchSize, patchMean=True, subtract_same_mean=False,
+                  savePath=savePatch_diff_mean_s16, saveList=saveList_diff_mean_s16)
 
     # [images, labels] = plf.parseNL(labelFile)
     #

@@ -4,12 +4,22 @@ import random
 import math
 
 if __name__ == '__main__':
-    patchDataPath = '../../Data/one_in_minute_patch_diff_mean.hdf5'
-    patchTrain = '../../Data/one_in_minute_patch_train_diff_mean.hdf5'
-    patchTest = '../../Data/one_in_minute_patch_test_diff_mean.hdf5'
-    patchTrainList = '../../Data/patchListTrain_diff_mean.txt'
-    patchTestList = '../../Data/patchListTest_diff_mean.txt'
-    train_rate = 0.8
+    # patchDataPath = '../../Data/one_in_minute_patch_diff_mean.hdf5'
+    # patchTrain = '../../Data/one_in_minute_patch_train_diff_mean.hdf5'
+    # patchTest = '../../Data/one_in_minute_patch_test_diff_mean.hdf5'
+    # patchTrainList = '../../Data/patchListTrain_diff_mean.txt'
+    # patchTestList = '../../Data/patchListTest_diff_mean.txt'
+    # patchDataPath = '../../Data/type4_diff_mean_s16.hdf5'
+    # patchTrain = '../../Data/type4_train_diff_mean_s16.hdf5'
+    # patchTest = '../../Data/type4_test_diff_mean_s16.hdf5'
+    # patchTrainList = '../../Data/type4_train_diff_mean_s16.txt'
+    # patchTestList = '../../Data/type4_test_diff_mean_s16.txt'
+    patchDataPath = '../../Data/type4_same_mean_s16.hdf5'
+    patchTrain = '../../Data/type4_train_same_mean_s16.hdf5'
+    patchTest = '../../Data/type4_test_same_mean_s16.hdf5'
+    patchTrainList = '../../Data/type4_train_same_mean_s16.txt'
+    patchTestList = '../../Data/type4_test_same_mean_s16.txt'
+    train_rate = 0.9
     f = h5py.File(patchDataPath, 'r')
 
     data = f.get('data')

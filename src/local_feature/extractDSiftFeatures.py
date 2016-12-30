@@ -70,7 +70,7 @@ if __name__ == '__main__':
     classNum1 = 4
     gridSize = [10, 10]
     # sizeRange = [10, 30]
-    sizeRange = [28, 28]
+    sizeRange = [16, 16]
     imResize = (256, 256)
     imgType = '.bmp'
     auroraData1 = plf.arrangeToClasses(names1, labels1, classNum1)
@@ -100,15 +100,19 @@ if __name__ == '__main__':
     # SIFTFeature3 = calSIFTFeaSet(dataFolder, labelFileType3, classNum3, imgType, gridSize, sizeRange, classLabel3,
     #                              saveName3, imResize=imResize)
 
-    labelFileType4 = '../../Data/type4_1500_500_500_500.txt'
+    # labelFileType4 = '../../Data/type4_1500_500_500_500.txt'
+    # labelFileType4 = '../../Data/type4_600_300_300_300.txt'
+    labelFileType4 = '../../Data/type4_300_300_300_300.txt'
 
     classLabel4 = [['1'], ['2'], ['3'], ['4']]
     # saveName4 = 'type4_SIFTFeatures.hdf5'
-    saveName4 = 'type4_SIFTFeatures_s28.hdf5'
+    # saveName4 = 'type4_SIFTFeatures_s28.hdf5'
+    # saveName4 = 'type4_SIFTFeatures_s16_600_300_300_300.hdf5'
+    saveName4 = 'type4_SIFTFeatures_s16_300_300_300_300.hdf5'
     classNum4 = 4
     # names3, lables3 = plf.parseNL(labelFileType3)
 
-    SIFTFeature3 = calSIFTFeaSet(dataFolder, labelFileType4, classNum4, imgType, gridSize, sizeRange, classLabel4,
+    calSIFTFeaSet(dataFolder, labelFileType4, classNum4, imgType, gridSize, sizeRange, classLabel4,
                                  saveName4, imResize=None)
 
     # print pos[110][-1]
