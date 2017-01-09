@@ -5,7 +5,7 @@ Chuang Niu, niuchuang@stu.xidian.edu.cn
 import numpy as np
 import matplotlib.pyplot as plt
 import sys
-sys.path.insert(0, '../../caffe/python')
+sys.path.insert(0, '../../fast-rcnn/caffe-fast-rcnn/python')
 import caffe
 from caffe import layers as L, params as P
 import os

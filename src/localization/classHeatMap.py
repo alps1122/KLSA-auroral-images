@@ -9,7 +9,7 @@ import copy
 import sys
 import math
 
-sys.path.insert(0, '../../caffe/python')
+sys.path.insert(0, '../../fast-rcnn/caffe-fast-rcnn/python')
 import caffe
 import src.local_feature.autoencoder as AE
 import src.preprocess.esg as esg

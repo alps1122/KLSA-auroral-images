@@ -1,7 +1,6 @@
 import skimage.data
 import matplotlib.pyplot as plt
 import numpy as np
-
 import sys
 sys.path.insert(0, '../../selective_search_py')
 import argparse
@@ -10,16 +9,19 @@ import numpy
 import skimage.io
 import features
 import color_space
-import selective_search
+# import selective_search
 import src.util.paseLabeledFile as plf
 import segment
 import src.preprocess.esg as esg
 
-def generate_subRegions(imgFile, patchSize, region_patch_ratio, eraseMap, k, minSize, sigma,
+def generate_subRegions(imgFileOrImg, patchSize, region_patch_ratio, eraseMap, k, minSize, sigma,
                         radius=220, centers = np.array([219.5, 219.5])):
-    img = skimage.io.imread(imgFile)
-    if len(img.shape) == 2:
-        img = skimage.color.gray2rgb(img)
+    if isinstance(imgFileOrImg, str):
+        img = skimage.io.imread(imgFile)
+        if len(img.shape) == 2:
+            img = skimage.color.gray2rgb(img)
+    else:
+        img = imgFileOrImg
 
     F0, n_region = segment.segment_label(img, sigma, k, minSize)
 
@@ -40,7 +42,7 @@ def generate_subRegions(imgFile, patchSize, region_patch_ratio, eraseMap, k, min
                     if np.random.rand(1, )[0] < region_patch_ratio:
                         region_patch_list[l].append(ll)
 
-    return F0, region_patch_list
+    return F0, region_patch_list, eraseLabels
 
 def show_region_patch_grid(imgFile, F0, region_patch_list, alpha):
     img = skimage.io.imread(imgFile)
@@ -61,7 +63,7 @@ def show_region_patch_grid(imgFile, F0, region_patch_list, alpha):
     plt.show()
 
 if __name__ == "__main__":
-    imgFile = '/home/ljm/NiuChuang/KLSA-auroral-images/Data/labeled2003_38044/N20040117G091433.bmp'
+    imgFile = '/home/ljm/NiuChuang/KLSA-auroral-images/Data/labeled2003_38044/N20040114G095403.bmp'
     k = 100
     minSize = 500
     patchSize = np.array([28, 28])
@@ -78,6 +80,6 @@ if __name__ == "__main__":
             if np.linalg.norm(np.array([i, j]) - centers) > radius + 5:
                 eraseMap[i, j] = 1
 
-    F0, region_patch_list = generate_subRegions(imgFile, patchSize, region_patch_ratio, eraseMap, k, minSize, sigma)
+    F0, region_patch_list, _ = generate_subRegions(imgFile, patchSize, region_patch_ratio, eraseMap, k, minSize, sigma)
 
     show_region_patch_grid(imgFile, F0, region_patch_list, alpha)

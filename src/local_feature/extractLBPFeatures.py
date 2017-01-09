@@ -7,7 +7,7 @@ import h5py
 import matplotlib.pyplot as plt
 
 def calImgLBPFeatures(imgFile, gridSize, sizeRange, imResize=None, gridList=None, norm=True):
-    print imgFile
+    # print imgFile
     P1 = 8
     P2 = 16
     P3 = 24

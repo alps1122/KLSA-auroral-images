@@ -5,6 +5,9 @@ import src.local_feature.generateLocalFeatures as glf
 import src.local_feature.cascadefeas as casf
 from scipy.misc import imread, imresize, imsave
 import h5py
+import matplotlib.pyplot as plt
+import os
+from skimage.transform import rotate
 
 def region_category_map(paras):
     imgFile = paras['imgFile']
@@ -102,9 +105,9 @@ def region_category_map(paras):
         map3 = np.append(map3, im, axis=1)
         imsave(im_name + '_' + feaType + '_' + c + '_region' + '.jpg', map3)
 
-def region_special_map(paras):
+def region_special_map(paras, isReturnMaps=None):
     imgFile = paras['imgFile']
-
+    img = paras['img']
     k = paras['k']
     minSize = paras['minSize']
     patchSize = paras['patchSize']
@@ -129,6 +132,11 @@ def region_special_map(paras):
     sift_wordsFile_s4 = paras['sift_wordsFile_s4']
     sdaePara = paras['sdaePara']
     types = paras['types']
+    isSave = paras['isSave']
+    specialType = paras['specialType']
+    returnRegionLabels = paras['returnRegionLabels']
+    train = paras['train']
+    is_rotate = paras['is_rotate']
 
     if feaType == 'LBP':
         wordsFile_s = [lbp_wordsFile_s1, lbp_wordsFile_s2, lbp_wordsFile_s3, lbp_wordsFile_s4]
@@ -137,8 +145,9 @@ def region_special_map(paras):
         wordsFile_s = [sift_wordsFile_s1, sift_wordsFile_s2, sift_wordsFile_s3, sift_wordsFile_s4]
 
     im_name = imgFile[-20:-4]
-    F0, region_patch_list = gsr.generate_subRegions(imgFile, patchSize, region_patch_ratio, eraseMap, k, minSize, sigma)
+    F0, region_patch_list, eraseLabels = gsr.generate_subRegions(img, patchSize, region_patch_ratio, eraseMap, k, minSize, sigma)
     maps2by2 = {}
+    region_labels = {}
     for ri in range(len(region_patch_list)):
         r = region_patch_list[ri]
         if len(r) != 0:
@@ -146,16 +155,23 @@ def region_special_map(paras):
             feaVectors, posVectors = glf.genImgLocalFeas(imgFile, feaType, gridSize, sizeRange,
                                                          gridList=r, sdaePara=sdaePara)
             labels = {}
-            for wi in range(len(wordsFile_s)):
-                w = wordsFile_s[wi]
+            if specialType is not None:
+                w = wordsFile_s[specialType]
                 labelVec = chm.calPatchLabels2(w, feaVectors, k=nk, two_classes=['1', '2'], isH1=True)
-                name_s = types[wi] + '_rest'
+                name_s = types[specialType] + '_rest'
                 labels[name_s] = labelVec
+            else:
+                for wi in range(len(wordsFile_s)):
+                    w = wordsFile_s[wi]
+                    labelVec = chm.calPatchLabels2(w, feaVectors, k=nk, two_classes=['1', '2'], isH1=True)
+                    name_s = types[wi] + '_rest'
+                    labels[name_s] = labelVec
 
             for k, v in labels.iteritems():
                 v = list(v.flatten())
                 if k not in maps2by2:
                     maps2by2[k] = np.zeros((3, F0.shape[0], F0.shape[1]))
+                    region_labels[k] = [[], [], []]
                 c1 = float(v.count(0)) / float(len(v))
                 c2 = float(v.count(1)) / float(len(v))
                 cc = float(v.count(2)) / float(len(v))
@@ -165,15 +181,54 @@ def region_special_map(paras):
                 maps2by2[k][0][np.where(F0 == ri)] = cs[0]
                 maps2by2[k][1][np.where(F0 == ri)] = cs[1]
                 maps2by2[k][2][np.where(F0 == ri)] = cs[2]
+                if cs[0] > 0:
+                    region_labels[k][0].append(ri)
+                if cs[1] > 0:
+                    region_labels[k][1].append(ri)
+                if cs[2] > 0:
+                    region_labels[k][2].append(ri)
+    if isReturnMaps is not None:
+        return maps2by2, region_labels.values()[0][2], F0
+    if isSave:
+        for c, m in maps2by2.iteritems():
+            map3 = np.transpose(m, (1, 0, 2)).reshape(440, 440 * 3)
+            map3 = np.append(map3, im, axis=1)
+            imsave(im_name + '_' + feaType + '_' + c + '_region' + '.jpg', map3)
 
-    for c, m in maps2by2.iteritems():
+    if train:
+        return F0, region_labels, eraseLabels
+    else:
+        returnlabels = []
+        if is_rotate:
+            specialLabels = []
+        for i in returnRegionLabels:
+            for _, v in region_labels.iteritems():
+                returnlabels = returnlabels + v[i]
+                if is_rotate:
+                    specialLabels = specialLabels + v[0]
+        if is_rotate:
+            return F0, returnlabels, eraseLabels, specialLabels
+        else:
+            return F0, returnlabels, eraseLabels
+
+def showSelectRegions(F, regionLabels, angle=None):
+    mm = np.zeros(F.shape)
+    for i in regionLabels:
+        mm[np.where(F==i)] = 255
+    if angle is not None:
+        mm = rotate(mm, angle, preserve_range=True)
+    plt.imshow(mm, cmap='gray')
+    plt.show()
+
+def showMaps3(maps3):
+    for c, m in maps3.iteritems():
         map3 = np.transpose(m, (1, 0, 2)).reshape(440, 440 * 3)
-        map3 = np.append(map3, im, axis=1)
-        imsave(im_name + '_' + feaType + '_' + c + '_region' + '.jpg', map3)
-    return 0
+        plt.imshow(map3, cmap='gray')
+        plt.show()
+
 if __name__ == '__main__':
     paras = {}
-    imgFile = '/home/ljm/NiuChuang/KLSA-auroral-images/Data/labeled2003_38044/N20031221G041521.bmp'
+    imgFile = '/home/ljm/NiuChuang/KLSA-auroral-images/Data/labeled2003_38044/N20031229G102406.bmp'
     paras['imgFile'] = imgFile
     # sdae_wordsFile_h1 = '../../Data/Features/type4_SDAEWords_h1.hdf5'
     # sdae_wordsFile_h2 = '../../Data/Features/type4_SDAEWords_h2.hdf5'
@@ -210,13 +265,13 @@ if __name__ == '__main__':
     paras['lbp_wordsFile_h1'] = lbp_wordsFile_h1
     paras['lbp_wordsFile_h2'] = lbp_wordsFile_h2
     paras['cascade_wordsFile'] = cascade_wordsFile
-    paras['k'] = 100
+    paras['k'] = 60
     paras['minSize'] = 100
     paras['patchSize'] = np.array([16, 16])
     paras['region_patch_ratio'] = 0.1
     paras['sigma'] = 0.5
     paras['alpha'] = 0.6
-    paras['th'] = 0.3
+    paras['th'] = 0.4
     paras['types'] = ['arc', 'drapery', 'radial', 'hot_spot']
     paras['lbp_wordsFile_s1'] = '../../Data/Features/type4_LBPWords_s1_s16_300_300_300_300.hdf5'
     paras['lbp_wordsFile_s2'] = '../../Data/Features/type4_LBPWords_s2_s16_300_300_300_300.hdf5'
@@ -236,14 +291,19 @@ if __name__ == '__main__':
     # alpha = 0.6
     # th = 0.4
 
-    imSize = 440
-    eraseMap = np.zeros((imSize, imSize))
-    radius = imSize / 2
-    centers = np.array([219.5, 219.5])
-    for i in range(440):
-        for j in range(440):
-            if np.linalg.norm(np.array([i, j]) - centers) > 220 + 5:
-                eraseMap[i, j] = 1
+    eraseMapPath = '../../Data/eraseMap.bmp'
+    if not os.path.exists(eraseMapPath):
+        imSize = 440
+        eraseMap = np.zeros((imSize, imSize))
+        radius = imSize / 2
+        centers = np.array([219.5, 219.5])
+        for i in range(440):
+            for j in range(440):
+                if np.linalg.norm(np.array([i, j]) - centers) > 220 + 5:
+                    eraseMap[i, j] = 1
+        imsave(eraseMapPath, eraseMap)
+    else:
+        eraseMap = imread(eraseMapPath) / 255
 
     # F0, region_patch_list = gsr.generate_subRegions(imgFile, patchSize, region_patch_ratio, eraseMap, k, minSize, sigma)
     # eraseLabels = set(list(F0[np.where(eraseMap == 1)].flatten()))
@@ -275,6 +335,13 @@ if __name__ == '__main__':
     paras['sdaePara'] = sdaePara
 
     paras['feaType'] = 'LBP'
+    paras['isSave'] = False
+    paras['is_rotate'] = False
+    paras['specialType'] = 3  # 0: arc, 1: drapery, 2: radial, 3: hot-spot
+    paras['returnRegionLabels'] = [0]  # 0: special, 1: rest, 2: common
+    paras['train'] = False
 
     # region_category_map(paras)
-    region_special_map(paras)
+    F0, region_labels, eraseLabels = region_special_map(paras)
+    print region_labels
+    showSelectRegions(F0, region_labels)
