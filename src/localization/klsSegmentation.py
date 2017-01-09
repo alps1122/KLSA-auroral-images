@@ -50,7 +50,7 @@ def mergePatchAndRegion(classHeatMaps, categoryHeatMaps, labels, th):
 
 if __name__ == '__main__':
     paras = {}
-    imgFile = '/home/ljm/NiuChuang/KLSA-auroral-images/Data/labeled2003_38044/N20031221G065441.bmp'
+    imgFile = '/home/ljm/NiuChuang/KLSA-auroral-images/Data/labeled2003_38044/N20040117G091423.bmp'
     paras['imgFile'] = imgFile
     paras['color_space'] = ['rgb']
     paras['ks'] = [50, 100, 150, 200, 250]
@@ -162,47 +162,87 @@ if __name__ == '__main__':
     paras['returnRegionLabels'] = [0]  # 0: special, 1: rest, 2: common
     paras['train'] = False
 
-    classHeatMap = region_class_heatMap(paras)
-    class_names = ['background', 'arc', 'drapery', 'radial', 'hot-spot']
-    labels = mapsToLabels(classHeatMap)
-    visRegionClassHeatMap(classHeatMap, class_names)
+    rotation = False
+    # ----no rotation----
+    if rotation == False:
+        classHeatMap = region_class_heatMap(paras)
+        class_names = ['background', 'arc', 'drapery', 'radial', 'hot-spot']
+        labels = mapsToLabels(classHeatMap)
+        # visRegionClassHeatMap(classHeatMap, class_names)
 
-    paras['specialType'] = labels  # 0: arc, 1: drapery, 2: radial, 3: hot-spot
-    maps3, common_labels, F0 = region_special_map(paras, isReturnMaps=True)
-    showMaps3(maps3)
-    # showSelectRegions(F0, common_labels)
-    # kls = mergePatchAndRegion(classHeatMap, maps3, labels, paras['th']*0.95)
-    kls = mergePatchAndRegion(classHeatMap, maps3, labels, 0.6)
-    plt.figure(10)
-    plt.imshow(kls, cmap='gray')
-    class_names = ['background', 'arc', 'drapery', 'radial', 'hot-spot']
-    plt.title(class_names[labels+1])
-    plt.show()
-    # -----rotate image
-    # showMaps3(maps3)
-    # angle = angleFromCommon(F0, common_labels)
+        paras['specialType'] = labels  # 0: arc, 1: drapery, 2: radial, 3: hot-spot
+        maps3, common_labels, F0 = region_special_map(paras, isReturnMaps=True)
+        # showMaps3(maps3)
+        # showSelectRegions(F0, common_labels)
+        # kls = mergePatchAndRegion(classHeatMap, maps3, labels, paras['th']*0.95)
+        kls = mergePatchAndRegion(classHeatMap, maps3, labels, 0.6)
+        plt.figure(10)
+        plt.imshow(kls, cmap='gray')
+        class_names = ['background', 'arc', 'drapery', 'radial', 'hot-spot']
+        plt.title(class_names[labels+1])
+        plt.figure(11)
+        plt.imshow(im, cmap='gray')
+        plt.title('raw image')
 
-    # showSelectRegions(F0, common_labels, angle)
-    # # F0, region_labels, eraseLabels = region_special_map(paras)
-    # # showSelectRegions(F0, region_labels)
-    # plt.figure(8)
-    # plt.imshow(paras['im'], cmap='gray')
-    # plt.figure(9)
-    # plt.imshow(paras['img'])
-    # paras['im'] = rotate(im, angle, preserve_range=True).astype(np.uint8)
-    # paras['img'] = rotate(img, angle, preserve_range=True).astype(np.uint8)
-    # print paras['im'].shape
-    # print paras['img'].shape
-    # plt.figure(6)
-    # plt.imshow(paras['im'], cmap='gray')
-    # plt.figure(7)
-    # plt.imshow(paras['img'])
-    # plt.show()
-    # classHeatMap = region_class_heatMap(paras)
-    #
-    # visRegionClassHeatMap(classHeatMap, class_names)
-    #
-    # maps3, common_labels, F0 = region_special_map(paras, isReturnMaps=True)
-    # showSelectRegions(F0, common_labels)
-    #
-    # showMaps3(maps3)
+        kls_color = np.zeros(img.shape, dtype='uint8')
+        kls_color[:, :, 0][np.where(kls==1)] = 255
+        alpha = 0.2
+        addImg = (kls_color * alpha + img * (1. - alpha)).astype(np.uint8)
+        plt.figure(12)
+        plt.imshow(addImg)
+        plt.title('add image')
+        plt.show()
+    else:
+        # -----rotate image----
+        paras['th'] = 0.5
+        paras['specialType'] = 1  # 0: arc, 1: drapery, 2: radial, 3: hot-spot
+        maps3, common_labels, F0 = region_special_map(paras, isReturnMaps=True)
+        # showSelectRegions(F0, common_labels)
+        # showMaps3(maps3)
+        angle = angleFromCommon(F0, common_labels)
+        paras['th'] = 0.15
+        # showSelectRegions(F0, common_labels, angle)
+        # F0, region_labels, eraseLabels = region_special_map(paras)
+        # showSelectRegions(F0, region_labels)
+        # plt.figure(8)
+        # plt.imshow(paras['im'], cmap='gray')
+        # plt.figure(9)
+        # plt.imshow(paras['img'])
+        paras['im'] = rotate(im, angle, preserve_range=True).astype(np.uint8)
+        paras['img'] = rotate(img, angle, preserve_range=True).astype(np.uint8)
+        # plt.figure(6)
+        # plt.imshow(paras['im'], cmap='gray')
+        # plt.figure(7)
+        # plt.imshow(paras['img'])
+        # plt.show()
+        classHeatMap = region_class_heatMap(paras)
+        class_names = ['background', 'arc', 'drapery', 'radial', 'hot-spot']
+        # visRegionClassHeatMap(classHeatMap, class_names)
+        labels = mapsToLabels(classHeatMap)
+        paras['specialType'] = labels  # 0: arc, 1: drapery, 2: radial, 3: hot-spot
+        maps3, common_labels, F0 = region_special_map(paras, isReturnMaps=True)
+        # showSelectRegions(F0, common_labels)
+        # showMaps3(maps3)
+        kls = mergePatchAndRegion(classHeatMap, maps3, labels, 0.6)
+        plt.figure(10)
+        plt.imshow(kls, cmap='gray')
+        plt.title(class_names[labels+1] + ' no back rotation')
+        kls_rotate = rotate(kls, -angle, preserve_range=True)
+        plt.figure(11)
+        plt.imshow(kls_rotate, cmap='gray')
+        plt.title(class_names[labels + 1] + ' back rotation')
+        plt.figure(12)
+        plt.imshow(im, cmap='gray')
+        plt.title('raw image')
+        plt.figure(13)
+        plt.imshow(paras['im'], cmap='gray')
+        plt.title('rotated image')
+
+        kls_color = np.zeros(img.shape, dtype='uint8')
+        kls_color[:, :, 0][np.where(kls_rotate==1)] = 255
+        alpha = 0.2
+        addImg = (kls_color * alpha + img * (1. - alpha)).astype(np.uint8)
+        plt.figure(14)
+        plt.imshow(addImg)
+        plt.title('add image')
+        plt.show()
