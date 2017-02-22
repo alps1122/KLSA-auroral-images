@@ -82,15 +82,20 @@ def region_class_heatMap(paras):
     regionSizeRange = paras['regionSizeRange']
     net = paras['net']
     scoreThresh = paras['scoreThresh']
+    is_showProposals = paras['is_showProposals']
     region_set = ss.selective_search(img, color_spaces=color_space, ks=ks,
                                      feature_masks=feature_masks, eraseMap=eraseMap)
     boxes = regionSetToBoxes(region_set, overlapThresh, sizeRange=regionSizeRange, isVisualize=False)
+    if is_showProposals:
+        plf.showProposals(im, boxes)
+        plt.savefig('/home/ljm/NiuChuang/KLSA-auroral-images/Data/Results/proposals/'+paras['imgFile'][-20:-4]+'_proposals.jpg')
+        plt.show()
     scores, boxes = im_detect(net, im, boxes)
     regionClassMap = generateRegionClassHeatMap(scores, boxes, scoreThresh)
     return regionClassMap
 
 if __name__ == '__main__':
-    imgFile = '/home/ljm/NiuChuang/KLSA-auroral-images/Data/labeled2003_38044/N20031229G110343.bmp'
+    imgFile = '/home/ljm/NiuChuang/KLSA-auroral-images/Data/labeled2003_38044/N20031222G072122.bmp'
     color_space = ['rgb']
     ks = [25, 50, 100, 150, 200]
     feature_masks = [1, 1, 1, 1]

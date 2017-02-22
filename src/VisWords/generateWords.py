@@ -45,10 +45,9 @@ if __name__ == '__main__':
     # LBPFeaFile_reduce = '../../Data/Features/type4_LBPFeatures_reduce_sameRatio.hdf5'
 
     SIFTFeaFile = '../../Data/Features/type4_SIFTFeatures_s16_600_300_300_300.hdf5'
-    SDAEFeaFile = '../../Data/Features/type4_SDAEFeas_diff_mean_s16_600_300_300_300.hdf5'
+    # SDAEFeaFile = '../../Data/Features/type4_SDAEFeas_diff_mean_s16_600_300_300_300.hdf5'
     LBPFeaFile = '../../Data/Features/type4_LBPFeatures_s16_600_300_300_300.hdf5'
-    SDAEFeaFile_s = '../../Data/Features/type4_SDAEFeas_same_mean_s16_600_300_300_300.hdf5'
-
+    # SDAEFeaFile_s = '../../Data/Features/type4_SDAEFeas_same_mean_s16_600_300_300_300.hdf5'
     LBPFeaFile_b300 = '../../Data/Features/type4_LBPFeatures_s16_300_300_300_300.hdf5'
     wordsNum = 500
     wordsNum_all = 1000
@@ -80,17 +79,35 @@ if __name__ == '__main__':
     # generateWords(LBPFeaFile_b300, groups_s4, saveFolder + lbp_saveName_s4, wordsNum, feaDim=54)
     # generateWords(LBPFeaFile_b300, groups, saveFolder + lbp_saveName_s1234, wordsNum, feaDim=54)
 
-    SIFTFeaFile_b300 = '../../Data/Features/type4_SIFTFeatures_s16_300_300_300_300.hdf5'
-    sift_saveName_s1 = 'type4_SIFTWords_s1_s16_300_300_300_300.hdf5'
-    sift_saveName_s2 = 'type4_SIFTWords_s2_s16_300_300_300_300.hdf5'
-    sift_saveName_s3 = 'type4_SIFTWords_s3_s16_300_300_300_300.hdf5'
-    sift_saveName_s4 = 'type4_SIFTWords_s4_s16_300_300_300_300.hdf5'
-    sift_saveName_s1234 = 'type4_SIFTWords_s1234_s16_300_300_300_300.hdf5'
-    generateWords(SIFTFeaFile_b300, groups_s1, saveFolder + sift_saveName_s1, wordsNum, feaDim=128)
-    generateWords(SIFTFeaFile_b300, groups_s2, saveFolder + sift_saveName_s2, wordsNum, feaDim=128)
-    generateWords(SIFTFeaFile_b300, groups_s3, saveFolder + sift_saveName_s3, wordsNum, feaDim=128)
-    generateWords(SIFTFeaFile_b300, groups_s4, saveFolder + sift_saveName_s4, wordsNum, feaDim=128)
-    generateWords(SIFTFeaFile_b300, groups, saveFolder + sift_saveName_s1234, wordsNum, feaDim=128)
+    # SIFTFeaFile_b300 = '../../Data/Features/type4_SIFTFeatures_s16_300_300_300_300.hdf5'
+    # sift_saveName_s1 = 'type4_SIFTWords_s1_s16_300_300_300_300.hdf5'
+    # sift_saveName_s2 = 'type4_SIFTWords_s2_s16_300_300_300_300.hdf5'
+    # sift_saveName_s3 = 'type4_SIFTWords_s3_s16_300_300_300_300.hdf5'
+    # sift_saveName_s4 = 'type4_SIFTWords_s4_s16_300_300_300_300.hdf5'
+    # sift_saveName_s1234 = 'type4_SIFTWords_s1234_s16_300_300_300_300.hdf5'
+    # generateWords(SIFTFeaFile_b300, groups_s1, saveFolder + sift_saveName_s1, wordsNum, feaDim=128)
+    # generateWords(SIFTFeaFile_b300, groups_s2, saveFolder + sift_saveName_s2, wordsNum, feaDim=128)
+    # generateWords(SIFTFeaFile_b300, groups_s3, saveFolder + sift_saveName_s3, wordsNum, feaDim=128)
+    # generateWords(SIFTFeaFile_b300, groups_s4, saveFolder + sift_saveName_s4, wordsNum, feaDim=128)
+    # generateWords(SIFTFeaFile_b300, groups, saveFolder + sift_saveName_s1234, wordsNum, feaDim=128)
+
+    # SDAEFeaFile_same_special_b500 = '../../Data/Features/type4_SDAEFeas_same_mean_s28_b500_special.hdf5'
+    # sdae_saveName_s1 = 'type4_SDAEWords_s1_s28_b500_special.hdf5'
+    # sdae_saveName_s2 = 'type4_SDAEWords_s2_s28_b500_special.hdf5'
+    # sdae_saveName_s3 = 'type4_SDAEWords_s3_s28_b500_special.hdf5'
+    # sdae_saveName_s4 = 'type4_SDAEWords_s4_s28_b500_special.hdf5'
+    # sdae_saveName_s1234 = 'type4_SDAEWords_s1234_s28_b500_special.hdf5'
+    SDAEFeaFile_same_special_b500 = '../../Data/Features/type4_SDAEFeas_same_mean_s28_b500_special_classification.hdf5'
+    sdae_saveName_s1 = 'type4_SDAEWords_s1_s28_b500_special_classification.hdf5'
+    sdae_saveName_s2 = 'type4_SDAEWords_s2_s28_b500_special_classification.hdf5'
+    sdae_saveName_s3 = 'type4_SDAEWords_s3_s28_b500_special_classification.hdf5'
+    sdae_saveName_s4 = 'type4_SDAEWords_s4_s28_b500_special_classification.hdf5'
+    sdae_saveName_s1234 = 'type4_SDAEWords_s1234_s28_b500_special_classification.hdf5'
+    generateWords(SDAEFeaFile_same_special_b500, groups_s1, saveFolder + sdae_saveName_s1, wordsNum, feaDim=64)
+    generateWords(SDAEFeaFile_same_special_b500, groups_s2, saveFolder + sdae_saveName_s2, wordsNum, feaDim=64)
+    generateWords(SDAEFeaFile_same_special_b500, groups_s3, saveFolder + sdae_saveName_s3, wordsNum, feaDim=64)
+    generateWords(SDAEFeaFile_same_special_b500, groups_s4, saveFolder + sdae_saveName_s4, wordsNum, feaDim=64)
+    generateWords(SDAEFeaFile_same_special_b500, groups, saveFolder + sdae_saveName_s1234, wordsNum, feaDim=64)
 
     # sift_saveName_h1 = 'type4_SIFTWords_h1.hdf5'
     # sift_saveName_h2 = 'type4_SIFTWords_h2.hdf5'

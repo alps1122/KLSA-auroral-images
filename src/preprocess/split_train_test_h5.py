@@ -14,11 +14,16 @@ if __name__ == '__main__':
     # patchTest = '../../Data/type4_test_diff_mean_s16.hdf5'
     # patchTrainList = '../../Data/type4_train_diff_mean_s16.txt'
     # patchTestList = '../../Data/type4_test_diff_mean_s16.txt'
-    patchDataPath = '../../Data/type4_same_mean_s16.hdf5'
-    patchTrain = '../../Data/type4_train_same_mean_s16.hdf5'
-    patchTest = '../../Data/type4_test_same_mean_s16.hdf5'
-    patchTrainList = '../../Data/type4_train_same_mean_s16.txt'
-    patchTestList = '../../Data/type4_test_same_mean_s16.txt'
+    # patchDataPath = '../../Data/type4_same_mean_s16.hdf5'
+    # patchTrain = '../../Data/type4_train_same_mean_s16.hdf5'
+    # patchTest = '../../Data/type4_test_same_mean_s16.hdf5'
+    # patchTrainList = '../../Data/type4_train_same_mean_s16.txt'
+    # patchTestList = '../../Data/type4_test_same_mean_s16.txt'
+    patchDataPath = '../../Data/type4_same_mean_s28_special.hdf5'
+    patchTrain = '../../Data/type4_train_same_mean_s28_special.hdf5'
+    patchTest = '../../Data/type4_test_same_mean_s28_special.hdf5'
+    patchTrainList = '../../Data/type4_train_same_mean_s28_special.txt'
+    patchTestList = '../../Data/type4_test_same_mean_s28_special.txt'
     train_rate = 0.9
     f = h5py.File(patchDataPath, 'r')
 
@@ -56,7 +61,7 @@ if __name__ == '__main__':
         e = min((i+1)*batchSize, train_num)
         print 'train: ' + str(e)
         data_train = np.array(data[train_idx[s:e], :, :, :])
-        label_train = np.array(label[train_idx[s:e], ])
+        label_train = np.array(label[train_idx[s:e], ]) - 1
         oldNum = d_tr.shape[0]
         newNum = oldNum + data_train.shape[0]
 
@@ -71,7 +76,7 @@ if __name__ == '__main__':
         e = min((i+1)*batchSize, test_num)
         print 'test: ' + str(e)
         data_test = np.array(data[test_idx[s:e], :, :, :])
-        label_test = np.array(label[test_idx[s:e], ])
+        label_test = np.array(label[test_idx[s:e], ]) - 1
         oldNum = d_te.shape[0]
         newNum = oldNum + data_test.shape[0]
 

@@ -177,7 +177,27 @@ def showGrid(im, gridList):
         ax.add_patch(
             plt.Rectangle((grid[1], grid[0]),
                           grid[3], grid[2],
-                          fill=False, edgecolor='green',
+                          fill=False, edgecolor='yellow',
+                          linewidth=1)
+        )
+    plt.axis('off')
+    plt.tight_layout()
+    plt.draw()
+
+def showProposals(im, proposals):
+    # box format: [x1, x2, y1, y2]
+    fig, ax = plt.subplots(figsize=(12, 12))
+    if len(im.shape) == 2:
+        ax.imshow(im, aspect='equal', cmap='gray')
+    else:
+        ax.imshow(im, aspect='equal')
+    for i in xrange(proposals.shape[0]):
+        box_i = proposals[i, :]
+        ax.add_patch(
+            plt.Rectangle((box_i[0], box_i[1]),
+                          box_i[2] - box_i[0],
+                          box_i[3] - box_i[1],
+                          fill=False, edgecolor='yellow',
                           linewidth=0.35)
         )
     plt.axis('off')

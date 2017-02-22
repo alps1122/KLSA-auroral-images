@@ -206,8 +206,20 @@ if __name__ == '__main__':
     sift_saveName_s4 = '../../Data/Features/type4_SIFTWords_s4_s16_300_300_300_300.hdf5'
     sift_saveName_s1234 = '../../Data/Features/type4_SIFTWords_s1234_s16_300_300_300_300.hdf5'
 
-    calMultiCommonVectors2(sift_saveName_s1)
-    calMultiCommonVectors2(sift_saveName_s2)
-    calMultiCommonVectors2(sift_saveName_s3)
-    calMultiCommonVectors2(sift_saveName_s4)
-    calMultiCommonVectors1(sift_saveName_s1234)
+    sdae_saveName_s1 = '../../Data/Features/type4_SDAEWords_s1_s28_b500_special.hdf5'
+    sdae_saveName_s2 = '../../Data/Features/type4_SDAEWords_s2_s28_b500_special.hdf5'
+    sdae_saveName_s3 = '../../Data/Features/type4_SDAEWords_s3_s28_b500_special.hdf5'
+    sdae_saveName_s4 = '../../Data/Features/type4_SDAEWords_s4_s28_b500_special.hdf5'
+    sdae_saveName_s1234 = '../../Data/Features/type4_SDAEWords_s1234_s28_b500_special.hdf5'
+
+    # calMultiCommonVectors2(sift_saveName_s1)
+    # calMultiCommonVectors2(sift_saveName_s2)
+    # calMultiCommonVectors2(sift_saveName_s3)
+    # calMultiCommonVectors2(sift_saveName_s4)
+    # calMultiCommonVectors1(sift_saveName_s1234)
+
+    calMultiCommonVectors2(sdae_saveName_s1)
+    calMultiCommonVectors2(sdae_saveName_s2)
+    calMultiCommonVectors2(sdae_saveName_s3)
+    calMultiCommonVectors2(sdae_saveName_s4)
+    calMultiCommonVectors1(sdae_saveName_s1234)

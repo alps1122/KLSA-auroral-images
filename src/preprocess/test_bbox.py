@@ -9,7 +9,7 @@ if __name__ == '__main__':
     bbox_file = '/home/ljm/NiuChuang/KLSA-auroral-images/Data/type4_b300_bbox.hdf5'
     f = h5py.File(bbox_file, 'r')
 
-    for i in range(0, len(f)):
+    for i in range(300, len(f)):
         imgFile = f.get(str(i)).attrs['imgFile']
         imgName = f.get(str(i)).attrs['imgName']
         bbox_special = f.get(str(i)+'/bbox_special')
@@ -47,8 +47,10 @@ if __name__ == '__main__':
         bbox_s = list(bbox_special)
         bbox_c = list(bbox_common)
         plf.showGrid(im_s, bbox_s)
-        plt.title('special')
+        print imgName
+        plt.title(imgName+'_special')
         im_c = rotate(im, angle_common)
         plf.showGrid(im_c, bbox_c)
+        plt.title(imgName+'_common')
 
         plt.show()

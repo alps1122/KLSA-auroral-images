@@ -133,10 +133,18 @@ def special_common_local_proposal(paras):
         return keep
 
 def save_hierachecalRegionsProcess(paras):
+    imName = paras['imgFile'][-20:-4]
+    eraseMap = paras['eraseMap']
+    returnRegionLabels = paras['returnRegionLabels']
     feature_masks = paras['feature_masks']
     hierachecalProcessPath = paras['hierachecalProcessPath']
-    (R, F, L, L_regions, _) = selective_search.hierarchical_segmentation_M(paras, feature_masks)
-    print('result filename: %s_[0000-%04d].png' % (out_prefix, len(F) - 1))
+    if 0 in returnRegionLabels:
+        cs = '_C'
+    else:
+        cs = '_S'
+    imName += cs
+    (R, F, L, L_regions, eraseLabels, angle) = selective_search.hierarchical_segmentation_M(paras, feature_masks)
+    print('result filename: %s_[0000-%04d].png' % (imName, len(F) - 1))
 
     # suppress warning when saving result images
     warnings.filterwarnings("ignore", category=UserWarning)
@@ -145,8 +153,16 @@ def save_hierachecalRegionsProcess(paras):
     for depth, label in enumerate(F):
         result = colors[label]
         result = (result * alpha + img * (1. - alpha)).astype(numpy.uint8)
-        fn = "%s_%04d.png" % (out_prefix, depth)
+        fn = "%s_%04d.png" % (imName, depth)
+        result[numpy.where(eraseMap==1)] = 0
         skimage.io.imsave(hierachecalProcessPath+fn, result)
+        if depth == 0:
+            specialMap = result.astype(numpy.uint8)
+            for el in eraseLabels:
+                specialMap[numpy.where(F[0] == el)] = 0
+            skimage.io.imsave(hierachecalProcessPath + imName + '.png', specialMap)
+            specialMap_rotate = rotate(specialMap, angle, preserve_range=True).astype(numpy.uint8)
+            skimage.io.imsave(hierachecalProcessPath + imName + '_rotate.png', specialMap_rotate)
         sys.stdout.write('.')
         sys.stdout.flush()
 
@@ -275,18 +291,27 @@ if __name__=="__main__":
     dataFolder = '/home/ljm/NiuChuang/KLSA-auroral-images/Data/labeled2003_38044/'
     savePath = '../../Data/type4_b300_bbox.hdf5'
     imgType = '.bmp'
-    generateSpecialCommonBbox(labelFile, savePath, dataFolder, imgType, paras)
+    # generateSpecialCommonBbox(labelFile, savePath, dataFolder, imgType, paras)
 
-    paras['specialType'] = 0  # 0: arc, 1: drapery, 2: radial, 3: hot-spot
-    paras['returnRegionLabels'] = [0, 1]  # 0: special, 1: rest, 2: common
-    paras['th'] = 0.25
-    imgFile = '/home/ljm/NiuChuang/KLSA-auroral-images/Data/labeled2003_38044/N20031222G130311.bmp'
+    paras['specialType'] = 3  # 0: arc, 1: drapery, 2: radial, 3: hot-spot
+    paras['returnRegionLabels'] = [1, 2]  # 0: special, 1: rest, 2: common
+    paras['th'] = 0.45
+
+    figSaveFolder = '../../Data/Results/training_samples/'
+    imgFile = '/home/ljm/NiuChuang/KLSA-auroral-images/Data/labeled2003_38044/N20031227G111140.bmp'
+    name = imgFile[-20:-4]
+    if 0 in paras['returnRegionLabels']:
+        c_s = '_common'
+    else:
+        c_s = '_special'
+    name += c_s
     paras['imgFile'] = imgFile
     im = skimage.io.imread(imgFile)
     if len(im.shape) == 2:
         img = skimage.color.gray2rgb(im)
     paras['im'] = img
-    # save_hierachecalRegionsProcess(paras)
+    paras['img'] = img
+    save_hierachecalRegionsProcess(paras)
     if paras['is_rotate']:
         regions, angle = special_common_local_proposal(paras)
     else:
@@ -302,6 +327,7 @@ if __name__=="__main__":
         if paras['is_rotate']:
             img = rotate(img, angle)
         plf.showGrid(img, regions)
+        plt.savefig(figSaveFolder+name+'.png')
         plt.show()
 
     # im = skimage.io.imread(imgFile)

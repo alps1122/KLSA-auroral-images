@@ -194,6 +194,41 @@ def defineTestNet(inputShape, layerNeuronNum):
 
     return n.to_proto()
 
+def classificationNet(h5, batch_size, layerNeuronNum, layerNum, classNum, learned_param):
+    n = caffe.NetSpec()
+
+    n.data, n.label = L.HDF5Data(source=h5, batch_size=batch_size, shuffle=True, ntop=2)
+    flatdata = L.Flatten(n.data)
+    flatdata_name = 'flatdata'
+    n.__setattr__(flatdata_name, flatdata)
+
+    param = learned_param
+    for l in range(layerNum):
+        if l == 0:
+            encoder_name_last = flatdata_name
+        else:
+            encoder_name_last = relu_en_name
+
+        encoder = L.InnerProduct(n[encoder_name_last], num_output=layerNeuronNum[l + 1], param=param,
+                                 weight_filler=dict(type='gaussian', std=0.005),
+                                 bias_filler=dict(type='constant', value=0.1))
+        encoder_name = 'encoder' + str(l + 1)
+        n.__setattr__(encoder_name, encoder)
+
+        relu_en = L.ReLU(n[encoder_name], in_place=True)
+        relu_en_name = 'relu_en' + str(l + 1)
+        n.__setattr__(relu_en_name, relu_en)
+
+    output = L.InnerProduct(n[relu_en_name], num_output=classNum, param=param,
+                            weight_filler=dict(type='gaussian', std=0.005),
+                            bias_filler=dict(type='constant', value=0.1))
+    output_name = 'output'
+    n.__setattr__(output_name, output)
+
+    n.loss = L.SoftmaxWithLoss(n[output_name], n.label)
+
+    return n.to_proto()
+
 def layerwise_train(paraConfig):
     layerNeuronNum = paraConfig['layerNeuronNum']
     layerNum = len(layerNeuronNum) - 1
@@ -336,9 +371,80 @@ def finetue_train(paraConfig, finetune_train_proto= '../../Data/autoEncoder/fine
 
     return 0
 
+def classification_train(paraConfig, classification_train_proto= '../../Data/autoEncoder/classification_train.prototxt',
+                         classification_test_proto='../../Data/autoEncoder/classification_test.prototxt',
+                         classification_solver_proto='../../Data/autoEncoder/classification_solver.prototxt'):
+    train_data = paraConfig['train_data']
+    test_data = paraConfig['test_data']
+    autoSaveFolder = paraConfig['autoSaveFolder']
+    layerNeuronNum = paraConfig['layerNeuronNum']
+    layerNum = len(layerNeuronNum) - 1
+    train_batchSize = paraConfig['train_batchSize']
+    test_batchSize = paraConfig['test_batchSize']
+    snapshot_prefix = paraConfig['snapshot_prefix']
+    learned_param = paraConfig['learned_param']
+
+    with open(classification_train_proto, 'w') as f1:
+        f1.write(str(classificationNet(train_data, train_batchSize, layerNeuronNum, layerNum, 4, learned_param)))
+
+    with open(classification_test_proto, 'w') as f1:
+        f1.write(str(classificationNet(test_data, test_batchSize, layerNeuronNum, layerNum, 4, learned_param)))
+
+    paraConfig['snapshot_prefix'] = snapshot_prefix + '_classification'
+    classification_solver = solver(classification_train_proto, classification_test_proto, paraConfig, save_path=classification_solver_proto)
+    caffe.set_device(0)
+    caffe.set_mode_gpu()
+    classification_net = caffe.SGDSolver(classification_solver)
+
+    weights = autoSaveFolder + snapshot_prefix + '_final.caffemodel'
+    classification_net.net.copy_from(weights)
+
+    niter = paraConfig['max_iter']
+    test_interval = paraConfig['test_interval']
+    # losses will also be stored in the log
+    train_loss = np.zeros((niter,))
+    test_loss = np.zeros((niter // test_interval,))
+
+    isTest = paraConfig['isTest']
+    # the main solver loop
+    for it in range(niter):
+        classification_net.step(1)  # SGD by Caffe
+
+        # store the train loss
+        train_loss[it] = classification_net.net.blobs['loss'].data
+
+        # run a full test every so often
+        # (Caffe can also do this for us and write to a log, but we show here
+        #  how to do it directly in Python, where more complicated things are easier.)
+        if isTest:
+            if it % test_interval == 0:
+                print 'Iteration', it, 'testing...'
+                loss_test = 0
+                for test_it in range(paraConfig['test_iter']):
+                    classification_net.test_nets[0].forward()
+                    loss_test += np.sum(classification_net.test_nets[0].blobs['loss'].data)
+
+                test_loss[it // test_interval] = loss_test / (paraConfig['test_iter'] * paraConfig['test_batchSize'])
+
+    classification_net.net.save(autoSaveFolder + snapshot_prefix + '_classification_final' + '.caffemodel')
+    print autoSaveFolder + snapshot_prefix + '_classification_final.caffemodel' + ' saved'
+    _, ax1 = plt.subplots()
+    ax2 = ax1.twinx()
+    ax1.plot(np.arange(niter), train_loss / paraConfig['train_batchSize'])
+    ax2.plot(test_interval * np.arange(int(np.ceil(niter / test_interval))),
+             test_loss[0:int(np.ceil(niter / test_interval))], 'r')
+
+    plt.title('classification')
+    plt.draw()
+
+    print test_loss[0], test_loss[int(np.ceil(niter / test_interval)) - 1]
+    print train_loss[0] / 256, train_loss[-1] / 256
+
+    return 0
+
 if __name__ == '__main__':
     # patchDataPath = '../../Data/one_in_minute_patch_test_diff_mean.hdf5'
-    patchDataPath = '../../Data/type4_test_same_mean_s16.hdf5'
+    patchDataPath = '../../Data/type4_test_same_mean_s28_special.hdf5'
     # patchData_mean = '../../Data/patchData_mean.txt'
     # fm = open(patchData_mean, 'r')
     # mean_value = float(fm.readline().split(' ')[1])
@@ -369,16 +475,19 @@ if __name__ == '__main__':
     paraConfig['max_iter'] = 100000
     paraConfig['display'] = 1000
     paraConfig['snapshot'] = 50000
-    paraConfig['snapshot_prefix'] = 'layer_same_mean_s16'
+    paraConfig['snapshot_prefix'] = 'layer_same_mean_s28_special'
     paraConfig['solver_mode'] = caffe_pb2.SolverParameter.GPU
-    paraConfig['train_data'] = '../../Data/type4_train_same_mean_s16.txt'
-    paraConfig['test_data'] = '../../Data/type4_test_same_mean_s16.txt'
+    # paraConfig['train_data'] = '../../Data/type4_train_same_mean_s28_special.txt'
+    # paraConfig['test_data'] = '../../Data/type4_test_same_mean_s28_special.txt'
 
+    # ---balance for classification---
+    paraConfig['train_data'] = '../../Data/type4_same_mean_s28_special_train.txt'
+    paraConfig['test_data'] = '../../Data/type4_same_mean_s28_special_test.txt'
     weight_param = dict(lr_mult=1, decay_mult=1)
     bias_param = dict(lr_mult=2, decay_mult=0)
     learned_param = [weight_param, bias_param]
     frozen_param = [dict(lr_mult=0)] * 2
-    layerNeuronNum = [16 * 16, 1000, 1000, 500, 64]
+    layerNeuronNum = [28 * 28, 1000, 1000, 500, 64]
     drop_ratio = 0.2
 
     paraConfig['learned_param'] = learned_param
@@ -407,8 +516,10 @@ if __name__ == '__main__':
     # f1.close()
 
     # --------------layer wise train, pretraining-----------
-    layerwise_train(paraConfig)
+    # layerwise_train(paraConfig)
     # --------------finetune--------------------------------
-    finetue_train(paraConfig)
+    # finetue_train(paraConfig)
+    #---------------classification--------------------------
+    classification_train(paraConfig)
 
     plt.show()

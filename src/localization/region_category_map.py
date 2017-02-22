@@ -8,6 +8,7 @@ import h5py
 import matplotlib.pyplot as plt
 import os
 from skimage.transform import rotate
+import skimage
 
 def region_category_map(paras):
     imgFile = paras['imgFile']
@@ -121,15 +122,7 @@ def region_special_map(paras, isReturnMaps=None):
     im = paras['im']
     sdaePara = paras['sdaePara']
     feaType = paras['feaType']
-    lbp_wordsFile_s1 = paras['lbp_wordsFile_s1']
-    lbp_wordsFile_s2 = paras['lbp_wordsFile_s2']
-    lbp_wordsFile_s3 = paras['lbp_wordsFile_s3']
-    lbp_wordsFile_s4 = paras['lbp_wordsFile_s4']
 
-    sift_wordsFile_s1 = paras['sift_wordsFile_s1']
-    sift_wordsFile_s2 = paras['sift_wordsFile_s2']
-    sift_wordsFile_s3 = paras['sift_wordsFile_s3']
-    sift_wordsFile_s4 = paras['sift_wordsFile_s4']
     sdaePara = paras['sdaePara']
     types = paras['types']
     isSave = paras['isSave']
@@ -139,10 +132,25 @@ def region_special_map(paras, isReturnMaps=None):
     is_rotate = paras['is_rotate']
 
     if feaType == 'LBP':
+        lbp_wordsFile_s1 = paras['lbp_wordsFile_s1']
+        lbp_wordsFile_s2 = paras['lbp_wordsFile_s2']
+        lbp_wordsFile_s3 = paras['lbp_wordsFile_s3']
+        lbp_wordsFile_s4 = paras['lbp_wordsFile_s4']
         wordsFile_s = [lbp_wordsFile_s1, lbp_wordsFile_s2, lbp_wordsFile_s3, lbp_wordsFile_s4]
 
     if feaType == 'SIFT':
+        sift_wordsFile_s1 = paras['sift_wordsFile_s1']
+        sift_wordsFile_s2 = paras['sift_wordsFile_s2']
+        sift_wordsFile_s3 = paras['sift_wordsFile_s3']
+        sift_wordsFile_s4 = paras['sift_wordsFile_s4']
         wordsFile_s = [sift_wordsFile_s1, sift_wordsFile_s2, sift_wordsFile_s3, sift_wordsFile_s4]
+
+    if feaType == 'SDAE':
+        sdae_wordsFile_s1 = paras['sdae_wordsFile_s1']
+        sdae_wordsFile_s2 = paras['sdae_wordsFile_s2']
+        sdae_wordsFile_s3 = paras['sdae_wordsFile_s3']
+        sdae_wordsFile_s4 = paras['sdae_wordsFile_s4']
+        wordsFile_s = [sdae_wordsFile_s1, sdae_wordsFile_s2, sdae_wordsFile_s3, sdae_wordsFile_s4]
 
     im_name = imgFile[-20:-4]
     F0, region_patch_list, eraseLabels = gsr.generate_subRegions(img, patchSize, region_patch_ratio, eraseMap, k, minSize, sigma)
@@ -150,6 +158,9 @@ def region_special_map(paras, isReturnMaps=None):
     region_labels = {}
     for ri in range(len(region_patch_list)):
         r = region_patch_list[ri]
+        batchSize = len(r)
+        inputShape = (batchSize, 1, sizeRange[0], sizeRange[0])
+        sdaePara['inputShape'] = inputShape
         if len(r) != 0:
             # if feaType == 'LBP':
             feaVectors, posVectors = glf.genImgLocalFeas(imgFile, feaType, gridSize, sizeRange,
@@ -228,7 +239,7 @@ def showMaps3(maps3):
 
 if __name__ == '__main__':
     paras = {}
-    imgFile = '/home/ljm/NiuChuang/KLSA-auroral-images/Data/labeled2003_38044/N20031229G102406.bmp'
+    imgFile = '/home/ljm/NiuChuang/KLSA-auroral-images/Data/labeled2003_38044/N20031221G071131.bmp'
     paras['imgFile'] = imgFile
     # sdae_wordsFile_h1 = '../../Data/Features/type4_SDAEWords_h1.hdf5'
     # sdae_wordsFile_h2 = '../../Data/Features/type4_SDAEWords_h2.hdf5'
@@ -266,7 +277,7 @@ if __name__ == '__main__':
     paras['lbp_wordsFile_h2'] = lbp_wordsFile_h2
     paras['cascade_wordsFile'] = cascade_wordsFile
     paras['k'] = 60
-    paras['minSize'] = 100
+    paras['minSize'] = 50
     paras['patchSize'] = np.array([16, 16])
     paras['region_patch_ratio'] = 0.1
     paras['sigma'] = 0.5
@@ -319,6 +330,10 @@ if __name__ == '__main__':
     paras['gridSize'] = gridSize
     im = np.array(imread(imgFile), dtype='f') / 255
     paras['im'] = im
+    im1 = skimage.io.imread(imgFile)
+    if len(im1.shape) == 2:
+        img = skimage.color.gray2rgb(im1)
+    paras['img'] = img
 
     sdaePara = {}
     # sdaePara['weight'] = '../../Data/autoEncoder/final_0.01.caffemodel'
@@ -337,7 +352,7 @@ if __name__ == '__main__':
     paras['feaType'] = 'LBP'
     paras['isSave'] = False
     paras['is_rotate'] = False
-    paras['specialType'] = 3  # 0: arc, 1: drapery, 2: radial, 3: hot-spot
+    paras['specialType'] = 2  # 0: arc, 1: drapery, 2: radial, 3: hot-spot
     paras['returnRegionLabels'] = [0]  # 0: special, 1: rest, 2: common
     paras['train'] = False
 

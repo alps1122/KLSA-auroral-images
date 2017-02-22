@@ -76,11 +76,14 @@ if __name__ == '__main__':
     imagesFolder = '../../Data/labeled2003_38044/'
     imgType = '.bmp'
     gridSize = np.array([10, 10])
-    sizeRange = (10, 30)
+    sizeRange = (16, 16)
 
     [images, labels] = plf.parseNL(labelFile)
 
-    imgFile = imagesFolder + images[0] + imgType
+    # imgFile = imagesFolder + images[0] + imgType
+    imName = 'N20031221G094901'
+    saveFolder = '/home/ljm/NiuChuang/KLSA-auroral-images/Data/Results/sample_grid/'
+    imgFile = imagesFolder + imName + imgType
 
     # im = Image.open(imgFile)
     # im = np.array(im)
@@ -89,7 +92,9 @@ if __name__ == '__main__':
     # gridList = generateGrid(imageSize, gridSize, sizeRange)
     gridPatchData, gridList, im = generateGridPatchData(imgFile, gridSize, sizeRange, imResize=(256, 256))
 
-    print gridList[0:5]
-    print len(gridList)
-    plf.showGrid(im, gridList[0:5])
+    # print gridList[0:5]
+    # print len(gridList)
+    plf.showGrid(im, gridList)
+    plt.savefig(saveFolder+imName+'_grid.jpg')
+    # plt.imsave('/home/ljm/NiuChuang/KLSA-auroral-images/Data/Results/sample_grid/N20040118G050641_grid.jpg')
     plt.show()

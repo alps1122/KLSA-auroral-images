@@ -115,12 +115,13 @@ print plf.compareLabeledFile(filePath, type3_file)
 #         f4.write(file + ' ' + str(c) + '\n')
 # f4.close()
 # print plf.compareLabeledFile(filePath, type4_file)
-
-[names_own, labels_own] = plf.parseNL(file_own)
+file_38044_selected = '../../Data/labeled2003_38044_G_selected.txt'
+[names_own, labels_own] = plf.parseNL(file_38044_selected)
 arrangedImgs_s = plf.arrangeToClasses(names_s, labels_s, class_num, [['1'], ['2'], ['3'], ['4']])
 
 # type4_file_own = '../../Data/type4_600_300_300_300.txt'
-type4_file_own = '../../Data/type4_300_300_300_300.txt'
+# type4_file_own = '../../Data/type4_300_300_300_300.txt'
+type4_file_own = '../../Data/type4_b500.txt'
 f4 = open(type4_file_own, 'w')
 
 arrangedImgs_own = plf.arrangeToClasses(names_own, labels_own, 4, [['1'], ['2'], ['3'], ['4']])
@@ -133,7 +134,7 @@ print 'class4: ' + str(len(arrangedImgs_own['4']))
 # for c in balance3Imgs:
 #     print 'NO. class ' + c, len(balance3Imgs[c])
 #
-imgs_s1234 = plf.balanceSample(arrangedImgs_own, 300)
+imgs_s1234 = plf.balanceSample(arrangedImgs_own, 500)
 
 # imgs_s1 = arrangedImgs_own.copy()
 # imgs_s1.pop('2')

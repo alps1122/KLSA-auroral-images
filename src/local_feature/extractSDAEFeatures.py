@@ -47,22 +47,24 @@ if __name__ == '__main__':
     dataFolder = '../../Data/labeled2003_38044/'
     imgType = '.bmp'
     gridSize = np.array([10, 10])
-    sizeRange = (16, 16)
+    sizeRange = (28, 28)
     patchSize = sizeRange[0]
     channels = 1
     posParaNum = 4
-    layerNeuronNum = [16 * 16, 1000, 1000, 500, 64]
+    layerNeuronNum = [28 * 28, 1000, 1000, 500, 64]
     SDAEFeaDim = layerNeuronNum[-1]
 
     # weight = '../../Data/autoEncoder/final_0.01.caffemodel'
     # weight = '../../Data/autoEncoder/layer_diff_mean_final.caffemodel'
-    weight = '../../Data/autoEncoder/layer_same_mean_s16_final.caffemodel'
+    # weight = '../../Data/autoEncoder/layer_same_mean_s16_final.caffemodel'
+    # weight = '../../Data/autoEncoder/layer_same_mean_s28_special_final.caffemodel'
+    weight = '../../Data/autoEncoder/layer_same_mean_s28_special_final.caffemodel'
     net = '../../Data/autoEncoder/test_net.prototxt'
     img_test = dataFolder + 'N20031221G030001.bmp'
     gridPatchData, gridList, im = esg.generateGridPatchData(img_test, gridSize, sizeRange)
     batchSize = len(gridList)
 
-    inputShape = (batchSize, 1, 16, 16)
+    inputShape = (batchSize, 1, 28, 28)
     with open(net, 'w') as f1:
         f1.write(str(AE.defineTestNet(inputShape, layerNeuronNum)))
 
@@ -72,10 +74,12 @@ if __name__ == '__main__':
     labelTruth = '../../Data/Alllabel2003_38044.txt'
     # labelFile = '../../Data/type3_1000_500_500.txt'
     # labelFile = '../../Data/type4_1500_500_500_500.txt'
-    labelFile = '../../Data/type4_600_300_300_300.txt'
+    # labelFile = '../../Data/type4_600_300_300_300.txt'
+    labelFile = '../../Data/type4_b500.txt'
     print plf.compareLabeledFile(labelTruth, labelFile)
     # meanFile = '../../Data/patchData_mean.txt'
-    meanFile = '../../Data/patchData_mean_s16.txt'
+    # meanFile = '../../Data/patchData_mean_s16.txt'
+    meanFile = '../../Data/patchData_mean_s28_special.txt'
     classNum = 4
     # classes = [['1'], ['2'], ['3']]
     classes = [['1'], ['2'], ['3'], ['4']]
@@ -91,8 +95,10 @@ if __name__ == '__main__':
     # saveSDAEFeas = '../../Data/Features/type3_SDAEFeas.hdf5'
     # saveSDAEFeas = '../../Data/Features/type4_SDAEFeas.hdf5'
     # saveSDAEFeas = '../../Data/Features/type4_SDAEFeas_diff_mean.hdf5'
-    saveSDAEFeas = '../../Data/Features/type4_SDAEFeas_same_mean_s16_600_300_300_300.hdf5'
-
+    # saveSDAEFeas = '../../Data/Features/type4_SDAEFeas_same_mean_s16_600_300_300_300.hdf5'
+    # saveSDAEFeas = '../../Data/Features/type4_SDAEFeas_same_mean_s28_b500_special.hdf5'
+    # saveSDAEFeas = '../../Data/Features/type4_SDAEFeas_same_mean_s28_b500_special_trained.hdf5'
+    saveSDAEFeas = '../../Data/Features/type4_SDAEFeas_same_mean_s28_b500_special_classification.hdf5'
     [images, labels] = plf.parseNL(labelFile)
     # arrImgs, _ = plf.arrangeToClasses(images, labels, classNum, classes)
     arrImgs = plf.arrangeToClasses(images, labels, classNum, classes)
