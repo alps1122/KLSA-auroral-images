@@ -13,12 +13,13 @@ import color_space
 import src.util.paseLabeledFile as plf
 import segment
 import src.preprocess.esg as esg
+from scipy.misc import imsave
 
 def rgb2gray(rgb):
     return np.dot(rgb[...,:3], [0.299, 0.587, 0.144])
 
 def generate_subRegions(imgFileOrImg, patchSize, region_patch_ratio, eraseMap, k, minSize, sigma,
-                        radius=220, centers = np.array([219.5, 219.5])):
+                        radius=220, centers = np.array([219.5, 219.5]), thresh=None, isSaveDetection=True):
     if isinstance(imgFileOrImg, str):
         img = skimage.io.imread(imgFileOrImg)
         if len(img.shape) == 2:
@@ -29,11 +30,17 @@ def generate_subRegions(imgFileOrImg, patchSize, region_patch_ratio, eraseMap, k
     # im = rgb2gray(img)
     # print im.max(), im.min()
     im = img[:, :, 0]
+    if thresh is None:
+        thresh = 0
 
     F0, n_region = segment.segment_label(img, sigma, k, minSize)
 
     eraseLabels = set(list(F0[numpy.where(eraseMap == 1)].flatten()))
+    # plt.imshow(eraseMap)
+    # plt.show()
+    # print eraseLabels
     region_patch_list = [[] for i in range(n_region)]
+    filterout_labels = []
     for l in range(n_region):
         if l in eraseLabels:
             region_patch_list[l] = []
@@ -41,8 +48,10 @@ def generate_subRegions(imgFileOrImg, patchSize, region_patch_ratio, eraseMap, k
             region_patch_centers = np.argwhere(F0 == l)
             region_values = im[np.where(F0 == l)]
             region_mean = region_values.mean()
-            if region_mean < 26:
+            print thresh
+            if region_mean < thresh:
                 region_patch_list[l] = []
+                filterout_labels.append(l)
             else:
                 hw = patchSize / 2
                 region_patch_gride = np.zeros((region_patch_centers.shape[0], 4))
@@ -53,6 +62,23 @@ def generate_subRegions(imgFileOrImg, patchSize, region_patch_ratio, eraseMap, k
                     if esg.isWithinCircle(ll, centers, radius):
                         if np.random.rand(1, )[0] < region_patch_ratio:
                             region_patch_list[l].append(ll)
+
+    if isSaveDetection and (thresh != 0):
+        folder = '../../Data/Results/regionDetection/'
+        alpha = 0.6
+        colors = numpy.random.randint(0, 255, (n_region, 3))
+        print eraseLabels
+        for e in eraseLabels:
+            colors[e] = 0
+        color_regions_before = colors[F0]
+        result_before = (color_regions_before * alpha + img * (1. - alpha)).astype(numpy.uint8)
+        print filterout_labels
+        for e in filterout_labels:
+            colors[e] = 0
+        color_regions_after = colors[F0]
+        result_after = (color_regions_after * alpha + img * (1. - alpha)).astype(numpy.uint8)
+        imsave(folder+'before.jpg', result_before)
+        imsave(folder+'after.jpg', result_after)
 
     return F0, region_patch_list, eraseLabels
 

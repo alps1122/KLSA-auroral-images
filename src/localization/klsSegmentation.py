@@ -11,6 +11,7 @@ from sklearn.decomposition import PCA
 from skimage.transform import rotate
 import math
 import matplotlib.pyplot as plt
+from src.local_feature.adaptiveThreshold import calculateThreshold
 
 def angleFromCommon(F0, commonLabels):
     coordinates_special = np.zeros((0, 2))
@@ -45,12 +46,12 @@ def mergePatchAndRegion(classHeatMaps, categoryHeatMaps, labels, th):
     mergeRusults = (classHeatMap + categoryHeatMap) / 2
     # mergeRusults = classHeatMap * categoryHeatMap
     mergeRusults[np.where(mergeRusults > th)] = 1
-    mergeRusults[np.where(mergeRusults < th)] = 0
+    mergeRusults[np.where(mergeRusults <= th)] = 0
     return mergeRusults, categoryHeatMap, classHeatMap
 
 if __name__ == '__main__':
     paras = {}
-    imgFile = '/home/ljm/NiuChuang/KLSA-auroral-images/Data/labeled2003_38044/N20031221G071131.bmp'
+    imgFile = '/home/niuchuang/PycharmProjects/KLSA-auroral-images/Data/labeled2003_38044/N20040112G110205.bmp'
     paras['imgFile'] = imgFile
     paras['color_space'] = ['rgb']
     paras['ks'] = [30, 50, 100, 150, 200, 250, 300]
@@ -71,7 +72,7 @@ if __name__ == '__main__':
         centers = np.array([219.5, 219.5])
         for i in range(440):
             for j in range(440):
-                if np.linalg.norm(np.array([i, j]) - centers) > 220:
+                if np.linalg.norm(np.array([i, j]) - centers) > 220 + 5:
                     eraseMap[i, j] = 1
         imsave(eraseMapPath, eraseMap)
     else:
@@ -115,7 +116,7 @@ if __name__ == '__main__':
     paras['lbp_wordsFile_h2'] = lbp_wordsFile_h2
     paras['cascade_wordsFile'] = cascade_wordsFile
     paras['k'] = 60
-    paras['minSize'] = 100
+    paras['minSize'] = 50
     paras['patchSize'] = np.array([28, 28])
     paras['region_patch_ratio'] = 0.1
     paras['sigma'] = 0.5
@@ -162,7 +163,7 @@ if __name__ == '__main__':
 
     paras['sdaePara'] = sdaePara
 
-    paras['feaType'] = 'SDAE'
+    paras['feaType'] = 'LBP'
     paras['isSave'] = False
     paras['is_rotate'] = False
 
@@ -181,6 +182,7 @@ if __name__ == '__main__':
         # visRegionClassHeatMap(classHeatMap, class_names)
 
         paras['specialType'] = labels  # 0: arc, 1: drapery, 2: radial, 3: hot-spot
+        paras['thresh'] = calculateThreshold(imgFile)
         maps3, common_labels, F0 = region_special_map(paras, isReturnMaps=True)
 
          # showMaps3(maps3)

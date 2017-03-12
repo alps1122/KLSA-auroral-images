@@ -152,8 +152,9 @@ def region_special_map(paras, isReturnMaps=None):
         sdae_wordsFile_s4 = paras['sdae_wordsFile_s4']
         wordsFile_s = [sdae_wordsFile_s1, sdae_wordsFile_s2, sdae_wordsFile_s3, sdae_wordsFile_s4]
 
+    thresh = paras['thresh']
     im_name = imgFile[-20:-4]
-    F0, region_patch_list, eraseLabels = gsr.generate_subRegions(img, patchSize, region_patch_ratio, eraseMap, k, minSize, sigma)
+    F0, region_patch_list, eraseLabels = gsr.generate_subRegions(img, patchSize, region_patch_ratio, eraseMap, k, minSize, sigma, thresh=thresh)
     maps2by2 = {}
     region_labels = {}
     for ri in range(len(region_patch_list)):

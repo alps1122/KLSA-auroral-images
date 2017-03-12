@@ -88,7 +88,7 @@ def region_class_heatMap(paras):
     boxes = regionSetToBoxes(region_set, overlapThresh, sizeRange=regionSizeRange, isVisualize=False)
     if is_showProposals:
         plf.showProposals(im, boxes)
-        plt.savefig('/home/ljm/NiuChuang/KLSA-auroral-images/Data/Results/proposals/'+paras['imgFile'][-20:-4]+'_proposals.jpg')
+        plt.savefig('../../Data/Results/proposals/'+paras['imgFile'][-20:-4]+'_proposals.jpg')
         plt.show()
     scores, boxes = im_detect(net, im, boxes)
     regionClassMap = generateRegionClassHeatMap(scores, boxes, scoreThresh)

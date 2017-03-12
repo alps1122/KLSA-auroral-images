@@ -143,6 +143,7 @@ def save_hierachecalRegionsProcess(paras):
     else:
         cs = '_S'
     imName += cs
+    paras['thresh'] = 0
     (R, F, L, L_regions, eraseLabels, angle) = selective_search.hierarchical_segmentation_M(paras, feature_masks)
     print('result filename: %s_[0000-%04d].png' % (imName, len(F) - 1))
 
@@ -181,6 +182,7 @@ def generateSpecialCommonBbox(labelFile, savePath, dataFolder, imgType, paras):
         if len(im.shape) == 2:
             img = skimage.color.gray2rgb(im)
         paras['im'] = img
+        paras['img'] = img
         paras['specialType'] = int(label) - 1  # 0: arc, 1: drapery, 2: radial, 3: hot-spot
 
         paras['th'] = 0.45
@@ -287,9 +289,11 @@ if __name__=="__main__":
     paras['is_rotate'] = True
     paras['eraseRegionLabels'] = [2]  # 0: special, 1: rest, 2: common
 
-    labelFile = '/home/ljm/NiuChuang/KLSA-auroral-images/Data/type4_300_300_300_300.txt'
-    dataFolder = '/home/ljm/NiuChuang/KLSA-auroral-images/Data/labeled2003_38044/'
-    savePath = '../../Data/type4_b300_bbox.hdf5'
+    # labelFile = '../../Data/type4_300_300_300_300.txt'
+    labelFile = '../../Data/type4_b500.txt'
+    dataFolder = '../../Data/labeled2003_38044/'
+    # savePath = '../../Data/type4_b300_bbox.hdf5'
+    savePath = '../../Data/type4_b500_bbox.hdf5'
     imgType = '.bmp'
     # generateSpecialCommonBbox(labelFile, savePath, dataFolder, imgType, paras)
 
@@ -298,7 +302,7 @@ if __name__=="__main__":
     paras['th'] = 0.45
 
     figSaveFolder = '../../Data/Results/training_samples/'
-    imgFile = '/home/ljm/NiuChuang/KLSA-auroral-images/Data/labeled2003_38044/N20031227G111140.bmp'
+    imgFile = '../../Data/labeled2003_38044/N20031221G103321.bmp'
     name = imgFile[-20:-4]
     if 0 in paras['returnRegionLabels']:
         c_s = '_common'

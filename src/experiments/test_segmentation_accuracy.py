@@ -13,6 +13,7 @@ import math
 import matplotlib.pyplot as plt
 from src.localization.klsSegmentation import mapsToLabels, mergePatchAndRegion
 import scipy.io as sio
+from src.local_feature.adaptiveThreshold import calculateThreshold
 
 def load_mask_mat(filePath):
     mask = sio.loadmat(filePath)['mask']
@@ -43,7 +44,7 @@ if __name__ == '__main__':
     paras['scoreThresh'] = 0.7
 
     eraseMapPath = '../../Data/eraseMap.bmp'
-    regionModelWeights = '../../Data/region_classification/output/vgg_cnn_m_1024_fast_rcnn_iter_10000.caffemodel'
+    regionModelWeights = '../../Data/region_classification/output/vgg_cnn_m_1024_fast_rcnn_b500_iter_10000.caffemodel'
     regionModelPrototxt = '../../fast-rcnn/models/VGG_CNN_M_1024/test_kls.prototxt'
     proposal_minSize = 100 * 100
     proposal_maxSize = 440 * 220
@@ -142,7 +143,7 @@ if __name__ == '__main__':
 
     paras['sdaePara'] = sdaePara
 
-    paras['feaType'] = 'SIFT'
+    paras['feaType'] = 'LBP'
     paras['isSave'] = False
     paras['is_rotate'] = False
 
@@ -167,6 +168,7 @@ if __name__ == '__main__':
             imName = imgName[:-4]
             mask_c = load_mask_mat(labelMaskFolder_c + imName + '.mat')
 
+            paras['thresh'] = calculateThreshold(imgFile)
             paras['imgFile'] = imgFile
             im = skimage.io.imread(imgFile)
             if len(im.shape) == 2:
