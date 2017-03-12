@@ -125,6 +125,7 @@ def region_special_map(paras, isReturnMaps=None):
 
     sdaePara = paras['sdaePara']
     types = paras['types']
+    withIntensity = paras['withIntensity']
     isSave = paras['isSave']
     specialType = paras['specialType']
     returnRegionLabels = paras['returnRegionLabels']
@@ -165,7 +166,7 @@ def region_special_map(paras, isReturnMaps=None):
         if len(r) != 0:
             # if feaType == 'LBP':
             feaVectors, posVectors = glf.genImgLocalFeas(imgFile, feaType, gridSize, sizeRange,
-                                                         gridList=r, sdaePara=sdaePara)
+                                                         gridList=r, sdaePara=sdaePara, withIntensity=withIntensity)
             labels = {}
             if specialType is not None:
                 w = wordsFile_s[specialType]

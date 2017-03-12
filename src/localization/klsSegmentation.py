@@ -51,7 +51,7 @@ def mergePatchAndRegion(classHeatMaps, categoryHeatMaps, labels, th):
 
 if __name__ == '__main__':
     paras = {}
-    imgFile = '/home/niuchuang/PycharmProjects/KLSA-auroral-images/Data/labeled2003_38044/N20040112G110205.bmp'
+    imgFile = '/home/ljm/NiuChuang/KLSA-auroral-images/Data/labeled2003_38044/N20040116G070614.bmp'
     paras['imgFile'] = imgFile
     paras['color_space'] = ['rgb']
     paras['ks'] = [30, 50, 100, 150, 200, 250, 300]
@@ -60,7 +60,7 @@ if __name__ == '__main__':
     paras['scoreThresh'] = 0.7
 
     eraseMapPath = '../../Data/eraseMap.bmp'
-    regionModelWeights = '../../Data/region_classification/output/vgg_cnn_m_1024_fast_rcnn_iter_10000.caffemodel'
+    regionModelWeights = '../../Data/region_classification/output/vgg_cnn_m_1024_fast_rcnn_b500_iter_10000.caffemodel'
     regionModelPrototxt = '../../fast-rcnn/models/VGG_CNN_M_1024/test_kls.prototxt'
     proposal_minSize = 100 * 100
     proposal_maxSize = 440 * 220
@@ -123,20 +123,28 @@ if __name__ == '__main__':
     paras['alpha'] = 0.6
     paras['th'] = 0.15
     paras['types'] = ['arc', 'drapery', 'radial', 'hot_spot']
-    paras['lbp_wordsFile_s1'] = '../../Data/Features/type4_LBPWords_s1_s16_300_300_300_300.hdf5'
-    paras['lbp_wordsFile_s2'] = '../../Data/Features/type4_LBPWords_s2_s16_300_300_300_300.hdf5'
-    paras['lbp_wordsFile_s3'] = '../../Data/Features/type4_LBPWords_s3_s16_300_300_300_300.hdf5'
-    paras['lbp_wordsFile_s4'] = '../../Data/Features/type4_LBPWords_s4_s16_300_300_300_300.hdf5'
+    # paras['lbp_wordsFile_s1'] = '../../Data/Features/type4_LBPWords_s1_s16_300_300_300_300.hdf5'
+    # paras['lbp_wordsFile_s2'] = '../../Data/Features/type4_LBPWords_s2_s16_300_300_300_300.hdf5'
+    # paras['lbp_wordsFile_s3'] = '../../Data/Features/type4_LBPWords_s3_s16_300_300_300_300.hdf5'
+    # paras['lbp_wordsFile_s4'] = '../../Data/Features/type4_LBPWords_s4_s16_300_300_300_300.hdf5'
+    # paras['lbp_wordsFile_s1'] = '../../Data/Features/type4_LBPWords_s1_s16_b300_intensity.hdf5'
+    # paras['lbp_wordsFile_s2'] = '../../Data/Features/type4_LBPWords_s2_s16_b300_intensity.hdf5'
+    # paras['lbp_wordsFile_s3'] = '../../Data/Features/type4_LBPWords_s3_s16_b300_intensity.hdf5'
+    # paras['lbp_wordsFile_s4'] = '../../Data/Features/type4_LBPWords_s4_s16_b300_intensity.hdf5'
+    paras['lbp_wordsFile_s1'] = '../../Data/Features/type4_LBPWords_s1_diffResolution_b500_intensity.hdf5'
+    paras['lbp_wordsFile_s2'] = '../../Data/Features/type4_LBPWords_s2_diffResolution_b500_intensity.hdf5'
+    paras['lbp_wordsFile_s3'] = '../../Data/Features/type4_LBPWords_s3_diffResolution_b500_intensity.hdf5'
+    paras['lbp_wordsFile_s4'] = '../../Data/Features/type4_LBPWords_s4_diffResolution_b500_intensity.hdf5'
 
     paras['sift_wordsFile_s1'] = '../../Data/Features/type4_SIFTWords_s1_s16_300_300_300_300.hdf5'
     paras['sift_wordsFile_s2'] = '../../Data/Features/type4_SIFTWords_s2_s16_300_300_300_300.hdf5'
     paras['sift_wordsFile_s3'] = '../../Data/Features/type4_SIFTWords_s3_s16_300_300_300_300.hdf5'
     paras['sift_wordsFile_s4'] = '../../Data/Features/type4_SIFTWords_s4_s16_300_300_300_300.hdf5'
 
-    paras['sdae_wordsFile_s1'] = '../../Data/Features/type4_SDAEWords_s1_s28_b500_special.hdf5'
-    paras['sdae_wordsFile_s2'] = '../../Data/Features/type4_SDAEWords_s2_s28_b500_special.hdf5'
-    paras['sdae_wordsFile_s3'] = '../../Data/Features/type4_SDAEWords_s3_s28_b500_special.hdf5'
-    paras['sdae_wordsFile_s4'] = '../../Data/Features/type4_SDAEWords_s4_s28_b500_special.hdf5'
+    paras['sdae_wordsFile_s1'] = '../../Data/Features/type4_SDAEWords_s1_s28_b500_special_classification.hdf5'
+    paras['sdae_wordsFile_s2'] = '../../Data/Features/type4_SDAEWords_s2_s28_b500_special_classification.hdf5'
+    paras['sdae_wordsFile_s3'] = '../../Data/Features/type4_SDAEWords_s3_s28_b500_special_classification.hdf5'
+    paras['sdae_wordsFile_s4'] = '../../Data/Features/type4_SDAEWords_s4_s28_b500_special_classification.hdf5'
 
     paras['sizeRange'] = (28, 28)
     paras['imResize'] = (256, 256)
@@ -164,6 +172,7 @@ if __name__ == '__main__':
     paras['sdaePara'] = sdaePara
 
     paras['feaType'] = 'LBP'
+    paras['withIntensity'] = True
     paras['isSave'] = False
     paras['is_rotate'] = False
 

@@ -5,8 +5,10 @@ import src.preprocess.esg as esg
 import numpy as np
 import h5py
 import matplotlib.pyplot as plt
+from src.local_feature.intensityFeature import intensityFeature
 
-def calImgLBPFeatures(imgFile, gridSize, sizeRange, imResize=None, gridList=None, norm=True):
+def calImgLBPFeatures(imgFile, gridSize, sizeRange, imResize=None, gridList=None, norm=True, withIntensity=None,
+                      diffResolution=True):
     # print imgFile
     P1 = 8
     P2 = 16
@@ -39,10 +41,16 @@ def calImgLBPFeatures(imgFile, gridSize, sizeRange, imResize=None, gridList=None
         feaVecs[i, :] = feaVec
     if norm:
         feaVecs = nv.normalizeVecs(feaVecs)
+    if withIntensity:
+        intensityFeas = intensityFeature(gridPatchData=gridPatchData, diffResolution=diffResolution)
+        feaVecs = np.hstack((feaVecs, intensityFeas))
     return feaVecs, np.array(positions)
 
-def calLBPFeaSet(dataFolder, labelFile, classNum, imgType, gridSize, sizeRange, classLabel, saveName, imResize=None):
+def calLBPFeaSet(dataFolder, labelFile, classNum, imgType, gridSize, sizeRange, classLabel, saveName,
+                 imResize=None, withIntensity=None, diffResolution=True):
     LBPFeaDim = 10 + 18 + 26
+    if withIntensity:
+        LBPFeaDim += 3
     posParaNum = 4
     names, labels = plf.parseNL(labelFile)
     if classNum == 4:
@@ -65,9 +73,11 @@ def calLBPFeaSet(dataFolder, labelFile, classNum, imgType, gridSize, sizeRange, 
         for name in imgs:
             imgFile = dataFolder+name+imgType
             if imResize:
-                feaVec, posVec = calImgLBPFeatures(imgFile, gridSize, sizeRange, imResize=imResize)
+                feaVec, posVec = calImgLBPFeatures(imgFile, gridSize, sizeRange, imResize=imResize,
+                                                   withIntensity=withIntensity, diffResolution=diffResolution)
             else:
-                feaVec, posVec = calImgLBPFeatures(imgFile, gridSize, sizeRange)
+                feaVec, posVec = calImgLBPFeatures(imgFile, gridSize, sizeRange, withIntensity=withIntensity,
+                                                   diffResolution=diffResolution)
             feaArr = np.append(feaArr, feaVec, axis=0)
             posArr = np.append(posArr, posVec, axis=0)
         feaSet.create_dataset(c, feaArr.shape, 'f', feaArr)
@@ -81,6 +91,8 @@ if __name__ == '__main__':
     imgType = '.bmp'
     gridSize = np.array([10, 10])
     sizeRange = (16, 16)
+    # imgFile = '/home/ljm/NiuChuang/KLSA-auroral-images/Data/labeled2003_38044/N20031221G070851.bmp'
+    # feaVec, posVec = calImgLBPFeatures(imgFile, gridSize, sizeRange, withIntensity=True)
     # classLabel3 = [['1'], ['2'], ['3']]
     # saveName3 = 'type3_LBPFeatures.hdf5'
     # classNum3 = 3
@@ -92,14 +104,17 @@ if __name__ == '__main__':
     classLabel4 = [['1'], ['2'], ['3'], ['4']]
     # saveName4 = 'type4_LBPFeatures.hdf5'
     # saveName4 = 'type4_LBPFeatures_s16_600_300_300_300.hdf5'
-    saveName4 = 'type4_LBPFeatures_s16_300_300_300_300.hdf5'
+    # saveName4 = 'type4_LBPFeatures_s16_300_300_300_300.hdf5'
+    # saveName4 = 'type4_LBPFeatures_s16_b300_intensity.hdf5'
+    saveName4 = 'type4_LBPFeatures_diffResolution_b500_withIntensity.hdf5'
     classNum4 = 4
     # labelFileType4 = '../../Data/type4_1500_500_500_500.txt'
     # labelFileType4 = '../../Data/type4_600_300_300_300.txt'
-    labelFileType4 = '../../Data/type4_300_300_300_300.txt'
+    # labelFileType4 = '../../Data/type4_300_300_300_300.txt'
+    labelFileType4 = '../../Data/type4_b500.txt'
     saveFolder = '../../Data/Features/'
     calLBPFeaSet(dataFolder, labelFileType4, classNum4, imgType, gridSize, sizeRange, classLabel4,
-                 saveFolder + saveName4)
+                 saveFolder + saveName4, withIntensity=True, diffResolution=True)
 
     # posParaNum = 4
     # P1 = 8

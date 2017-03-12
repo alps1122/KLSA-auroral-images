@@ -96,27 +96,35 @@ if __name__ == '__main__':
     paras['lbp_wordsFile_h2'] = lbp_wordsFile_h2
     paras['cascade_wordsFile'] = cascade_wordsFile
     paras['k'] = 60
-    paras['minSize'] = 100
+    paras['minSize'] = 50
     paras['patchSize'] = np.array([28, 28])
     paras['region_patch_ratio'] = 0.1
     paras['sigma'] = 0.5
     paras['alpha'] = 0.6
     paras['th'] = 0.15
     paras['types'] = ['arc', 'drapery', 'radial', 'hot_spot']
-    paras['lbp_wordsFile_s1'] = '../../Data/Features/type4_LBPWords_s1_s16_300_300_300_300.hdf5'
-    paras['lbp_wordsFile_s2'] = '../../Data/Features/type4_LBPWords_s2_s16_300_300_300_300.hdf5'
-    paras['lbp_wordsFile_s3'] = '../../Data/Features/type4_LBPWords_s3_s16_300_300_300_300.hdf5'
-    paras['lbp_wordsFile_s4'] = '../../Data/Features/type4_LBPWords_s4_s16_300_300_300_300.hdf5'
+    # paras['lbp_wordsFile_s1'] = '../../Data/Features/type4_LBPWords_s1_s16_300_300_300_300.hdf5'
+    # paras['lbp_wordsFile_s2'] = '../../Data/Features/type4_LBPWords_s2_s16_300_300_300_300.hdf5'
+    # paras['lbp_wordsFile_s3'] = '../../Data/Features/type4_LBPWords_s3_s16_300_300_300_300.hdf5'
+    # paras['lbp_wordsFile_s4'] = '../../Data/Features/type4_LBPWords_s4_s16_300_300_300_300.hdf5'
+    # paras['lbp_wordsFile_s1'] = '../../Data/Features/type4_LBPWords_s1_s16_b300_intensity.hdf5'
+    # paras['lbp_wordsFile_s2'] = '../../Data/Features/type4_LBPWords_s2_s16_b300_intensity.hdf5'
+    # paras['lbp_wordsFile_s3'] = '../../Data/Features/type4_LBPWords_s3_s16_b300_intensity.hdf5'
+    # paras['lbp_wordsFile_s4'] = '../../Data/Features/type4_LBPWords_s4_s16_b300_intensity.hdf5'
+    paras['lbp_wordsFile_s1'] = '../../Data/Features/type4_LBPWords_s1_diffResolution_b500_intensity.hdf5'
+    paras['lbp_wordsFile_s2'] = '../../Data/Features/type4_LBPWords_s2_diffResolution_b500_intensity.hdf5'
+    paras['lbp_wordsFile_s3'] = '../../Data/Features/type4_LBPWords_s3_diffResolution_b500_intensity.hdf5'
+    paras['lbp_wordsFile_s4'] = '../../Data/Features/type4_LBPWords_s4_diffResolution_b500_intensity.hdf5'
 
     paras['sift_wordsFile_s1'] = '../../Data/Features/type4_SIFTWords_s1_s16_300_300_300_300.hdf5'
     paras['sift_wordsFile_s2'] = '../../Data/Features/type4_SIFTWords_s2_s16_300_300_300_300.hdf5'
     paras['sift_wordsFile_s3'] = '../../Data/Features/type4_SIFTWords_s3_s16_300_300_300_300.hdf5'
     paras['sift_wordsFile_s4'] = '../../Data/Features/type4_SIFTWords_s4_s16_300_300_300_300.hdf5'
 
-    paras['sdae_wordsFile_s1'] = '../../Data/Features/type4_SDAEWords_s1_s28_b500_special.hdf5'
-    paras['sdae_wordsFile_s2'] = '../../Data/Features/type4_SDAEWords_s2_s28_b500_special.hdf5'
-    paras['sdae_wordsFile_s3'] = '../../Data/Features/type4_SDAEWords_s3_s28_b500_special.hdf5'
-    paras['sdae_wordsFile_s4'] = '../../Data/Features/type4_SDAEWords_s4_s28_b500_special.hdf5'
+    paras['sdae_wordsFile_s1'] = '../../Data/Features/type4_SDAEWords_s1_s28_b500_special_classification.hdf5'
+    paras['sdae_wordsFile_s2'] = '../../Data/Features/type4_SDAEWords_s2_s28_b500_special_classification.hdf5'
+    paras['sdae_wordsFile_s3'] = '../../Data/Features/type4_SDAEWords_s3_s28_b500_special_classification.hdf5'
+    paras['sdae_wordsFile_s4'] = '../../Data/Features/type4_SDAEWords_s4_s28_b500_special_classification.hdf5'
 
     paras['sizeRange'] = (28, 28)
     paras['imResize'] = (256, 256)

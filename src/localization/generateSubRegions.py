@@ -19,7 +19,7 @@ def rgb2gray(rgb):
     return np.dot(rgb[...,:3], [0.299, 0.587, 0.144])
 
 def generate_subRegions(imgFileOrImg, patchSize, region_patch_ratio, eraseMap, k, minSize, sigma,
-                        radius=220, centers = np.array([219.5, 219.5]), thresh=None, isSaveDetection=False):
+                        radius=220, centers = np.array([219.5, 219.5]), thresh=None, isSaveDetection=False, diffResolution=True):
     if isinstance(imgFileOrImg, str):
         img = skimage.io.imread(imgFileOrImg)
         if len(img.shape) == 2:
@@ -45,7 +45,7 @@ def generate_subRegions(imgFileOrImg, patchSize, region_patch_ratio, eraseMap, k
         if l in eraseLabels:
             region_patch_list[l] = []
         else:
-            region_patch_centers = np.argwhere(F0 == l)
+            region_patch_centers = list(np.argwhere(F0 == l))
             region_values = im[np.where(F0 == l)]
             region_mean = region_values.mean()
             print thresh
@@ -54,13 +54,22 @@ def generate_subRegions(imgFileOrImg, patchSize, region_patch_ratio, eraseMap, k
                 filterout_labels.append(l)
             else:
                 hw = patchSize / 2
-                region_patch_gride = np.zeros((region_patch_centers.shape[0], 4))
-                region_patch_gride[:, :2] = region_patch_centers - hw
-                region_patch_gride[:, 2:] = patchSize
-                patch_list = list(region_patch_gride)
-                for ll in patch_list:
-                    if esg.isWithinCircle(ll, centers, radius):
-                        if np.random.rand(1, )[0] < region_patch_ratio:
+                region_patch_gride = np.zeros((len(region_patch_centers), 4))
+                if not diffResolution:
+                    region_patch_gride[:, :2] = np.array(region_patch_centers) - hw
+                    region_patch_gride[:, 2:] = patchSize
+                    patch_list = list(region_patch_gride)
+                for ii in range(len(region_patch_centers)):
+                    if not diffResolution:
+                        ll = patch_list[ii]
+                    if np.random.rand(1, )[0] < region_patch_ratio:
+                        if diffResolution:
+                            patchSize = np.array(esg.centerArr2sizeList(region_patch_centers[ii]))
+                            ll = np.zeros((1, 4))
+                            ll[:, :2] = region_patch_centers[ii]
+                            ll[:, 2:] = patchSize
+                            ll = list(ll)[0]
+                        if esg.isWithinCircle(ll, centers, radius):
                             region_patch_list[l].append(ll)
 
     if isSaveDetection and (thresh != 0):

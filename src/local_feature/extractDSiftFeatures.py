@@ -5,34 +5,47 @@ import dsift
 from scipy import misc
 import matplotlib.pyplot as plt
 import h5py
+from src.local_feature.intensityFeature import intensityFeature
 
-siftFeaDim = 128
 posParaNum = 4
 # saveName = 'balance500SIFT.hdf5'
 saveFolder = '/home/ljm/NiuChuang/KLSA-auroral-images/Data/Features/'
 
 
-def calImgDSift(imgFile, gridSize, sizeRange, gridList=None, imResize=None):
+def calImgDSift(imgFile, gridSize, sizeRange, gridList=None, imResize=None, withIntensity=None, diffResolution=True):
     print imgFile
+    siftFeaDim = 128
+    # if withIntensity:
+    #     siftFeaDim += 3
     if imResize:
-        patches, positions, im = esg.generateGridPatchData(imgFile, gridSize, sizeRange, imResize=imResize, gridList=gridList)
+        patches, positions, im = esg.generateGridPatchData(imgFile, gridSize, sizeRange, imResize=imResize, gridList=gridList,
+                                                           diffResolution=diffResolution)
     else:
-        patches, positions, im = esg.generateGridPatchData(imgFile, gridSize, sizeRange, gridList=gridList)
+        patches, positions, im = esg.generateGridPatchData(imgFile, gridSize, sizeRange, gridList=gridList,
+                                                           diffResolution=diffResolution)
     feaVecs = np.zeros((len(patches), siftFeaDim))
     for i in range(len(patches)):
         patchSize = int(positions[i][-1])
         extractor = dsift.SingleSiftExtractor(patchSize)
         feaVec = extractor.process_image(patches[i])
         feaVecs[i, :] = feaVec
+    if withIntensity:
+        intensityFeas = intensityFeature(gridPatchData=patches, diffResolution=diffResolution)
+        feaVecs = np.hstack((feaVecs, intensityFeas))
     return feaVecs, np.array(positions)
 
 
-def calSIFTFeaSet(dataFolder, labelFile, classNum, imgType, gridSize, sizeRange, classLabel, saveName, imResize=None):
+def calSIFTFeaSet(dataFolder, labelFile, classNum, imgType, gridSize, sizeRange, classLabel, saveName,
+                  imResize=None, diffResolution=True, withIntensity=None):
     names, labels = plf.parseNL(labelFile)
     if classNum == 4:
         auroraData = plf.arrangeToClasses(names, labels, classNum, classLabel)
     else:
         auroraData, _ = plf.arrangeToClasses(names, labels, classNum, classLabel)
+
+    siftFeaDim = 128
+    if withIntensity:
+        siftFeaDim += 3
 
     f = h5py.File(saveFolder + saveName, 'w')
     f.attrs['dataFolder'] = dataFolder
@@ -49,9 +62,11 @@ def calSIFTFeaSet(dataFolder, labelFile, classNum, imgType, gridSize, sizeRange,
         for name in imgs:
             imgFile = dataFolder + name + imgType
             if imResize:
-                feaVec, posVec = calImgDSift(imgFile, gridSize, sizeRange, imResize=imResize)
+                feaVec, posVec = calImgDSift(imgFile, gridSize, sizeRange, imResize=imResize, diffResolution=diffResolution,
+                                             withIntensity=withIntensity)
             else:
-                feaVec, posVec = calImgDSift(imgFile, gridSize, sizeRange)
+                feaVec, posVec = calImgDSift(imgFile, gridSize, sizeRange, diffResolution=diffResolution,
+                                             withIntensity=withIntensity)
             feaArr = np.append(feaArr, feaVec, axis=0)
             posArr = np.append(posArr, posVec, axis=0)
         feaSet.create_dataset(c, feaArr.shape, 'f', feaArr)
@@ -83,7 +98,7 @@ if __name__ == '__main__':
     patchSize1 = positions1[110][-1]
     print patchSize1
 
-    extractor = dsift.SingleSiftExtractor(patchSize1)
+    extractor = dsift.SingleSiftExtractor(int(patchSize1))
     feaVec = extractor.process_image(patches1[110])
 
     feaVecs1, pos1 = calImgDSift(dataFolder + auroraData1['2'][400] + imgType, gridSize, sizeRange)
@@ -102,18 +117,19 @@ if __name__ == '__main__':
 
     # labelFileType4 = '../../Data/type4_1500_500_500_500.txt'
     # labelFileType4 = '../../Data/type4_600_300_300_300.txt'
-    labelFileType4 = '../../Data/type4_300_300_300_300.txt'
-
+    # labelFileType4 = '../../Data/type4_300_300_300_300.txt'
+    labelFileType4 = '../../Data/type4_b500.txt'
     classLabel4 = [['1'], ['2'], ['3'], ['4']]
     # saveName4 = 'type4_SIFTFeatures.hdf5'
     # saveName4 = 'type4_SIFTFeatures_s28.hdf5'
     # saveName4 = 'type4_SIFTFeatures_s16_600_300_300_300.hdf5'
-    saveName4 = 'type4_SIFTFeatures_s16_300_300_300_300.hdf5'
+    # saveName4 = 'type4_SIFTFeatures_s16_300_300_300_300.hdf5'
+    saveName4 = 'type4_SIFTFeatures_diffResolution_b500_withIntensity.hdf5'
     classNum4 = 4
     # names3, lables3 = plf.parseNL(labelFileType3)
 
     calSIFTFeaSet(dataFolder, labelFileType4, classNum4, imgType, gridSize, sizeRange, classLabel4,
-                                 saveName4, imResize=None)
+                                 saveName4, imResize=None, withIntensity=True, diffResolution=True)
 
     # print pos[110][-1]
     # plt.figure()
