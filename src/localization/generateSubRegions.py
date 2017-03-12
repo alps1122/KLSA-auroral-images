@@ -19,7 +19,7 @@ def rgb2gray(rgb):
     return np.dot(rgb[...,:3], [0.299, 0.587, 0.144])
 
 def generate_subRegions(imgFileOrImg, patchSize, region_patch_ratio, eraseMap, k, minSize, sigma,
-                        radius=220, centers = np.array([219.5, 219.5]), thresh=None, isSaveDetection=True):
+                        radius=220, centers = np.array([219.5, 219.5]), thresh=None, isSaveDetection=False):
     if isinstance(imgFileOrImg, str):
         img = skimage.io.imread(imgFileOrImg)
         if len(img.shape) == 2:
