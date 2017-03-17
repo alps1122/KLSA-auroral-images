@@ -92,9 +92,7 @@ if __name__ == '__main__':
     dataFolder = '../../Data/labeled2003_38044/'
     imgType = '.bmp'
     gridSize = np.array([10, 10])
-    sizeRange = (16, 16)
-    # imgFile = '/home/ljm/NiuChuang/KLSA-auroral-images/Data/labeled2003_38044/N20031221G070851.bmp'
-    # feaVec, posVec = calImgLBPFeatures(imgFile, gridSize, sizeRange, withIntensity=True)
+    sizeRange = (64, 64)
     # classLabel3 = [['1'], ['2'], ['3']]
     # saveName3 = 'type3_LBPFeatures.hdf5'
     # classNum3 = 3
@@ -106,14 +104,11 @@ if __name__ == '__main__':
     classLabel4 = [['1'], ['2'], ['3'], ['4']]
     # saveName4 = 'type4_LBPFeatures.hdf5'
     # saveName4 = 'type4_LBPFeatures_s16_600_300_300_300.hdf5'
-    # saveName4 = 'type4_LBPFeatures_s16_300_300_300_300.hdf5'
-    # saveName4 = 'type4_LBPFeatures_s16_b300_intensity.hdf5'
-    saveName4 = 'type4_LBPFeatures_diffResolution_b500_withIntensity.hdf5'
+    saveName4 = 'type4_LBPFeatures_s64_b300.hdf5'
     classNum4 = 4
     # labelFileType4 = '../../Data/type4_1500_500_500_500.txt'
     # labelFileType4 = '../../Data/type4_600_300_300_300.txt'
-    # labelFileType4 = '../../Data/type4_300_300_300_300.txt'
-    labelFileType4 = '../../Data/type4_b500.txt'
+    labelFileType4 = '../../Data/type4_300_300_300_300.txt'
     saveFolder = '../../Data/Features/'
     calLBPFeaSet(dataFolder, labelFileType4, classNum4, imgType, gridSize, sizeRange, classLabel4,
                  saveFolder + saveName4, withIntensity=True, diffResolution=True)
