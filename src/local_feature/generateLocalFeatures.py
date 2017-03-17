@@ -17,7 +17,7 @@ import src.local_feature.extractLBPFeatures as extlbp
 def genImgLocalFeas(imgFile, feaType, gridSize, sizeRange, gridList=None, imResize=None, sdaePara=None, u_reduce=None, withIntensity=None):
 
     if feaType == 'SIFT':
-        feaVectors, posVectors = extSift.calImgDSift(imgFile, gridSize, sizeRange, imResize=imResize, gridList=gridList)
+        feaVectors, posVectors = extSift.calImgDSift(imgFile, gridSize, sizeRange, imResize=imResize, gridList=gridList, withIntensity=withIntensity)
 
     if feaType == 'LBP':
         feaVectors, posVectors = extlbp.calImgLBPFeatures(imgFile, gridSize, sizeRange, imResize=imResize, gridList=gridList, withIntensity=withIntensity)

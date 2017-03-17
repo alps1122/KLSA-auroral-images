@@ -16,9 +16,10 @@ def calculateImgHist(imgFile):
     return hist
 
 def adaptiveLinear(x):
-    a = 0.001
-    b = 45
-    y = b + a * x
+    maxTh = 80
+    a = 0.005
+    b = 25
+    y = min(b + a * x, maxTh)
     return y
 
 def calAdapList(xl):
@@ -27,7 +28,7 @@ def calAdapList(xl):
 
 def calculateThreshold(imgFile):
     hist = calculateImgHist(imgFile)
-    thresh = adaptiveLinear(hist[150:].sum())
+    thresh = adaptiveLinear(hist[180:].sum())
     return thresh
 
 if __name__ == '__main__':

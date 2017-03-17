@@ -162,6 +162,7 @@ if __name__ == '__main__':
     lbp_saveName_h1 = '../../Data/Features/type4_LBPWords_h1_s16_600_300_300_300.hdf5'
     lbp_saveName_h2 = '../../Data/Features/type4_LBPWords_h2_s16_600_300_300_300.hdf5'
 
+
     # calMultiCommonVectors(sift_saveName_h1, sift_saveName_h2)
     # calMultiCommonVectors(sdae_saveName_h1, sdae_saveName_h2)
     # calMultiCommonVectors(sdae_saveName_h1_s, sdae_saveName_h2_s)
@@ -199,22 +200,34 @@ if __name__ == '__main__':
     # lbp_saveName_s3 = '../../Data/Features/type4_LBPWords_s3_s16_b300_intensity.hdf5'
     # lbp_saveName_s4 = '../../Data/Features/type4_LBPWords_s4_s16_b300_intensity.hdf5'
     # lbp_saveName_s1234 = '../../Data/Features/type4_LBPWords_s1234_s16_b300_intensity.hdf5'
-    lbp_saveName_s1 = '../../Data/Features/type4_LBPWords_s1_diffResolution_b500_intensity.hdf5'
-    lbp_saveName_s2 = '../../Data/Features/type4_LBPWords_s2_diffResolution_b500_intensity.hdf5'
-    lbp_saveName_s3 = '../../Data/Features/type4_LBPWords_s3_diffResolution_b500_intensity.hdf5'
-    lbp_saveName_s4 = '../../Data/Features/type4_LBPWords_s4_diffResolution_b500_intensity.hdf5'
-    lbp_saveName_s1234 = '../../Data/Features/type4_LBPWords_s1234_diffResolution_b500_intensity.hdf5'
-    calMultiCommonVectors2(lbp_saveName_s1)
-    calMultiCommonVectors2(lbp_saveName_s2)
-    calMultiCommonVectors2(lbp_saveName_s3)
-    calMultiCommonVectors2(lbp_saveName_s4)
-    calMultiCommonVectors1(lbp_saveName_s1234)
+    # lbp_saveName_s1 = '../../Data/Features/type4_LBPWords_s1_diffResolution_b500_intensity.hdf5'
+    # lbp_saveName_s2 = '../../Data/Features/type4_LBPWords_s2_diffResolution_b500_intensity.hdf5'
+    # lbp_saveName_s3 = '../../Data/Features/type4_LBPWords_s3_diffResolution_b500_intensity.hdf5'
+    # lbp_saveName_s4 = '../../Data/Features/type4_LBPWords_s4_diffResolution_b500_intensity.hdf5'
+    # lbp_saveName_s1234 = '../../Data/Features/type4_LBPWords_s1234_diffResolution_b500_intensity.hdf5'
 
-    sift_saveName_s1 = '../../Data/Features/type4_SIFTWords_s1_s16_300_300_300_300.hdf5'
-    sift_saveName_s2 = '../../Data/Features/type4_SIFTWords_s2_s16_300_300_300_300.hdf5'
-    sift_saveName_s3 = '../../Data/Features/type4_SIFTWords_s3_s16_300_300_300_300.hdf5'
-    sift_saveName_s4 = '../../Data/Features/type4_SIFTWords_s4_s16_300_300_300_300.hdf5'
-    sift_saveName_s1234 = '../../Data/Features/type4_SIFTWords_s1234_s16_300_300_300_300.hdf5'
+    lbp_saveName_s1 = '../../Data/Features/type4_LBPWords_s1_s32_b300_w500.hdf5'
+    lbp_saveName_s2 = '../../Data/Features/type4_LBPWords_s2_s32_b300_w500.hdf5'
+    lbp_saveName_s3 = '../../Data/Features/type4_LBPWords_s3_s32_b300_w500.hdf5'
+    lbp_saveName_s4 = '../../Data/Features/type4_LBPWords_s4_s32_b300_w500.hdf5'
+
+    # calMultiCommonVectors2(lbp_saveName_s1)
+    # calMultiCommonVectors2(lbp_saveName_s2)
+    # calMultiCommonVectors2(lbp_saveName_s3)
+    # calMultiCommonVectors2(lbp_saveName_s4)
+    # calMultiCommonVectors1(lbp_saveName_s1234)
+
+    sift_saveName_s1 = '../../Data/Features/type4_SIFTWords_s1_s32_b300_w200.hdf5'
+    sift_saveName_s2 = '../../Data/Features/type4_SIFTWords_s2_s32_b300_w200.hdf5'
+    sift_saveName_s3 = '../../Data/Features/type4_SIFTWords_s3_s32_b300_w200.hdf5'
+    sift_saveName_s4 = '../../Data/Features/type4_SIFTWords_s4_s32_b300_w200.hdf5'
+    # sift_saveName_s1234 = '../../Data/Features/type4_SIFTWords_s1234_s16_300_300_300_300.hdf5'
+
+    # sift_saveName_s1 = '../../Data/Features/type4_SIFTWords_s1_diffResolution_b500_intensity.hdf5'
+    # sift_saveName_s2 = '../../Data/Features/type4_SIFTWords_s2_diffResolution_b500_intensity.hdf5'
+    # sift_saveName_s3 = '../../Data/Features/type4_SIFTWords_s3_diffResolution_b500_intensity.hdf5'
+    # sift_saveName_s4 = '../../Data/Features/type4_SIFTWords_s4_diffResolution_b500_intensity.hdf5'
+    # sift_saveName_s1234 = '../../Data/Features/type4_SIFTWords_s1234_diffResolution_b500_intensity.hdf5'
 
     # sdae_saveName_s1 = '../../Data/Features/type4_SDAEWords_s1_s28_b500_special.hdf5'
     # sdae_saveName_s2 = '../../Data/Features/type4_SDAEWords_s2_s28_b500_special.hdf5'
@@ -222,16 +235,16 @@ if __name__ == '__main__':
     # sdae_saveName_s4 = '../../Data/Features/type4_SDAEWords_s4_s28_b500_special.hdf5'
     # sdae_saveName_s1234 = '../../Data/Features/type4_SDAEWords_s1234_s28_b500_special.hdf5'
 
-    sdae_saveName_s1 = '../../Data/Features/type4_SDAEWords_s1_s28_b500_special_classification.hdf5'
-    sdae_saveName_s2 = '../../Data/Features/type4_SDAEWords_s2_s28_b500_special_classification.hdf5'
-    sdae_saveName_s3 = '../../Data/Features/type4_SDAEWords_s3_s28_b500_special_classification.hdf5'
-    sdae_saveName_s4 = '../../Data/Features/type4_SDAEWords_s4_s28_b500_special_classification.hdf5'
-    sdae_saveName_s1234 = '../../Data/Features/type4_SDAEWords_s1234_s28_b500_special_classification.hdf5'
+    # sdae_saveName_s1 = '../../Data/Features/type4_SDAEWords_s1_s28_b500_special_classification.hdf5'
+    # sdae_saveName_s2 = '../../Data/Features/type4_SDAEWords_s2_s28_b500_special_classification.hdf5'
+    # sdae_saveName_s3 = '../../Data/Features/type4_SDAEWords_s3_s28_b500_special_classification.hdf5'
+    # sdae_saveName_s4 = '../../Data/Features/type4_SDAEWords_s4_s28_b500_special_classification.hdf5'
+    # sdae_saveName_s1234 = '../../Data/Features/type4_SDAEWords_s1234_s28_b500_special_classification.hdf5'
 
-    # calMultiCommonVectors2(sift_saveName_s1)
-    # calMultiCommonVectors2(sift_saveName_s2)
-    # calMultiCommonVectors2(sift_saveName_s3)
-    # calMultiCommonVectors2(sift_saveName_s4)
+    calMultiCommonVectors2(sift_saveName_s1)
+    calMultiCommonVectors2(sift_saveName_s2)
+    calMultiCommonVectors2(sift_saveName_s3)
+    calMultiCommonVectors2(sift_saveName_s4)
     # calMultiCommonVectors1(sift_saveName_s1234)
 
     # calMultiCommonVectors2(sdae_saveName_s1)

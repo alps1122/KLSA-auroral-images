@@ -41,7 +41,9 @@ def calImgLBPFeatures(imgFile, gridSize, sizeRange, imResize=None, gridList=None
         feaVecs[i, :] = feaVec
     if norm:
         feaVecs = nv.normalizeVecs(feaVecs)
-    if withIntensity:
+    # print withIntensity
+    # print feaVecs.shape
+    if withIntensity is True:
         intensityFeas = intensityFeature(gridPatchData=gridPatchData, diffResolution=diffResolution)
         feaVecs = np.hstack((feaVecs, intensityFeas))
     return feaVecs, np.array(positions)

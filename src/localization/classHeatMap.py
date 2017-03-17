@@ -32,6 +32,7 @@ def calPatchLabels2(wordsFile, feaVectors, k=11, two_classes=['1', '2'], isH1=Fa
     label2 = np.ones(num_words)
 
     for v in range(patch_num):
+        # print w1.shape
         dis1[v, :] = np.linalg.norm(w1 - feaVectors[v], axis=1)
         dis2[v, :] = np.linalg.norm(w2 - feaVectors[v], axis=1)
     dis = np.append(dis1, dis2, axis=1)
@@ -44,6 +45,7 @@ def calPatchLabels2(wordsFile, feaVectors, k=11, two_classes=['1', '2'], isH1=Fa
         w1_common_idx = np.array(fw.get('common_vectors/common_vec_' + two_classes[0] + two_classes[1] + '_' + two_classes[0]))
         w2_common_idx = np.array(fw.get('common_vectors/common_vec_' + two_classes[0] + two_classes[1] + '_' + two_classes[1]))
 
+    print w1_common_idx
     w1_common_list = list(w1_common_idx.reshape(len(w1_common_idx)))
     w2_common_list = list(w2_common_idx.reshape(len(w2_common_idx)))
     label1[w1_common_list] = 2

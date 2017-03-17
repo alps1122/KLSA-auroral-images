@@ -229,8 +229,8 @@ if __name__ == '__main__':
     wordsFiles_s = [lbp_wordsFile_s1, lbp_wordsFile_s2, lbp_wordsFile_s3, lbp_wordsFile_s4]
     same_mean_file = '../../Data/patchData_mean_s28_special.txt'
 
-    # makePatchData(labelFile, patchSize, patchMean=False, subtract_same_mean=True,
-    #               savePath=savePatch_same_mean_s16, saveList=saveList_same_mean_s16)
+    makePatchData(labelFile, patchSize, patchMean=False, subtract_same_mean=True,
+                  savePath=savePatch_same_mean_s16, saveList=saveList_same_mean_s16)
     # makePatchData(labelFile, patchSize, patchMean=True, subtract_same_mean=False,
     #               savePath=savePatch_diff_mean_s16, saveList=saveList_diff_mean_s16)
 
@@ -238,9 +238,9 @@ if __name__ == '__main__':
     #                      savePath=savePatch_same_mean_s28_special, saveList=saveList_same_mean_s28_special,
     #                      same_mean_file=same_mean_file)
 
-    savePath_train = '../../Data/type4_same_mean_s28_special_train.hdf5'
-    savePath_test = '../../Data/type4_same_mean_s28_special_test.hdf5'
-    balanceLabelData(savePatch_same_mean_s28_special, 0.9, savePath_train, savePath_test)
+    # savePath_train = '../../Data/type4_same_mean_s28_special_train.hdf5'
+    # savePath_test = '../../Data/type4_same_mean_s28_special_test.hdf5'
+    # balanceLabelData(savePatch_same_mean_s28_special, 0.9, savePath_train, savePath_test)
 
     # [images, labels] = plf.parseNL(labelFile)
     #

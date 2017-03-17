@@ -29,7 +29,7 @@ def calImgDSift(imgFile, gridSize, sizeRange, gridList=None, imResize=None, with
         extractor = dsift.SingleSiftExtractor(patchSize)
         feaVec = extractor.process_image(patches[i])
         feaVecs[i, :] = feaVec
-    if withIntensity:
+    if withIntensity is True:
         intensityFeas = intensityFeature(gridPatchData=patches, diffResolution=diffResolution)
         feaVecs = np.hstack((feaVecs, intensityFeas))
     return feaVecs, np.array(positions)

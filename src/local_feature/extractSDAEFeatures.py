@@ -97,8 +97,8 @@ if __name__ == '__main__':
     # saveSDAEFeas = '../../Data/Features/type4_SDAEFeas_diff_mean.hdf5'
     # saveSDAEFeas = '../../Data/Features/type4_SDAEFeas_same_mean_s16_600_300_300_300.hdf5'
     # saveSDAEFeas = '../../Data/Features/type4_SDAEFeas_same_mean_s28_b500_special.hdf5'
-    # saveSDAEFeas = '../../Data/Features/type4_SDAEFeas_same_mean_s28_b500_special_trained.hdf5'
-    saveSDAEFeas = '../../Data/Features/type4_SDAEFeas_same_mean_s28_b500_special_classification.hdf5'
+    saveSDAEFeas = '../../Data/Features/type4_SDAEFeas_same_mean_s28_b500_special_trained.hdf5'
+    # saveSDAEFeas = '../../Data/Features/type4_SDAEFeas_same_mean_s28_b500_special_classification.hdf5'
     [images, labels] = plf.parseNL(labelFile)
     # arrImgs, _ = plf.arrangeToClasses(images, labels, classNum, classes)
     arrImgs = plf.arrangeToClasses(images, labels, classNum, classes)

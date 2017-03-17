@@ -126,6 +126,7 @@ def region_special_map(paras, isReturnMaps=None):
     sdaePara = paras['sdaePara']
     types = paras['types']
     withIntensity = paras['withIntensity']
+    diffResolution = paras['diffResolution']
     isSave = paras['isSave']
     specialType = paras['specialType']
     returnRegionLabels = paras['returnRegionLabels']
@@ -155,7 +156,7 @@ def region_special_map(paras, isReturnMaps=None):
 
     thresh = paras['thresh']
     im_name = imgFile[-20:-4]
-    F0, region_patch_list, eraseLabels = gsr.generate_subRegions(img, patchSize, region_patch_ratio, eraseMap, k, minSize, sigma, thresh=thresh)
+    F0, region_patch_list, eraseLabels = gsr.generate_subRegions(img, patchSize, region_patch_ratio, eraseMap, k, minSize, sigma, thresh=thresh, diffResolution=diffResolution)
     maps2by2 = {}
     region_labels = {}
     for ri in range(len(region_patch_list)):
@@ -170,6 +171,7 @@ def region_special_map(paras, isReturnMaps=None):
             labels = {}
             if specialType is not None:
                 w = wordsFile_s[specialType]
+                # print feaVectors.shape
                 labelVec = chm.calPatchLabels2(w, feaVectors, k=nk, two_classes=['1', '2'], isH1=True)
                 name_s = types[specialType] + '_rest'
                 labels[name_s] = labelVec

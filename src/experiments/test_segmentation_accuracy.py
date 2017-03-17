@@ -97,7 +97,7 @@ if __name__ == '__main__':
     paras['cascade_wordsFile'] = cascade_wordsFile
     paras['k'] = 60
     paras['minSize'] = 50
-    paras['patchSize'] = np.array([28, 28])
+    paras['patchSize'] = np.array([16, 16])
     paras['region_patch_ratio'] = 0.1
     paras['sigma'] = 0.5
     paras['alpha'] = 0.6
@@ -107,26 +107,36 @@ if __name__ == '__main__':
     # paras['lbp_wordsFile_s2'] = '../../Data/Features/type4_LBPWords_s2_s16_300_300_300_300.hdf5'
     # paras['lbp_wordsFile_s3'] = '../../Data/Features/type4_LBPWords_s3_s16_300_300_300_300.hdf5'
     # paras['lbp_wordsFile_s4'] = '../../Data/Features/type4_LBPWords_s4_s16_300_300_300_300.hdf5'
+    paras['lbp_wordsFile_s1'] = '../../Data/Features/type4_LBPWords_s1_s48_b300_w200.hdf5'
+    paras['lbp_wordsFile_s2'] = '../../Data/Features/type4_LBPWords_s2_s48_b300_w200.hdf5'
+    paras['lbp_wordsFile_s3'] = '../../Data/Features/type4_LBPWords_s3_s48_b300_w200.hdf5'
+    paras['lbp_wordsFile_s4'] = '../../Data/Features/type4_LBPWords_s4_s48_b300_w200.hdf5'
+
     # paras['lbp_wordsFile_s1'] = '../../Data/Features/type4_LBPWords_s1_s16_b300_intensity.hdf5'
     # paras['lbp_wordsFile_s2'] = '../../Data/Features/type4_LBPWords_s2_s16_b300_intensity.hdf5'
     # paras['lbp_wordsFile_s3'] = '../../Data/Features/type4_LBPWords_s3_s16_b300_intensity.hdf5'
     # paras['lbp_wordsFile_s4'] = '../../Data/Features/type4_LBPWords_s4_s16_b300_intensity.hdf5'
-    paras['lbp_wordsFile_s1'] = '../../Data/Features/type4_LBPWords_s1_diffResolution_b500_intensity.hdf5'
-    paras['lbp_wordsFile_s2'] = '../../Data/Features/type4_LBPWords_s2_diffResolution_b500_intensity.hdf5'
-    paras['lbp_wordsFile_s3'] = '../../Data/Features/type4_LBPWords_s3_diffResolution_b500_intensity.hdf5'
-    paras['lbp_wordsFile_s4'] = '../../Data/Features/type4_LBPWords_s4_diffResolution_b500_intensity.hdf5'
+    # paras['lbp_wordsFile_s1'] = '../../Data/Features/type4_LBPWords_s1_diffResolution_b500_intensity.hdf5'
+    # paras['lbp_wordsFile_s2'] = '../../Data/Features/type4_LBPWords_s2_diffResolution_b500_intensity.hdf5'
+    # paras['lbp_wordsFile_s3'] = '../../Data/Features/type4_LBPWords_s3_diffResolution_b500_intensity.hdf5'
+    # paras['lbp_wordsFile_s4'] = '../../Data/Features/type4_LBPWords_s4_diffResolution_b500_intensity.hdf5'
 
-    paras['sift_wordsFile_s1'] = '../../Data/Features/type4_SIFTWords_s1_s16_300_300_300_300.hdf5'
-    paras['sift_wordsFile_s2'] = '../../Data/Features/type4_SIFTWords_s2_s16_300_300_300_300.hdf5'
-    paras['sift_wordsFile_s3'] = '../../Data/Features/type4_SIFTWords_s3_s16_300_300_300_300.hdf5'
-    paras['sift_wordsFile_s4'] = '../../Data/Features/type4_SIFTWords_s4_s16_300_300_300_300.hdf5'
+    paras['sift_wordsFile_s1'] = '../../Data/Features/type4_SIFTWords_s1_s32_b300_w200.hdf5'
+    paras['sift_wordsFile_s2'] = '../../Data/Features/type4_SIFTWords_s2_s32_b300_w200.hdf5'
+    paras['sift_wordsFile_s3'] = '../../Data/Features/type4_SIFTWords_s3_s32_b300_w200.hdf5'
+    paras['sift_wordsFile_s4'] = '../../Data/Features/type4_SIFTWords_s4_s32_b300_w200.hdf5'
+
+    # paras['sift_wordsFile_s1'] = '../../Data/Features/type4_SIFTWords_s1_diffResolution_b500_intensity.hdf5'
+    # paras['sift_wordsFile_s2'] = '../../Data/Features/type4_SIFTWords_s2_diffResolution_b500_intensity.hdf5'
+    # paras['sift_wordsFile_s3'] = '../../Data/Features/type4_SIFTWords_s3_diffResolution_b500_intensity.hdf5'
+    # paras['sift_wordsFile_s4'] = '../../Data/Features/type4_SIFTWords_s4_diffResolution_b500_intensity.hdf5'
 
     paras['sdae_wordsFile_s1'] = '../../Data/Features/type4_SDAEWords_s1_s28_b500_special_classification.hdf5'
     paras['sdae_wordsFile_s2'] = '../../Data/Features/type4_SDAEWords_s2_s28_b500_special_classification.hdf5'
     paras['sdae_wordsFile_s3'] = '../../Data/Features/type4_SDAEWords_s3_s28_b500_special_classification.hdf5'
     paras['sdae_wordsFile_s4'] = '../../Data/Features/type4_SDAEWords_s4_s28_b500_special_classification.hdf5'
 
-    paras['sizeRange'] = (28, 28)
+    paras['sizeRange'] = (16, 16)
     paras['imResize'] = (256, 256)
     paras['imgSize'] = (440, 440)
     paras['nk'] = 1
@@ -151,7 +161,9 @@ if __name__ == '__main__':
 
     paras['sdaePara'] = sdaePara
 
-    paras['feaType'] = 'LBP'
+    paras['feaType'] = 'SIFT'
+    paras['withIntensity'] = 'False'
+    paras['diffResolution'] = 'False'
     paras['isSave'] = False
     paras['is_rotate'] = False
 
@@ -160,11 +172,14 @@ if __name__ == '__main__':
     is_showProposals = paras['is_showProposals'] = False
 
     resultsSaveFolder = '../../Data/Results/segmentation/'
+    result_seg = 'result_segmentation.txt'
     classNum = 4
     confusionArray_c = np.zeros((classNum, classNum))
     IoU_accuracy = np.zeros((classNum, ))
     labelDataFolder = '../../Data/segmentation_data/'
     # imgFile = '/home/ljm/NiuChuang/KLSA-auroral-images/Data/labeled2003_38044/N20031222G074652.bmp'
+
+    f_seg = open(resultsSaveFolder+result_seg, 'w')
     for c in xrange(0, classNum):
         labelImgFolder_c = labelDataFolder + str(c+1) + '_selected/'
         labelMaskFolder_c = labelDataFolder + str(c+1) + '_mask/'
@@ -209,12 +224,14 @@ if __name__ == '__main__':
                 kls = kls.astype(np.int)
         # else:
         #         print 'classification error!'
+            intersectionPixelNum = len(np.argwhere((kls * mask_c) > 0))
+            unionPixelNum = len(np.argwhere((kls + mask_c) > 0))
+            IoU = float(intersectionPixelNum) / float(unionPixelNum)
+            print 'IoU:', IoU
             if labels == c:
-                intersectionPixelNum = len(np.argwhere((kls*mask_c) > 0))
-                unionPixelNum = len(np.argwhere((kls+mask_c) > 0))
-                IoU = float(intersectionPixelNum)/float(unionPixelNum)
-                print 'IoU:', IoU
                 IoU_accuracy[c] += IoU
+            f_seg.write(imgName + ' ' + str(c) + ' ' + str(labels) + ' ' + str(IoU) + '\n')
+    f_seg.close()
     print confusionArray_c
     accuracy = confusionArray_c / np.sum(confusionArray_c, axis=1).reshape(classNum, 1)
     rightNums = [confusionArray_c[k, k] for k in xrange(classNum)]
