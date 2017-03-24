@@ -89,14 +89,4 @@ if __name__ == '__main__':
     calHisFeaSet(dataFolder, labelFileType4, classNum4, imgType, gridSize, sizeRange, classLabel4,
                  saveFolder + saveName4)
 
-    # imgFile = '/home/niuchuang/PycharmProjects/KLSA-auroral-images/Data/labeled2003_38044/N20031221G044141.bmp'
-    # im = imread(imgFile)
-    # hist, bins = histogramOfPatch(im, 64)
-    # print len(hist)
-    # print hist.shape
-    # plt.plot(range(64), hist)
-    # plt.show()
-    # feas, positions = calImgHisFeatures(imgFile, gridSize, sizeRange)
-    # pass
-
 
