@@ -12,9 +12,8 @@ def histogramOfPatch(patch_arr, num_bins):
     return hist, bins
 
 
-def calImgHisFeatures(imgFile, gridSize, sizeRange, imResize=None, gridList=None, norm=True):
+def calImgHisFeatures(imgFile, gridSize, sizeRange, imResize=None, gridList=None, norm=True, HisFeaDim=64):
     # print imgFile
-    HisFeaDim = 64
     if imResize:
         gridPatchData, positions, im = esg.generateGridPatchData(imgFile, gridSize, sizeRange, imResize=imResize, gridList=gridList, imNorm=False)
     else:

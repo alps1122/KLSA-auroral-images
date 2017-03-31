@@ -120,7 +120,6 @@ def region_special_map(paras, isReturnMaps=None):
     gridSize = paras['gridSize']
     eraseMap = paras['eraseMap']
     im = paras['im']
-    sdaePara = paras['sdaePara']
     feaType = paras['feaType']
 
     sdaePara = paras['sdaePara']
@@ -132,6 +131,13 @@ def region_special_map(paras, isReturnMaps=None):
     returnRegionLabels = paras['returnRegionLabels']
     train = paras['train']
     is_rotate = paras['is_rotate']
+
+    if feaType == 'His':
+        his_wordsFile_s1 = paras['his_wordsFile_s1']
+        his_wordsFile_s2 = paras['his_wordsFile_s2']
+        his_wordsFile_s3 = paras['his_wordsFile_s3']
+        his_wordsFile_s4 = paras['his_wordsFile_s4']
+        wordsFile_s = [his_wordsFile_s1, his_wordsFile_s2, his_wordsFile_s3, his_wordsFile_s4]
 
     if feaType == 'LBP':
         lbp_wordsFile_s1 = paras['lbp_wordsFile_s1']
@@ -155,15 +161,17 @@ def region_special_map(paras, isReturnMaps=None):
         wordsFile_s = [sdae_wordsFile_s1, sdae_wordsFile_s2, sdae_wordsFile_s3, sdae_wordsFile_s4]
 
     thresh = paras['thresh']
+    mk = paras['mk']
     im_name = imgFile[-20:-4]
     F0, region_patch_list, eraseLabels = gsr.generate_subRegions(img, patchSize, region_patch_ratio, eraseMap, k, minSize, sigma, thresh=thresh, diffResolution=diffResolution)
     maps2by2 = {}
     region_labels = {}
     for ri in range(len(region_patch_list)):
         r = region_patch_list[ri]
-        batchSize = len(r)
-        inputShape = (batchSize, 1, sizeRange[0], sizeRange[0])
-        sdaePara['inputShape'] = inputShape
+        if sdaePara is not None:
+            batchSize = len(r)
+            inputShape = (batchSize, 1, sizeRange[0], sizeRange[0])
+            sdaePara['inputShape'] = inputShape
         if len(r) != 0:
             # if feaType == 'LBP':
             feaVectors, posVectors = glf.genImgLocalFeas(imgFile, feaType, gridSize, sizeRange,
@@ -172,13 +180,13 @@ def region_special_map(paras, isReturnMaps=None):
             if specialType is not None:
                 w = wordsFile_s[specialType]
                 # print feaVectors.shape
-                labelVec = chm.calPatchLabels2(w, feaVectors, k=nk, two_classes=['1', '2'], isH1=True)
+                labelVec = chm.calPatchLabels2(w, feaVectors, k=nk, two_classes=['1', '2'], isH1=True, mk=mk)
                 name_s = types[specialType] + '_rest'
                 labels[name_s] = labelVec
             else:
                 for wi in range(len(wordsFile_s)):
                     w = wordsFile_s[wi]
-                    labelVec = chm.calPatchLabels2(w, feaVectors, k=nk, two_classes=['1', '2'], isH1=True)
+                    labelVec = chm.calPatchLabels2(w, feaVectors, k=nk, two_classes=['1', '2'], isH1=True, mk=mk)
                     name_s = types[wi] + '_rest'
                     labels[name_s] = labelVec
 

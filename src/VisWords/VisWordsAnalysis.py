@@ -29,20 +29,20 @@ def calEucDistance(wordsFile, classes):
     # fd.create_dataset('distance12', distance12.shape, 'f', distance12)
     # fd.create_dataset('distance11', distance11.shape, 'f', distance11)
     # fd.create_dataset('distance22', distance22.shape, 'f', distance22)
-    print 'distance11:'
-    print 'max: ' + str(distance11.max())
-    print 'min: ' + str(distance11.min())
-    print 'distance12:'
-    print 'max: ' + str(distance12.max())
-    print 'min: ' + str(distance12.min())
-    print 'distance22:'
-    print 'max: ' + str(distance22.max())
-    print 'min: ' + str(distance22.min())
+    # print 'distance11:'
+    # print 'max: ' + str(distance11.max())
+    # print 'min: ' + str(distance11.min())
+    # print 'distance12:'
+    # print 'max: ' + str(distance12.max())
+    # print 'min: ' + str(distance12.min())
+    # print 'distance22:'
+    # print 'max: ' + str(distance22.max())
+    # print 'min: ' + str(distance22.min())
     # fd.close()
     fw.close()
     return distance11, distance12, distance22
 
-def calCommonVector(wordsFile, classes):
+def calCommonVector(wordsFile, classes, mk=None):
     distance11, distance12, distance22 = calEucDistance(wordsFile, classes)
     # dis11_min = distance11.min()
     dis11_max = distance11.max()
@@ -53,18 +53,24 @@ def calCommonVector(wordsFile, classes):
     word_num = distance11.shape[0]
     dis11_min = distance11.flatten()
     dis11_min.sort()
-    dis11_min = dis11_min[word_num]
+    if mk is not None:
+        dis11_min = dis11_min[word_num+mk]
+    else:
+        dis11_min = dis11_min[word_num]
 
     dis22_min = distance22.flatten()
     dis22_min.sort()
-    dis22_min = dis22_min[word_num]
+    if mk is not None:
+        dis22_min = dis22_min[word_num+mk]
+    else:
+        dis22_min = dis22_min[word_num]
 
-    print 'distance11 min: ' + str(dis11_min) + ', max: ' + str(dis11_max)
-    print 'distance22 min: ' + str(dis22_min) + ', max: ' + str(dis22_max)
-    print 'distance12 min: ' + str(dis12_min) + ', max: ' + str(dis12_max)
+    # print 'distance11 min: ' + str(dis11_min) + ', max: ' + str(dis11_max)
+    # print 'distance22 min: ' + str(dis22_min) + ', max: ' + str(dis22_max)
+    # print 'distance12 min: ' + str(dis12_min) + ', max: ' + str(dis12_max)
 
     common_threshold = max(dis11_min, dis22_min)
-    print 'common threshold: ' + str(common_threshold)
+    # print 'common threshold: ' + str(common_threshold)
 
     common_index = distance12 < common_threshold
     common_index = common_index - np.eye(word_num, word_num, dtype='i')
@@ -77,8 +83,8 @@ def calCommonVector(wordsFile, classes):
     c1_common_num = (c1_common > 0).sum()
     c2_common_num = (c2_common > 0).sum()
 
-    print 'c1_common_num: ' + str(c1_common_num)
-    print 'c2_common_num: ' + str(c2_common_num)
+    # print 'c1_common_num: ' + str(c1_common_num)
+    # print 'c2_common_num: ' + str(c2_common_num)
     return c1_common_v, c2_common_v
 
 def calMultiCommonVectors(wordsFile_h1, wordsFile_h2):
@@ -124,43 +130,59 @@ def calMultiCommonVectors1(wordsFile):
     fh.close()
     return 0
 
-def calMultiCommonVectors2(wordsFile):
-    c1, c2 = calCommonVector(wordsFile, ['1', '2'])
+def calMultiCommonVectors2(wordsFile, mk=None):
     fh = h5py.File(wordsFile, 'a')
-    if 'common_vectors' not in fh:
-        dc1 = fh.create_group('common_vectors')
+    if mk is not None:
+        common_vec_name = 'common_vectors' + str(mk)
+    else:
+        common_vec_name = 'common_vectors'
+    if common_vec_name not in fh:
+        c1, c2 = calCommonVector(wordsFile, ['1', '2'], mk=mk)
+        dc1 = fh.create_group(common_vec_name)
         dc1.create_dataset('common_vec_1', shape=c1.shape, data=c1)
         dc1.create_dataset('common_vec_2', shape=c2.shape, data=c2)
 
     fh.close()
     return 0
 
+def analyseWords(feaType, wordsNum, patchSize, classNum=4, rootFolder='../../Data/Features/', mini='_mini'):
+    for i in range(classNum):
+        wordsFile = rootFolder + 'type' + str(classNum) + '_' + feaType + 'Words_s' + str(i+1) + '_s' + str(patchSize)\
+                   + '_b300_w' + str(wordsNum) + mini + '.hdf5'
+        for mk in range(0, 7000, 200):
+            print feaType, wordsNum, patchSize, mk
+            if mk == 0:
+                calMultiCommonVectors2(wordsFile)
+            else:
+                calMultiCommonVectors2(wordsFile, mk)
+    return 0
+
 if __name__ == '__main__':
     # wordsFile = '../../Data/Features/SIFTWords_12.hdf5'
-    siftWordsFile_h1 = '../../Data/Features/type4_SIFTWords_h1.hdf5'
-    siftWordsFile_h2 = '../../Data/Features/type4_SIFTWords_h2.hdf5'
-    sdaeWordsFile_h1 = '../../Data/Features/type4_SDAEWords_h1.hdf5'
-    sdaeWordsFile_h2 = '../../Data/Features/type4_SDAEWords_h2.hdf5'
-    sdaeWordsFile_h1_diff_mean = '../../Data/Features/type4_SDAEWords_h1_diff_mean.hdf5'
-    sdaeWordsFile_h2_diff_mean = '../../Data/Features/type4_SDAEWords_h2_diff_mean.hdf5'
-    lbpWordsFile_h1 = '../../Data/Features/type4_LBPWords_h1.hdf5'
-    lbpWordsFile_h2 = '../../Data/Features/type4_LBPWords_h2.hdf5'
-
-    siftWordsFile_h1_reduce = '../../Data/Features/type4_SIFTWords_h1_reduce.hdf5'
-    siftWordsFile_h2_reduce = '../../Data/Features/type4_SIFTWords_h2_reduce.hdf5'
-    sdaeWordsFile_h1_redece = '../../Data/Features/type4_SDAEWords_h1_reduce_sameRatio.hdf5'
-    sdaeWordsFile_h2_reduce = '../../Data/Features/type4_SDAEWords_h2_reduce_sameRatio.hdf5'
-    lbpWordsFile_h1_reduce = '../../Data/Features/type4_LBPWords_h1_reduce_sameRatio.hdf5'
-    lbpWordsFile_h2_reduce = '../../Data/Features/type4_LBPWords_h2_reduce_sameRatio.hdf5'
-
-    sift_saveName_h1 = '../../Data/Features/type4_SIFTWords_h1_s16_600_300_300_300.hdf5'
-    sift_saveName_h2 = '../../Data/Features/type4_SIFTWords_h2_s16_600_300_300_300.hdf5'
-    sdae_saveName_h1 = '../../Data/Features/type4_SDAEWords_h1_diff_mean_s16_600_300_300_300.hdf5'
-    sdae_saveName_h2 = '../../Data/Features/type4_SDAEWords_h2_diff_mean_s16_600_300_300_300.hdf5'
-    sdae_saveName_h1_s = '../../Data/Features/type4_SDAEWords_h1_same_mean_s16_600_300_300_300.hdf5'
-    sdae_saveName_h2_s = '../../Data/Features/type4_SDAEWords_h2_same_mean_s16_600_300_300_300.hdf5'
-    lbp_saveName_h1 = '../../Data/Features/type4_LBPWords_h1_s16_600_300_300_300.hdf5'
-    lbp_saveName_h2 = '../../Data/Features/type4_LBPWords_h2_s16_600_300_300_300.hdf5'
+    # siftWordsFile_h1 = '../../Data/Features/type4_SIFTWords_h1.hdf5'
+    # siftWordsFile_h2 = '../../Data/Features/type4_SIFTWords_h2.hdf5'
+    # sdaeWordsFile_h1 = '../../Data/Features/type4_SDAEWords_h1.hdf5'
+    # sdaeWordsFile_h2 = '../../Data/Features/type4_SDAEWords_h2.hdf5'
+    # sdaeWordsFile_h1_diff_mean = '../../Data/Features/type4_SDAEWords_h1_diff_mean.hdf5'
+    # sdaeWordsFile_h2_diff_mean = '../../Data/Features/type4_SDAEWords_h2_diff_mean.hdf5'
+    # lbpWordsFile_h1 = '../../Data/Features/type4_LBPWords_h1.hdf5'
+    # lbpWordsFile_h2 = '../../Data/Features/type4_LBPWords_h2.hdf5'
+    #
+    # siftWordsFile_h1_reduce = '../../Data/Features/type4_SIFTWords_h1_reduce.hdf5'
+    # siftWordsFile_h2_reduce = '../../Data/Features/type4_SIFTWords_h2_reduce.hdf5'
+    # sdaeWordsFile_h1_redece = '../../Data/Features/type4_SDAEWords_h1_reduce_sameRatio.hdf5'
+    # sdaeWordsFile_h2_reduce = '../../Data/Features/type4_SDAEWords_h2_reduce_sameRatio.hdf5'
+    # lbpWordsFile_h1_reduce = '../../Data/Features/type4_LBPWords_h1_reduce_sameRatio.hdf5'
+    # lbpWordsFile_h2_reduce = '../../Data/Features/type4_LBPWords_h2_reduce_sameRatio.hdf5'
+    #
+    # sift_saveName_h1 = '../../Data/Features/type4_SIFTWords_h1_s16_600_300_300_300.hdf5'
+    # sift_saveName_h2 = '../../Data/Features/type4_SIFTWords_h2_s16_600_300_300_300.hdf5'
+    # sdae_saveName_h1 = '../../Data/Features/type4_SDAEWords_h1_diff_mean_s16_600_300_300_300.hdf5'
+    # sdae_saveName_h2 = '../../Data/Features/type4_SDAEWords_h2_diff_mean_s16_600_300_300_300.hdf5'
+    # sdae_saveName_h1_s = '../../Data/Features/type4_SDAEWords_h1_same_mean_s16_600_300_300_300.hdf5'
+    # sdae_saveName_h2_s = '../../Data/Features/type4_SDAEWords_h2_same_mean_s16_600_300_300_300.hdf5'
+    # lbp_saveName_h1 = '../../Data/Features/type4_LBPWords_h1_s16_600_300_300_300.hdf5'
+    # lbp_saveName_h2 = '../../Data/Features/type4_LBPWords_h2_s16_600_300_300_300.hdf5'
 
 
     # calMultiCommonVectors(sift_saveName_h1, sift_saveName_h2)
@@ -206,21 +228,22 @@ if __name__ == '__main__':
     # lbp_saveName_s4 = '../../Data/Features/type4_LBPWords_s4_diffResolution_b500_intensity.hdf5'
     # lbp_saveName_s1234 = '../../Data/Features/type4_LBPWords_s1234_diffResolution_b500_intensity.hdf5'
 
-    lbp_saveName_s1 = '../../Data/Features/type4_LBPWords_s1_s32_b300_w500.hdf5'
-    lbp_saveName_s2 = '../../Data/Features/type4_LBPWords_s2_s32_b300_w500.hdf5'
-    lbp_saveName_s3 = '../../Data/Features/type4_LBPWords_s3_s32_b300_w500.hdf5'
-    lbp_saveName_s4 = '../../Data/Features/type4_LBPWords_s4_s32_b300_w500.hdf5'
-
-    # calMultiCommonVectors2(lbp_saveName_s1)
-    # calMultiCommonVectors2(lbp_saveName_s2)
-    # calMultiCommonVectors2(lbp_saveName_s3)
-    # calMultiCommonVectors2(lbp_saveName_s4)
+    # lbp_saveName_s1 = '../../Data/Features/type4_LBPWords_s1_s16_b300_w500.hdf5'
+    # lbp_saveName_s2 = '../../Data/Features/type4_LBPWords_s2_s16_b300_w500.hdf5'
+    # lbp_saveName_s3 = '../../Data/Features/type4_LBPWords_s3_s16_b300_w500.hdf5'
+    # lbp_saveName_s4 = '../../Data/Features/type4_LBPWords_s4_s16_b300_w500.hdf5'
+    # mk = 800
+    #
+    # calMultiCommonVectors2(lbp_saveName_s1, mk)
+    # calMultiCommonVectors2(lbp_saveName_s2, mk)
+    # calMultiCommonVectors2(lbp_saveName_s3, mk)
+    # calMultiCommonVectors2(lbp_saveName_s4, mk)
     # calMultiCommonVectors1(lbp_saveName_s1234)
 
-    sift_saveName_s1 = '../../Data/Features/type4_SIFTWords_s1_s32_b300_w200.hdf5'
-    sift_saveName_s2 = '../../Data/Features/type4_SIFTWords_s2_s32_b300_w200.hdf5'
-    sift_saveName_s3 = '../../Data/Features/type4_SIFTWords_s3_s32_b300_w200.hdf5'
-    sift_saveName_s4 = '../../Data/Features/type4_SIFTWords_s4_s32_b300_w200.hdf5'
+    # sift_saveName_s1 = '../../Data/Features/type4_SIFTWords_s1_s16_b300_w200.hdf5'
+    # sift_saveName_s2 = '../../Data/Features/type4_SIFTWords_s2_s16_b300_w200.hdf5'
+    # sift_saveName_s3 = '../../Data/Features/type4_SIFTWords_s3_s16_b300_w200.hdf5'
+    # sift_saveName_s4 = '../../Data/Features/type4_SIFTWords_s4_s16_b300_w200.hdf5'
     # sift_saveName_s1234 = '../../Data/Features/type4_SIFTWords_s1234_s16_300_300_300_300.hdf5'
 
     # sift_saveName_s1 = '../../Data/Features/type4_SIFTWords_s1_diffResolution_b500_intensity.hdf5'
@@ -241,10 +264,10 @@ if __name__ == '__main__':
     # sdae_saveName_s4 = '../../Data/Features/type4_SDAEWords_s4_s28_b500_special_classification.hdf5'
     # sdae_saveName_s1234 = '../../Data/Features/type4_SDAEWords_s1234_s28_b500_special_classification.hdf5'
 
-    calMultiCommonVectors2(sift_saveName_s1)
-    calMultiCommonVectors2(sift_saveName_s2)
-    calMultiCommonVectors2(sift_saveName_s3)
-    calMultiCommonVectors2(sift_saveName_s4)
+    # calMultiCommonVectors2(sift_saveName_s1)
+    # calMultiCommonVectors2(sift_saveName_s2)
+    # calMultiCommonVectors2(sift_saveName_s3)
+    # calMultiCommonVectors2(sift_saveName_s4)
     # calMultiCommonVectors1(sift_saveName_s1234)
 
     # calMultiCommonVectors2(sdae_saveName_s1)
@@ -252,3 +275,11 @@ if __name__ == '__main__':
     # calMultiCommonVectors2(sdae_saveName_s3)
     # calMultiCommonVectors2(sdae_saveName_s4)
     # calMultiCommonVectors1(sdae_saveName_s1234)
+
+    feaTypes = ['LBP', 'SIFT', 'His']
+    wordsNums = [200, 500, 800]
+    patchSizes = [8, 16, 24, 32, 40, 48, 56, 64]
+    for feaType in feaTypes:
+        for wordsNum in wordsNums:
+            for patchSize in patchSizes:
+                analyseWords(feaType, wordsNum, patchSize)

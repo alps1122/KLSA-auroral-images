@@ -51,7 +51,7 @@ def mergePatchAndRegion(classHeatMaps, categoryHeatMaps, labels, th):
 
 if __name__ == '__main__':
     paras = {}
-    imgFile = '/home/ljm/NiuChuang/KLSA-auroral-images/Data/segmentation_data/4_selected/N20050107G111200.jpg'
+    imgFile = '/home/ljm/NiuChuang/KLSA-auroral-images/Data/labeled2003_38044/N20040102G044131.bmp'
     paras['imgFile'] = imgFile
     paras['color_space'] = ['rgb']
     paras['ks'] = [30, 50, 100, 150, 200, 250, 300]
@@ -131,10 +131,10 @@ if __name__ == '__main__':
     # paras['lbp_wordsFile_s2'] = '../../Data/Features/type4_LBPWords_s2_s16_b300_intensity.hdf5'
     # paras['lbp_wordsFile_s3'] = '../../Data/Features/type4_LBPWords_s3_s16_b300_intensity.hdf5'
     # paras['lbp_wordsFile_s4'] = '../../Data/Features/type4_LBPWords_s4_s16_b300_intensity.hdf5'
-    paras['lbp_wordsFile_s1'] = '../../Data/Features/type4_LBPWords_s1_diffResolution_b500_intensity.hdf5'
-    paras['lbp_wordsFile_s2'] = '../../Data/Features/type4_LBPWords_s2_diffResolution_b500_intensity.hdf5'
-    paras['lbp_wordsFile_s3'] = '../../Data/Features/type4_LBPWords_s3_diffResolution_b500_intensity.hdf5'
-    paras['lbp_wordsFile_s4'] = '../../Data/Features/type4_LBPWords_s4_diffResolution_b500_intensity.hdf5'
+    paras['lbp_wordsFile_s1'] = '../../Data/Features/type4_LBPWords_s1_s16_b300_w500.hdf5'
+    paras['lbp_wordsFile_s2'] = '../../Data/Features/type4_LBPWords_s2_s16_b300_w500.hdf5'
+    paras['lbp_wordsFile_s3'] = '../../Data/Features/type4_LBPWords_s3_s16_b300_w500.hdf5'
+    paras['lbp_wordsFile_s4'] = '../../Data/Features/type4_LBPWords_s4_s16_b300_w500.hdf5'
 
     # paras['sift_wordsFile_s1'] = '../../Data/Features/type4_SIFTWords_s1_s16_300_300_300_300.hdf5'
     # paras['sift_wordsFile_s2'] = '../../Data/Features/type4_SIFTWords_s2_s16_300_300_300_300.hdf5'
@@ -177,8 +177,9 @@ if __name__ == '__main__':
     paras['sdaePara'] = sdaePara
 
     paras['feaType'] = 'LBP'
-    paras['withIntensity'] = True
-    paras['diffResolution'] = True
+    paras['mk'] = 5000
+    paras['withIntensity'] = False
+    paras['diffResolution'] = False
     paras['isSave'] = False
     paras['is_rotate'] = False
 

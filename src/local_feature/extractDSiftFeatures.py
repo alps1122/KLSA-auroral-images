@@ -13,7 +13,7 @@ saveFolder = '../../Data/Features/'
 
 
 def calImgDSift(imgFile, gridSize, sizeRange, gridList=None, imResize=None, withIntensity=None, diffResolution=True):
-    print imgFile
+    # print imgFile
     siftFeaDim = 128
     # if withIntensity:
     #     siftFeaDim += 3

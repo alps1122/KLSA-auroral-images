@@ -18,7 +18,7 @@ import src.local_feature.extractLBPFeatures as extlbp
 import src.local_feature.generateLocalFeatures as glf
 import src.local_feature.PCA as pca
 
-def calPatchLabels2(wordsFile, feaVectors, k=11, two_classes=['1', '2'], isH1=False):
+def calPatchLabels2(wordsFile, feaVectors, k=11, two_classes=['1', '2'], isH1=False, mk=None):
     fw = h5py.File(wordsFile, 'r')
     w1 = fw.get(two_classes[0] + '/words')
     w2 = fw.get(two_classes[1] + '/words')
@@ -38,14 +38,18 @@ def calPatchLabels2(wordsFile, feaVectors, k=11, two_classes=['1', '2'], isH1=Fa
     dis = np.append(dis1, dis2, axis=1)
 
     # w1_common_idx, w2_common_idx = vwa.calCommonVector(wordsFile)
-    if isH1:
-        w1_common_idx = np.array(fw.get('common_vectors/common_vec_' + two_classes[0]))
-        w2_common_idx = np.array(fw.get('common_vectors/common_vec_' + two_classes[1]))
+    if mk is not None:
+        common_vec_name = 'common_vectors' + str(mk)
     else:
-        w1_common_idx = np.array(fw.get('common_vectors/common_vec_' + two_classes[0] + two_classes[1] + '_' + two_classes[0]))
-        w2_common_idx = np.array(fw.get('common_vectors/common_vec_' + two_classes[0] + two_classes[1] + '_' + two_classes[1]))
+        common_vec_name = 'common_vectors'
+    if isH1:
+        w1_common_idx = np.array(fw.get(common_vec_name+'/common_vec_' + two_classes[0]))
+        w2_common_idx = np.array(fw.get(common_vec_name+'/common_vec_' + two_classes[1]))
+    else:
+        w1_common_idx = np.array(fw.get(common_vec_name+'/common_vec_' + two_classes[0] + two_classes[1] + '_' + two_classes[0]))
+        w2_common_idx = np.array(fw.get(common_vec_name+'/common_vec_' + two_classes[0] + two_classes[1] + '_' + two_classes[1]))
 
-    print w1_common_idx
+    # print w1_common_idx
     w1_common_list = list(w1_common_idx.reshape(len(w1_common_idx)))
     w2_common_list = list(w2_common_idx.reshape(len(w2_common_idx)))
     label1[w1_common_list] = 2

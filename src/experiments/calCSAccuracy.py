@@ -13,52 +13,49 @@ def parseResultFile(resultFile):
         imageNames.append(result[0])
         trueLabels.append(int(result[1]))
         predictLabels.append(int(result[2]))
-        IoUs.append(float(result[3]))
+        if len(result) >= 4:
+            IoUs.append(float(result[3]))
     return imageNames, trueLabels, predictLabels, IoUs
 
-if __name__ == '__main__':
-    resultFile = '/home/ljm/NiuChuang/KLSA-auroral-images/Data/Results/segmentation/b300_LBP_s32_adaptiveTh_w200.txt'
-    class_num = 4
+def calSegClsAccuracy(resultFile, class_num=4):
     imageNames, trueLabels, predictLabels, IoUs = parseResultFile(resultFile)
     trueLabels_arr = np.array(trueLabels)
     predictLabels_arr = np.array(predictLabels)
-    IoUs_arr = np.array(IoUs)
 
     confusionMtrx = np.zeros((class_num, class_num))
-    segmentation_acc_true = np.zeros((class_num,))
-    segmentation_acc_all = np.zeros((class_num, ))
-    segmentation_acc_sum = np.zeros((class_num, ))
 
-    for i in xrange(len(imageNames)):
-        confusionMtrx[trueLabels_arr[i], predictLabels_arr[i]] += 1
-        if trueLabels_arr[i] == predictLabels_arr[i]:
-            segmentation_acc_sum[trueLabels_arr[i]] += IoUs_arr[i]
-        # print segmentation_acc_sum[trueLabels_arr[i]]
+    if len(IoUs) == 0:
+        confusion_images_file = '../../Data/Results/classification/confusion_images.txt'
+        f_confusion = open(confusion_images_file, 'w')
+        for i in xrange(len(imageNames)):
+            confusionMtrx[trueLabels_arr[i], predictLabels_arr[i]] += 1
+            if predictLabels_arr[i] != trueLabels_arr[i]:
+                f_confusion.write(imageNames[i] + ' ' + str(trueLabels_arr[i]) + ' ' + str(predictLabels_arr[i]) + '\n')
+        rightNums = np.array([confusionMtrx[x, x] for x in range(class_num)], dtype='f')
+        classification_arr = rightNums / np.sum(confusionMtrx, axis=1)
+        f_confusion.close()
+        # print confusionMtrx
+        return classification_arr
+    else:
+        segmentation_acc_sum = np.zeros((class_num,))
+        IoUs_arr = np.array(IoUs)
 
-    # num_perclass = len(imageNames) / class_num
-    # for i in xrange(class_num):
-    #     idx_i = np.where(trueLabels_arr == i)
-    #     trueLabels_i = trueLabels_arr[idx_i]
-    #     predictLabels_i = predictLabels_arr[idx_i]
-    #     IoUs_i = IoUs_arr[idx_i]
-    #
-    #     diffs_i = trueLabels_i - predictLabels_i
-    #     true_idx_i = np.where(diffs_i == 0)[0] + (i*num_perclass)
-    #
-    #     IoUs_true = IoUs_arr[(true_idx_i,)]
-    #     # print IoUs_true.shape
-    #     # print IoUs_i.shape
-    #     print IoUs_true.sum()
-    #     segmentation_acc_true[i] = IoUs_true.mean()
-    #     segmentation_acc_all[i] = IoUs_i.mean()
-    rightNums = np.array([confusionMtrx[x, x] for x in range(class_num)], dtype='f')
-    print confusionMtrx
-    # print segmentation_acc_true
-    # print segmentation_acc_all
-    segmentation_acc_true = segmentation_acc_sum / rightNums
-    print segmentation_acc_true
+        for i in xrange(len(imageNames)):
+            confusionMtrx[trueLabels_arr[i], predictLabels_arr[i]] += 1
+            if trueLabels_arr[i] == predictLabels_arr[i]:
+                segmentation_acc_sum[trueLabels_arr[i]] += IoUs_arr[i]
 
-    # print imageNames
-    # print trueLabels
-    # print predictLabels
-    # print IoUs
+        rightNums = np.array([confusionMtrx[x, x] for x in range(class_num)], dtype='f')
+        classification_arr = rightNums / np.sum(confusionMtrx, axis=1)
+        segmentation_acc_true = segmentation_acc_sum / rightNums
+        return classification_arr, segmentation_acc_true
+
+if __name__ == '__main__':
+    # resultFile_seg = '../../Data/Results/segmentation/old/b300_LBP_s32_adaptiveTh_w200.txt'
+    # c_arr, s_arr = calSegClsAccuracy(resultFile_seg)
+    # print c_arr
+    # print s_arr
+    resultFile_cls = '../../Data/Results/classification/result_classification_CNN.txt'
+    cls_arr = calSegClsAccuracy(resultFile_cls)
+    print cls_arr
+    print cls_arr.mean()

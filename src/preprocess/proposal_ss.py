@@ -227,10 +227,10 @@ if __name__=="__main__":
     paras['alpha'] = 0.6
     paras['overlap_th'] = 0.5
     paras['types'] = ['arc', 'drapery', 'radial', 'hot_spot']
-    paras['lbp_wordsFile_s1'] = '../../Data/Features/type4_LBPWords_s1_s16_300_300_300_300.hdf5'
-    paras['lbp_wordsFile_s2'] = '../../Data/Features/type4_LBPWords_s2_s16_300_300_300_300.hdf5'
-    paras['lbp_wordsFile_s3'] = '../../Data/Features/type4_LBPWords_s3_s16_300_300_300_300.hdf5'
-    paras['lbp_wordsFile_s4'] = '../../Data/Features/type4_LBPWords_s4_s16_300_300_300_300.hdf5'
+    paras['lbp_wordsFile_s1'] = '../../Data/Features/type4_LBPWords_s1_s16_b300_w500.hdf5'
+    paras['lbp_wordsFile_s2'] = '../../Data/Features/type4_LBPWords_s2_s16_b300_w500.hdf5'
+    paras['lbp_wordsFile_s3'] = '../../Data/Features/type4_LBPWords_s3_s16_b300_w500.hdf5'
+    paras['lbp_wordsFile_s4'] = '../../Data/Features/type4_LBPWords_s4_s16_b300_w500.hdf5'
 
     paras['sift_wordsFile_s1'] = '../../Data/Features/type4_SIFTWords_s1_s16_300_300_300_300.hdf5'
     paras['sift_wordsFile_s2'] = '../../Data/Features/type4_SIFTWords_s2_s16_300_300_300_300.hdf5'
@@ -273,6 +273,10 @@ if __name__=="__main__":
     paras['sdaePara'] = sdaePara
 
     paras['feaType'] = 'LBP'
+    paras['withIntensity'] = False
+    paras['diffResolution'] = False
+    paras['mk'] = None
+    paras['thresh'] = 0
     paras['isSave'] = False
     paras['feature_masks'] = feature_masks
     color_space = ['rgb']
@@ -281,7 +285,7 @@ if __name__=="__main__":
     paras['color_spaces'] = color_space
 
     proposal_minSize = 100 * 100
-    proposal_maxSize = 440 * 220
+    proposal_maxSize = 440 * 440
     paras['proposal_minSize'] = proposal_minSize
     paras['proposal_maxSize'] = proposal_maxSize
     paras['hierachecalProcessPath'] = '../../Data/Results/hierachicalProcess/'
@@ -293,9 +297,9 @@ if __name__=="__main__":
     labelFile = '../../Data/type4_b500.txt'
     dataFolder = '../../Data/labeled2003_38044/'
     # savePath = '../../Data/type4_b300_bbox.hdf5'
-    savePath = '../../Data/type4_b500_bbox.hdf5'
+    savePath = '../../Data/type4_b500_SR_100_400_bbox.hdf5'
     imgType = '.bmp'
-    # generateSpecialCommonBbox(labelFile, savePath, dataFolder, imgType, paras)
+    generateSpecialCommonBbox(labelFile, savePath, dataFolder, imgType, paras)
 
     paras['specialType'] = 3  # 0: arc, 1: drapery, 2: radial, 3: hot-spot
     paras['returnRegionLabels'] = [1, 2]  # 0: special, 1: rest, 2: common

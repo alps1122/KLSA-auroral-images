@@ -38,7 +38,7 @@ def isWithinCircle(grid, centers, radius):
     return flag
 
 
-def generateGrid(imageSize, gridSize, sizeRange=(10, 30), diffResolution=True):
+def generateGrid(imageSize, gridSize, sizeRange=(10, 30), diffResolution=False):
     """According to image size and grid size, this function generates a evenly grid
     that coded by upper-left coordinates and its with and height, finally returns these
     grids selected within the inscribed circle where aurora occurs.
@@ -76,7 +76,7 @@ def generateGrid(imageSize, gridSize, sizeRange=(10, 30), diffResolution=True):
     return gridList
 
 
-def generateGridPatchData(im, gridSize, sizeRange, imResize=None, gridList=None, imNorm=True, diffResolution=True):
+def generateGridPatchData(im, gridSize, sizeRange, imResize=None, gridList=None, imNorm=True, diffResolution=False):
     if isinstance(im, str):
         im = Image.open(im)
         if imResize:

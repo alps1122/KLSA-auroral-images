@@ -6,10 +6,10 @@ from skimage.transform import rotate
 import matplotlib.pyplot as plt
 
 if __name__ == '__main__':
-    bbox_file = '/home/ljm/NiuChuang/KLSA-auroral-images/Data/type4_b300_bbox.hdf5'
+    bbox_file = '/home/ljm/NiuChuang/KLSA-auroral-images/Data/type4_b500_SR_100_400_bbox.hdf5'
     f = h5py.File(bbox_file, 'r')
 
-    for i in range(300, len(f)):
+    for i in range(1800, len(f)):
         imgFile = f.get(str(i)).attrs['imgFile']
         imgName = f.get(str(i)).attrs['imgName']
         bbox_special = f.get(str(i)+'/bbox_special')

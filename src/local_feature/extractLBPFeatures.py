@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 from src.local_feature.intensityFeature import intensityFeature
 
 def calImgLBPFeatures(imgFile, gridSize, sizeRange, imResize=None, gridList=None, norm=True, withIntensity=None,
-                      diffResolution=True):
+                      diffResolution=False):
     # print imgFile
     P1 = 8
     P2 = 16

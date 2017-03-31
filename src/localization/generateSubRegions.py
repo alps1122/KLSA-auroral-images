@@ -19,7 +19,7 @@ def rgb2gray(rgb):
     return np.dot(rgb[...,:3], [0.299, 0.587, 0.144])
 
 def generate_subRegions(imgFileOrImg, patchSize, region_patch_ratio, eraseMap, k, minSize, sigma,
-                        radius=220, centers = np.array([219.5, 219.5]), thresh=None, isSaveDetection=False, diffResolution=True):
+                        radius=220, centers = np.array([219.5, 219.5]), thresh=None, isSaveDetection=False, diffResolution=False):
     if isinstance(imgFileOrImg, str):
         img = skimage.io.imread(imgFileOrImg)
         if len(img.shape) == 2:
@@ -46,9 +46,11 @@ def generate_subRegions(imgFileOrImg, patchSize, region_patch_ratio, eraseMap, k
             region_patch_list[l] = []
         else:
             region_patch_centers = list(np.argwhere(F0 == l))
+            if len(region_patch_centers) == 0:
+                continue
             region_values = im[np.where(F0 == l)]
             region_mean = region_values.mean()
-            print thresh
+            # print thresh
             if region_mean < thresh:
                 region_patch_list[l] = []
                 filterout_labels.append(l)
@@ -116,7 +118,7 @@ def show_region_patch_grid(imgFile, F0, region_patch_list, alpha, eraseMap, save
     plt.show()
 
 if __name__ == "__main__":
-    imgFile = '/home/ljm/NiuChuang/KLSA-auroral-images/Data/labeled2003_38044/N20031229G140726.bmp'
+    imgFile = '/home/ljm/NiuChuang/KLSA-auroral-images/Data/labeled2003_38044/N20031222G122001.bmp'
     k = 100
     minSize = 300
     patchSize = np.array([28, 28])
@@ -134,4 +136,4 @@ if __name__ == "__main__":
                 eraseMap[i, j] = 1
 
     F0, region_patch_list, _ = generate_subRegions(imgFile, patchSize, region_patch_ratio, eraseMap, k, minSize, sigma)
-    show_region_patch_grid(imgFile, F0, region_patch_list, alpha, eraseMap, saveFolder='/home/ljm/NiuChuang/KLSA-auroral-images/Data/Results/initial_segmentation/')
+    # show_region_patch_grid(imgFile, F0, region_patch_list, alpha, eraseMap, saveFolder='/home/ljm/NiuChuang/KLSA-auroral-images/Data/Results/initial_segmentation/')

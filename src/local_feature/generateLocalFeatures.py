@@ -15,7 +15,7 @@ import src.local_feature.extractSDAEFeatures as extSDAE
 import src.local_feature.extractLBPFeatures as extlbp
 import src.local_feature.extractHistogramFeatures as extHis
 
-def genImgLocalFeas(imgFile, feaType, gridSize, sizeRange, gridList=None, imResize=None, sdaePara=None, u_reduce=None, withIntensity=None):
+def genImgLocalFeas(imgFile, feaType, gridSize, sizeRange, gridList=None, imResize=None, sdaePara=None, u_reduce=None, withIntensity=None, HisFeaDim=64):
 
     if feaType == 'SIFT':
         feaVectors, posVectors = extSift.calImgDSift(imgFile, gridSize, sizeRange, imResize=imResize, gridList=gridList, withIntensity=withIntensity)
@@ -24,7 +24,7 @@ def genImgLocalFeas(imgFile, feaType, gridSize, sizeRange, gridList=None, imResi
         feaVectors, posVectors = extlbp.calImgLBPFeatures(imgFile, gridSize, sizeRange, imResize=imResize, gridList=gridList, withIntensity=withIntensity)
 
     if feaType == 'His':
-        feaVectors, posVectors = extHis.calImgHisFeatures(imgFile, gridSize, sizeRange, imResize, gridList)
+        feaVectors, posVectors = extHis.calImgHisFeatures(imgFile, gridSize, sizeRange, imResize, gridList, HisFeaDim=HisFeaDim)
 
     if feaType == 'SDAE':
         weight = sdaePara['weight']
