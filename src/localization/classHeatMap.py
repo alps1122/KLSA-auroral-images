@@ -38,7 +38,7 @@ def calPatchLabels2(wordsFile, feaVectors, k=11, two_classes=['1', '2'], isH1=Fa
     dis = np.append(dis1, dis2, axis=1)
 
     # w1_common_idx, w2_common_idx = vwa.calCommonVector(wordsFile)
-    if mk is not None:
+    if (mk is not None) and (mk != 0):
         common_vec_name = 'common_vectors' + str(mk)
     else:
         common_vec_name = 'common_vectors'

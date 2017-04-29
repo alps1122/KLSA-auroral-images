@@ -51,11 +51,12 @@ def calSegClsAccuracy(resultFile, class_num=4):
         return classification_arr, segmentation_acc_true
 
 if __name__ == '__main__':
-    # resultFile_seg = '../../Data/Results/segmentation/old/b300_LBP_s32_adaptiveTh_w200.txt'
-    # c_arr, s_arr = calSegClsAccuracy(resultFile_seg)
-    # print c_arr
-    # print s_arr
-    resultFile_cls = '../../Data/Results/classification/result_classification_CNN.txt'
-    cls_arr = calSegClsAccuracy(resultFile_cls)
-    print cls_arr
-    print cls_arr.mean()
+    resultFile_seg = '../../Data/Results/segmentation/segV2_LBP_s16_w100_mk0_noDetection/segmentation_LBP_w100_s16_mk0_noDetection.txt'
+    c_arr, s_arr = calSegClsAccuracy(resultFile_seg)
+    print c_arr
+    print s_arr
+    print s_arr.mean()
+    # resultFile_cls = '../../Data/Results/classification/result_classification_CNN.txt'
+    # cls_arr = calSegClsAccuracy(resultFile_cls)
+    # print cls_arr
+    # print cls_arr.mean()

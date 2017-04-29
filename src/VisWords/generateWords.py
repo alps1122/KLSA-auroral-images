@@ -47,14 +47,19 @@ if __name__ == '__main__':
     groups[3] = ['3', ['1', '2', '4']]
     groups[4] = ['4', ['1', '2', '3']]
 
-    feaTypes = ['LBP', 'SIFT', 'His']
-    wordsNums = [50, 100, 200, 500]#[200, 500, 800]
-    patchSizes = [8, 16, 24, 32, 40, 48, 56, 64]
+    # feaTypes = ['SIFT', 'His']
+    # wordsNums = [50, 100, 200, 500]#[200, 500, 800]
+    # patchSizes = [8, 16, 24, 32, 40, 48, 56, 64]
+    # classLabels = [1, 2, 3, 4]
+    feaTypes = ['LBPHis']
+    wordsNums = [500]  # [200, 500, 800]
+    patchSizes = [16]
     classLabels = [1, 2, 3, 4]
     feaDim = {}
     feaDim['LBP'] = 54
     feaDim['SIFT'] = 128
     feaDim['His'] = 64
+    feaDim['LBPHis'] = 86
 
     for feaType in feaTypes:
         for patchSize in patchSizes:

@@ -6,7 +6,7 @@ from scipy.misc import imread
 from src.experiments.test_segmentation_accuracy import load_mask_mat
 
 classNum = 4
-root_path = '../../Data/segmentation_data/'
+root_path = '../../Data/segmentation_data_v2/'
 
 # mask_type = '.mat'
 img_type = '.jpg'

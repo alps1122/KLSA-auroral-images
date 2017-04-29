@@ -51,7 +51,7 @@ def mergePatchAndRegion(classHeatMaps, categoryHeatMaps, labels, th):
 
 if __name__ == '__main__':
     paras = {}
-    imgFile = '/home/ljm/NiuChuang/KLSA-auroral-images/Data/labeled2003_38044/N20040102G044131.bmp'
+    imgFile = '../../Data/segmentation_data_v2/4_selected/N20050107G111200.jpg'
     paras['imgFile'] = imgFile
     paras['color_space'] = ['rgb']
     paras['ks'] = [30, 50, 100, 150, 200, 250, 300]
@@ -88,33 +88,6 @@ if __name__ == '__main__':
     caffe.set_device(gpu_id)
     net = caffe.Net(regionModelPrototxt, regionModelWeights, caffe.TEST)
     paras['net'] = net
-
-    sift_wordsFile_h1 = '../../Data/Features/type4_SIFTWords_h1_s16_600_300_300_300.hdf5'
-    sift_wordsFile_h2 = '../../Data/Features/type4_SIFTWords_h2_s16_600_300_300_300.hdf5'
-    sdae_wordsFile_h1_d = '../../Data/Features/type4_SDAEWords_h1_diff_mean_s16_600_300_300_300.hdf5'
-    sdae_wordsFile_h2_d = '../../Data/Features/type4_SDAEWords_h2_diff_mean_s16_600_300_300_300.hdf5'
-    sdae_wordsFile_h1_s = '../../Data/Features/type4_SDAEWords_h1_same_mean_s16_600_300_300_300.hdf5'
-    sdae_wordsFile_h2_s = '../../Data/Features/type4_SDAEWords_h2_same_mean_s16_600_300_300_300.hdf5'
-    lbp_wordsFile_h1 = '../../Data/Features/type4_LBPWords_h1_s16_600_300_300_300.hdf5'
-    lbp_wordsFile_h2 = '../../Data/Features/type4_LBPWords_h2_s16_600_300_300_300.hdf5'
-    cascade_wordsFile = '../../Data/Features/type4_cascadeWords_fea4_s16_600_300_300_300_modify.hdf5'
-    SIFTFeaFile_reduce = '../../Data/Features/type4_SIFTFeatures_s16_600_300_300_300_reduce.hdf5'
-    SDAEFeaFile_reduce_d = '../../Data/Features/type4_SDAEFeas_diff_mean_s16_600_300_300_300_reduce_sameRatio.hdf5'
-    LBPFeaFile_reduce = '../../Data/Features/type4_LBPFeatures_s16_600_300_300_300_reduce_sameRatio.hdf5'
-    SDAEFeaFile_reduce_s = '../../Data/Features/type4_SDAEFeas_same_mean_s16_600_300_300_300_reduce_sameRatio.hdf5'
-    paras['SIFTFeaFile_reduce'] = SIFTFeaFile_reduce
-    paras['SDAEFeaFile_reduce_d'] = SDAEFeaFile_reduce_d
-    paras['SDAEFeaFile_reduce_s'] = SDAEFeaFile_reduce_s
-    paras['LBPFeaFile_reduce'] = LBPFeaFile_reduce
-    paras['sift_wordsFile_h1'] = sift_wordsFile_h1
-    paras['sift_wordsFile_h2'] = sift_wordsFile_h2
-    paras['sdae_wordsFile_h1_d'] = sdae_wordsFile_h1_d
-    paras['sdae_wordsFile_h2_d'] = sdae_wordsFile_h2_d
-    paras['sdae_wordsFile_h1_s'] = sdae_wordsFile_h1_s
-    paras['sdae_wordsFile_h2_s'] = sdae_wordsFile_h2_s
-    paras['lbp_wordsFile_h1'] = lbp_wordsFile_h1
-    paras['lbp_wordsFile_h2'] = lbp_wordsFile_h2
-    paras['cascade_wordsFile'] = cascade_wordsFile
     paras['k'] = 60
     paras['minSize'] = 50
     paras['patchSize'] = np.array([28, 28])
@@ -123,36 +96,15 @@ if __name__ == '__main__':
     paras['alpha'] = 0.6
     paras['th'] = 0.15
     paras['types'] = ['arc', 'drapery', 'radial', 'hot_spot']
-    # paras['lbp_wordsFile_s1'] = '../../Data/Features/type4_LBPWords_s1_s16_300_300_300_300.hdf5'
-    # paras['lbp_wordsFile_s2'] = '../../Data/Features/type4_LBPWords_s2_s16_300_300_300_300.hdf5'
-    # paras['lbp_wordsFile_s3'] = '../../Data/Features/type4_LBPWords_s3_s16_300_300_300_300.hdf5'
-    # paras['lbp_wordsFile_s4'] = '../../Data/Features/type4_LBPWords_s4_s16_300_300_300_300.hdf5'
-    # paras['lbp_wordsFile_s1'] = '../../Data/Features/type4_LBPWords_s1_s16_b300_intensity.hdf5'
-    # paras['lbp_wordsFile_s2'] = '../../Data/Features/type4_LBPWords_s2_s16_b300_intensity.hdf5'
-    # paras['lbp_wordsFile_s3'] = '../../Data/Features/type4_LBPWords_s3_s16_b300_intensity.hdf5'
-    # paras['lbp_wordsFile_s4'] = '../../Data/Features/type4_LBPWords_s4_s16_b300_intensity.hdf5'
-    paras['lbp_wordsFile_s1'] = '../../Data/Features/type4_LBPWords_s1_s16_b300_w500.hdf5'
-    paras['lbp_wordsFile_s2'] = '../../Data/Features/type4_LBPWords_s2_s16_b300_w500.hdf5'
-    paras['lbp_wordsFile_s3'] = '../../Data/Features/type4_LBPWords_s3_s16_b300_w500.hdf5'
-    paras['lbp_wordsFile_s4'] = '../../Data/Features/type4_LBPWords_s4_s16_b300_w500.hdf5'
+    # paras['lbp_wordsFile_s1'] = '../../Data/Features/type4_LBPWords_s1_s16_b300_w500.hdf5'
+    # paras['lbp_wordsFile_s2'] = '../../Data/Features/type4_LBPWords_s2_s16_b300_w500.hdf5'
+    # paras['lbp_wordsFile_s3'] = '../../Data/Features/type4_LBPWords_s3_s16_b300_w500.hdf5'
+    # paras['lbp_wordsFile_s4'] = '../../Data/Features/type4_LBPWords_s4_s16_b300_w500.hdf5'
+    # paras['sift_wordsFile_s1'] = '../../Data/Features/type4_SIFTWords_s1_diffResolution_b500_intensity.hdf5'
+    # paras['sift_wordsFile_s2'] = '../../Data/Features/type4_SIFTWords_s2_diffResolution_b500_intensity.hdf5'
+    # paras['sift_wordsFile_s3'] = '../../Data/Features/type4_SIFTWords_s3_diffResolution_b500_intensity.hdf5'
+    # paras['sift_wordsFile_s4'] = '../../Data/Features/type4_SIFTWords_s4_diffResolution_b500_intensity.hdf5'
 
-    # paras['sift_wordsFile_s1'] = '../../Data/Features/type4_SIFTWords_s1_s16_300_300_300_300.hdf5'
-    # paras['sift_wordsFile_s2'] = '../../Data/Features/type4_SIFTWords_s2_s16_300_300_300_300.hdf5'
-    # paras['sift_wordsFile_s3'] = '../../Data/Features/type4_SIFTWords_s3_s16_300_300_300_300.hdf5'
-    # paras['sift_wordsFile_s4'] = '../../Data/Features/type4_SIFTWords_s4_s16_300_300_300_300.hdf5'
-
-    paras['sift_wordsFile_s1'] = '../../Data/Features/type4_SIFTWords_s1_diffResolution_b500_intensity.hdf5'
-    paras['sift_wordsFile_s2'] = '../../Data/Features/type4_SIFTWords_s2_diffResolution_b500_intensity.hdf5'
-    paras['sift_wordsFile_s3'] = '../../Data/Features/type4_SIFTWords_s3_diffResolution_b500_intensity.hdf5'
-    paras['sift_wordsFile_s4'] = '../../Data/Features/type4_SIFTWords_s4_diffResolution_b500_intensity.hdf5'
-
-    paras['sdae_wordsFile_s1'] = '../../Data/Features/type4_SDAEWords_s1_s28_b500_special_classification.hdf5'
-    paras['sdae_wordsFile_s2'] = '../../Data/Features/type4_SDAEWords_s2_s28_b500_special_classification.hdf5'
-    paras['sdae_wordsFile_s3'] = '../../Data/Features/type4_SDAEWords_s3_s28_b500_special_classification.hdf5'
-    paras['sdae_wordsFile_s4'] = '../../Data/Features/type4_SDAEWords_s4_s28_b500_special_classification.hdf5'
-
-    paras['sizeRange'] = (28, 28)
-    paras['imResize'] = (256, 256)
     paras['imgSize'] = (440, 440)
     paras['nk'] = 1
     resolution = 1
@@ -162,22 +114,33 @@ if __name__ == '__main__':
     # im = np.array(imread(imgFile), dtype='f') / 255
     # paras['im'] = im
 
-    sdaePara = {}
-    sdaePara['weight_d'] = '../../Data/autoEncoder/layer_diff_mean_s16_final.caffemodel'
-    # sdaePara['weight_s'] = '../../Data/autoEncoder/layer_same_mean_s16_final.caffemodel'
-    sdaePara['weight'] = '../../Data/autoEncoder/layer_same_mean_s28_special_final.caffemodel'
-    sdaePara['net'] = '../../Data/autoEncoder/test_net.prototxt'
-    # sdaePara['meanFile'] = '../../Data/patchData_mean_s16.txt'
-    sdaePara['meanFile'] = '../../Data/patchData_mean_s28_special.txt'
-    sdaePara['patchMean'] = False
-    # layerNeuronNum = [28 * 28, 2000, 1000, 500, 128]
-    layerNeuronNum = [28 * 28, 1000, 1000, 500, 64]
-    sdaePara['layerNeuronNum'] = layerNeuronNum
+    # sdaePara = {}
+    # sdaePara['weight_d'] = '../../Data/autoEncoder/layer_diff_mean_s16_final.caffemodel'
+    # # sdaePara['weight_s'] = '../../Data/autoEncoder/layer_same_mean_s16_final.caffemodel'
+    # sdaePara['weight'] = '../../Data/autoEncoder/layer_same_mean_s28_special_final.caffemodel'
+    # sdaePara['net'] = '../../Data/autoEncoder/test_net.prototxt'
+    # # sdaePara['meanFile'] = '../../Data/patchData_mean_s16.txt'
+    # sdaePara['meanFile'] = '../../Data/patchData_mean_s28_special.txt'
+    # sdaePara['patchMean'] = False
+    # # layerNeuronNum = [28 * 28, 2000, 1000, 500, 128]
+    # layerNeuronNum = [28 * 28, 1000, 1000, 500, 64]
+    # sdaePara['layerNeuronNum'] = layerNeuronNum
 
-    paras['sdaePara'] = sdaePara
+    paras['sdaePara'] = None
 
-    paras['feaType'] = 'LBP'
-    paras['mk'] = 5000
+    feaType = 'LBP'
+    paras['feaType'] = feaType
+    paras['mk'] = 0
+    patchSize = 16
+    wordsNum = 100
+    classNum = 4
+    wordsFolder = '../../Data/Features/'
+    for c in range(classNum):
+        key = feaType.lower() + '_wordsFile_s' + str(c+1)
+        paras[key] = wordsFolder + 'type4_' + feaType + 'Words_s' + str(c+1) + '_s' + str(patchSize) + '_b300_w' + str(wordsNum) + '.hdf5'
+
+    paras['sizeRange'] = (patchSize, patchSize)
+
     paras['withIntensity'] = False
     paras['diffResolution'] = False
     paras['isSave'] = False

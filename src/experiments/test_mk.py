@@ -1,14 +1,15 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from src.experiments.calCSAccuracy import calSegClsAccuracy
+import matplotlib
 
 if __name__ == '__main__':
-    resultsFolder = '../../Data/Results/segmentation/modelFS_seg_mk_LBP_s16_w500_noDetection/'
+    resultsFolder = '../../Data/Results/segmentation/segV2_mk_LBP_s16_w100/'
 
     feaTypes = ['LBP']
     patchSizes = [16]
-    wordsNums = [500]
-    mks = range(0, 10000, 400)
+    wordsNums = [100]
+    mks = range(0, 600, 100)
     auroraTypes = ['Arc', 'Drapery', 'Radial', 'Hot-spot']
     classNum = 4
     result_arr = np.zeros((len(mks), classNum))
@@ -24,14 +25,32 @@ if __name__ == '__main__':
                     # print cls_acc, seg_acc
     # print result_arr
     #
+    matplotlib.use('Agg')
+    fig, ax = plt.subplots(figsize=[8, 5])
+    plt.xlabel(r'$L$', fontsize=14)
+    plt.ylabel('IoU', fontsize=14)
 
-    fig, ax = plt.subplots()
-    plt.xlabel('mk')
-    plt.ylabel('segmentation accuracy')
+    lineTypes = []
+    lineTypes.append('o-')
+    lineTypes.append('*-')
+    lineTypes.append('s-')
+    lineTypes.append('v-')
 
     for i in range(classNum):
-        plt.plot(mks, result_arr[:, i], label=auroraTypes[i])
+        plt.plot(mks, result_arr[:, i], lineTypes[i], label=auroraTypes[i])
 
-    plt.grid(True)
-    plt.legend(bbox_to_anchor=(1.0, 1), loc=1, borderaxespad=0.)
+    ax.set_ylim([0.35, 0.46])
+    ax.set_xlim([0, 500])
+    ax.set_xticks(np.linspace(0, 500, 6))
+    ax.set_yticks(np.linspace(0, 0.57, 8))
+    ax.set_facecolor('ghostwhite')
+    ax.spines['top'].set_color('none')
+    ax.spines['right'].set_color('none')
+    ax.spines['left'].set_color('none')
+    ax.spines['bottom'].set_color('none')
+    fig.set_edgecolor('none')
+    plt.grid(color='white')
+    # plt.tight_layout(pad=0)
+    plt.legend(bbox_to_anchor=(0.28, 0.33), borderaxespad=0., loc=1, fontsize=14)
+    plt.savefig('../../Data/Results/figs/LBP_s16_w' + str(wordsNums[0]) + '.pdf', egdecolor='white')
     plt.show()

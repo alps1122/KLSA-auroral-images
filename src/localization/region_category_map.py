@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import os
 from skimage.transform import rotate
 import skimage
+from src.local_feature.adaptiveThreshold import calculateThreshold
 
 def region_category_map(paras):
     imgFile = paras['imgFile']
@@ -106,7 +107,7 @@ def region_category_map(paras):
         map3 = np.append(map3, im, axis=1)
         imsave(im_name + '_' + feaType + '_' + c + '_region' + '.jpg', map3)
 
-def region_special_map(paras, isReturnMaps=None):
+def region_special_map(paras, isReturnMaps=None, returnFilteroutLabels=False):
     imgFile = paras['imgFile']
     img = paras['img']
     k = paras['k']
@@ -163,7 +164,12 @@ def region_special_map(paras, isReturnMaps=None):
     thresh = paras['thresh']
     mk = paras['mk']
     im_name = imgFile[-20:-4]
-    F0, region_patch_list, eraseLabels = gsr.generate_subRegions(img, patchSize, region_patch_ratio, eraseMap, k, minSize, sigma, thresh=thresh, diffResolution=diffResolution)
+    if returnFilteroutLabels:
+        F0, region_patch_list, eraseLabels, filterout_labels = gsr.generate_subRegions(img, patchSize, region_patch_ratio, eraseMap, k,
+                                                                     minSize, sigma, thresh=thresh,
+                                                                     diffResolution=diffResolution, returnFilteroutLabels=returnFilteroutLabels)
+    else:
+        F0, region_patch_list, eraseLabels = gsr.generate_subRegions(img, patchSize, region_patch_ratio, eraseMap, k, minSize, sigma, thresh=thresh, diffResolution=diffResolution)
     maps2by2 = {}
     region_labels = {}
     for ri in range(len(region_patch_list)):
@@ -232,7 +238,10 @@ def region_special_map(paras, isReturnMaps=None):
         if is_rotate:
             return F0, returnlabels, eraseLabels, specialLabels
         else:
-            return F0, returnlabels, eraseLabels
+            if returnFilteroutLabels:
+                return F0, returnlabels, eraseLabels, filterout_labels
+            else:
+                return F0, returnlabels, eraseLabels
 
 def showSelectRegions(F, regionLabels, angle=None):
     mm = np.zeros(F.shape)
@@ -241,7 +250,7 @@ def showSelectRegions(F, regionLabels, angle=None):
     if angle is not None:
         mm = rotate(mm, angle, preserve_range=True)
     plt.imshow(mm, cmap='gray')
-    plt.show()
+    # plt.show()
 
 def showMaps3(maps3):
     for c, m in maps3.iteritems():
@@ -251,7 +260,7 @@ def showMaps3(maps3):
 
 if __name__ == '__main__':
     paras = {}
-    imgFile = '/home/ljm/NiuChuang/KLSA-auroral-images/Data/labeled2003_38044/N20031221G071131.bmp'
+    imgFile = '../../Data/labeled2003_38044/N20031221G071131.bmp'
     paras['imgFile'] = imgFile
     # sdae_wordsFile_h1 = '../../Data/Features/type4_SDAEWords_h1.hdf5'
     # sdae_wordsFile_h2 = '../../Data/Features/type4_SDAEWords_h2.hdf5'
@@ -294,17 +303,17 @@ if __name__ == '__main__':
     paras['region_patch_ratio'] = 0.1
     paras['sigma'] = 0.5
     paras['alpha'] = 0.6
-    paras['th'] = 0.4
+    paras['th'] = 0.45
     paras['types'] = ['arc', 'drapery', 'radial', 'hot_spot']
-    paras['lbp_wordsFile_s1'] = '../../Data/Features/type4_LBPWords_s1_s16_300_300_300_300.hdf5'
-    paras['lbp_wordsFile_s2'] = '../../Data/Features/type4_LBPWords_s2_s16_300_300_300_300.hdf5'
-    paras['lbp_wordsFile_s3'] = '../../Data/Features/type4_LBPWords_s3_s16_300_300_300_300.hdf5'
-    paras['lbp_wordsFile_s4'] = '../../Data/Features/type4_LBPWords_s4_s16_300_300_300_300.hdf5'
+    paras['lbp_wordsFile_s1'] = '../../Data/Features/type4_LBPWords_s1_s16_b300_w500.hdf5'
+    paras['lbp_wordsFile_s2'] = '../../Data/Features/type4_LBPWords_s2_s16_b300_w500.hdf5'
+    paras['lbp_wordsFile_s3'] = '../../Data/Features/type4_LBPWords_s3_s16_b300_w500.hdf5'
+    paras['lbp_wordsFile_s4'] = '../../Data/Features/type4_LBPWords_s4_s16_b300_w500.hdf5'
 
-    paras['sift_wordsFile_s1'] = '../../Data/Features/type4_SIFTWords_s1_s16_300_300_300_300.hdf5'
-    paras['sift_wordsFile_s2'] = '../../Data/Features/type4_SIFTWords_s2_s16_300_300_300_300.hdf5'
-    paras['sift_wordsFile_s3'] = '../../Data/Features/type4_SIFTWords_s3_s16_300_300_300_300.hdf5'
-    paras['sift_wordsFile_s4'] = '../../Data/Features/type4_SIFTWords_s4_s16_300_300_300_300.hdf5'
+    paras['sift_wordsFile_s1'] = '../../Data/Features/type4_SIFTWords_s1_s16_b300.hdf5'
+    paras['sift_wordsFile_s2'] = '../../Data/Features/type4_SIFTWords_s2_s16_b300.hdf5'
+    paras['sift_wordsFile_s3'] = '../../Data/Features/type4_SIFTWords_s3_s16_b300.hdf5'
+    paras['sift_wordsFile_s4'] = '../../Data/Features/type4_SIFTWords_s4_s16_b300.hdf5'
 
     # k = 100
     # minSize = 100
@@ -362,6 +371,10 @@ if __name__ == '__main__':
     paras['sdaePara'] = sdaePara
 
     paras['feaType'] = 'LBP'
+    paras['mk'] = 0
+    paras['thresh'] = calculateThreshold(imgFile)
+    paras['withIntensity'] = False
+    paras['diffResolution'] = False
     paras['isSave'] = False
     paras['is_rotate'] = False
     paras['specialType'] = 2  # 0: arc, 1: drapery, 2: radial, 3: hot-spot
@@ -372,3 +385,6 @@ if __name__ == '__main__':
     F0, region_labels, eraseLabels = region_special_map(paras)
     print region_labels
     showSelectRegions(F0, region_labels)
+    plt.figure(11)
+    plt.imshow(im, cmap='gray')
+    plt.show()

@@ -19,7 +19,8 @@ def rgb2gray(rgb):
     return np.dot(rgb[...,:3], [0.299, 0.587, 0.144])
 
 def generate_subRegions(imgFileOrImg, patchSize, region_patch_ratio, eraseMap, k, minSize, sigma,
-                        radius=220, centers = np.array([219.5, 219.5]), thresh=None, isSaveDetection=False, diffResolution=False):
+                        radius=220, centers = np.array([219.5, 219.5]), thresh=None, isSaveDetection=False, diffResolution=False,
+                        returnFilteroutLabels=False):
     if isinstance(imgFileOrImg, str):
         img = skimage.io.imread(imgFileOrImg)
         if len(img.shape) == 2:
@@ -90,8 +91,10 @@ def generate_subRegions(imgFileOrImg, patchSize, region_patch_ratio, eraseMap, k
         result_after = (color_regions_after * alpha + img * (1. - alpha)).astype(numpy.uint8)
         imsave(folder+'before.jpg', result_before)
         imsave(folder+'after.jpg', result_after)
-
-    return F0, region_patch_list, eraseLabels
+    if returnFilteroutLabels:
+        return F0, region_patch_list, eraseLabels, filterout_labels
+    else:
+        return F0, region_patch_list, eraseLabels
 
 def show_region_patch_grid(imgFile, F0, region_patch_list, alpha, eraseMap, saveFolder=None):
     img = skimage.io.imread(imgFile)

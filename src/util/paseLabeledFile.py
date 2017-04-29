@@ -230,8 +230,25 @@ def adjustLables(labelFile, adjust=-1):
     f.close()
     return 0
 
+def selectTypeImages(labelFile, select_types, savePath=None, withExt=None):
+    [names, labels] = parseNL(labelFile)
+    imgs_dic = arrangeToClasses(names, labels)
+    imgs_select = {}
+    for t in select_types:
+        imgs_select[t] = imgs_dic[t]
+    if savePath is not None:
+        f = open(savePath, 'w')
+        for k, v in imgs_select.iteritems():
+            for img in v:
+                if withExt is not None:
+                    f.write(img + withExt + ' ' + k + '\n')
+                else:
+                    f.write(img + ' ' + k + '\n')
+        f.close()
+    return imgs_select
+
 if __name__ == '__main__':
-    # allLabels = '../../Data/Alllabel2003_38044.txt'
+    allLabels = '../../Data/Alllabel2003_38044.txt'
     # savePathes = ['../../Data/train_day16_all.txt', '../../Data/test_day3_all.txt']
     # imgType = '.jpg'
     # # days = ['20031221', '20031222', '20031223', '20031224', '20031225', '20031226', '20031227', '20031228', '20031229',
@@ -245,6 +262,8 @@ if __name__ == '__main__':
     # print compareLabeledFile(allLabels, savePathes[0], labelAdjust=1, addType=imgType)
     # print compareLabeledFile(allLabels, savePathes[1], labelAdjust=1, addType=imgType)
     # print days
-    labelFile1 = '../../Data/train_16_3_7_2663.txt'
-    adjustLables(labelFile1)
+    # labelFile1 = '../../Data/train_16_3_7_2663.txt'
+    # adjustLables(labelFile1)
+    select = '../../Data/all_arc.txt'
+    selectTypeImages(allLabels, ['1'], select, withExt='.jpg')
     pass
